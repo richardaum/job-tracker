@@ -64,9 +64,9 @@ describe("QuickFilters", () => {
   it("renders count badge when count > 0", () => {
     render(<QuickFilters />);
 
-    expect(screen.getByRole("button", { name: /^New/ })).toHaveTextContent("New (7)");
-    expect(screen.getByRole("button", { name: /^Draft/ })).toHaveTextContent("Draft (3)");
-    expect(screen.getByRole("button", { name: /^Incoming/ })).toHaveTextContent("Incoming (5)");
+    expect(screen.getByRole("button", { name: /^New/ })).toHaveTextContent("New(7)");
+    expect(screen.getByRole("button", { name: /^Draft/ })).toHaveTextContent("Draft(3)");
+    expect(screen.getByRole("button", { name: /^Incoming/ })).toHaveTextContent("Incoming(5)");
   });
 
   it("renders label without badge when count is 0", () => {
@@ -95,7 +95,7 @@ describe("QuickFilters", () => {
   it("All chip shows total sum of all counts", () => {
     render(<QuickFilters />);
 
-    expect(screen.getByRole("button", { name: /^All/ })).toHaveTextContent("All (22)");
+    expect(screen.getByRole("button", { name: /^All/ })).toHaveTextContent("All(22)");
   });
 
   it("chip click still toggles the q= filter parameter", async () => {

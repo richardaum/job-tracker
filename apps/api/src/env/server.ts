@@ -76,6 +76,12 @@ const apiEnvSchema = z.object({
   SETTINGS_ENCRYPTION_KEY: z.string(),
   /** Maximum number of AI calls allowed on the shared trial quota per user before requiring a personal key. */
   TRIAL_AI_CALL_LIMIT: z.coerce.number().int().positive().default(50),
+  /** PostHog project API key, used to send server-side events and evaluate feature flags. */
+  POSTHOG_PROJECT_API_KEY: z.string().optional(),
+  /** PostHog personal API key (feature_flags:read scope), enables local flag evaluation without a network round-trip. */
+  POSTHOG_PERSONAL_API_KEY: z.string().optional(),
+  /** PostHog ingestion host, defaults to US cloud. */
+  POSTHOG_HOST: z.url().default("https://us.i.posthog.com"),
 });
 
 export const apiEnv = apiEnvSchema

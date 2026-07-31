@@ -7,6 +7,8 @@ import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
 import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
 
+import { FeatureFlag } from "@api/domains/feature-flags/feature-flag.decorator";
+import { FeatureFlagGuard } from "@api/domains/feature-flags/feature-flag.guard";
 import { CreatePlanInput } from "./create-plan.input";
 import { PlanService } from "./plan.service";
 import { PlanType } from "./plan.type";
@@ -15,8 +17,9 @@ import { SourcesService } from "./sources.service";
 import { UpdatePlanInput } from "./update-plan.input";
 
 @Resolver(() => PlanType)
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, FeatureFlagGuard)
 @Roles(RoleEnum.User)
+@FeatureFlag("sources-enabled")
 export class PlanResolver {
   constructor(
     private readonly service: PlanService,
