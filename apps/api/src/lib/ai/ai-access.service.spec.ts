@@ -45,6 +45,7 @@ describe("AiAccessService", () => {
           aiEnabled: false,
           openaiApiKeyEncrypted: null,
           trialCallsUsed: 0,
+          trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
         });
 
         await expect(service.resolveClientKey(userId)).rejects.toThrow(GraphQLError);
@@ -64,6 +65,7 @@ describe("AiAccessService", () => {
           aiEnabled: false,
           openaiApiKeyEncrypted: "encrypted-key-value",
           trialCallsUsed: 0,
+          trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
         });
 
         try {
@@ -86,6 +88,7 @@ describe("AiAccessService", () => {
           aiEnabled: true,
           openaiApiKeyEncrypted: encryptedKey,
           trialCallsUsed: 10,
+          trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
         });
 
         mockEncryption.from.mockReturnValue(decryptedKey);
@@ -107,6 +110,7 @@ describe("AiAccessService", () => {
           aiEnabled: true,
           openaiApiKeyEncrypted: encryptedKey,
           trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT,
+          trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
         });
 
         mockEncryption.from.mockReturnValue(decryptedKey);
@@ -124,6 +128,7 @@ describe("AiAccessService", () => {
           aiEnabled: true,
           openaiApiKeyEncrypted: null,
           trialCallsUsed: 10,
+          trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
         });
 
         const mockQueryBuilder = {
@@ -141,10 +146,10 @@ describe("AiAccessService", () => {
         expect(mockSettingsRepo.createQueryBuilder).toHaveBeenCalled();
         expect(mockQueryBuilder.update).toHaveBeenCalledWith(UserSettingEntity);
         expect(mockQueryBuilder.set).toHaveBeenCalledWith({ trialCallsUsed: expect.any(Function) });
-        expect(mockQueryBuilder.where).toHaveBeenCalledWith("user_id = :userId AND trial_calls_used < :limit", {
-          userId,
-          limit: apiEnv.TRIAL_AI_CALL_LIMIT,
-        });
+        expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+          "user_id = :userId AND trial_calls_used < trial_calls_limit",
+          { userId },
+        );
       });
 
       it("throws AI_KEY_REQUIRED when quota exhausted (affected = 0)", async () => {
@@ -153,6 +158,7 @@ describe("AiAccessService", () => {
           aiEnabled: true,
           openaiApiKeyEncrypted: null,
           trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT,
+          trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
         });
 
         const mockQueryBuilder = {
@@ -179,6 +185,7 @@ describe("AiAccessService", () => {
           aiEnabled: true,
           openaiApiKeyEncrypted: null,
           trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT - 1,
+          trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
         });
 
         const mockQueryBuilder = {
@@ -194,10 +201,10 @@ describe("AiAccessService", () => {
 
         expect(key).toBe(apiEnv.OPENAI_API_KEY);
         // The WHERE clause should protect against going beyond the limit
-        expect(mockQueryBuilder.where).toHaveBeenCalledWith("user_id = :userId AND trial_calls_used < :limit", {
-          userId,
-          limit: apiEnv.TRIAL_AI_CALL_LIMIT,
-        });
+        expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+          "user_id = :userId AND trial_calls_used < trial_calls_limit",
+          { userId },
+        );
       });
     });
 
@@ -214,6 +221,7 @@ describe("AiAccessService", () => {
           aiEnabled: false,
           openaiApiKeyEncrypted: null,
           trialCallsUsed: 0,
+          trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
         });
 
         try {
@@ -238,6 +246,7 @@ describe("AiAccessService", () => {
         aiEnabled: false,
         openaiApiKeyEncrypted: "encrypted-key-value",
         trialCallsUsed: 0,
+        trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
       });
 
       await expect(service.checkAccess(userId)).rejects.toThrow(GraphQLError);
@@ -251,6 +260,7 @@ describe("AiAccessService", () => {
         aiEnabled: true,
         openaiApiKeyEncrypted: "encrypted-key-value",
         trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT,
+        trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
       });
 
       await expect(service.checkAccess(userId)).resolves.toBeUndefined();
@@ -264,6 +274,7 @@ describe("AiAccessService", () => {
         aiEnabled: true,
         openaiApiKeyEncrypted: null,
         trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT - 1,
+        trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
       });
 
       await expect(service.checkAccess(userId)).resolves.toBeUndefined();
@@ -276,6 +287,7 @@ describe("AiAccessService", () => {
         aiEnabled: true,
         openaiApiKeyEncrypted: null,
         trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT,
+        trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
       });
 
       try {

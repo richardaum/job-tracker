@@ -6,6 +6,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { GraphQLError } from "graphql";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { apiEnv } from "@api/env/server";
 import { KeywordScopeEnum, MatchModeEnum } from "./keyword-blocker.types";
 import { SettingsEventBus } from "./settings-event.bus";
 import { SettingsService } from "./settings.service";
@@ -38,6 +39,7 @@ describe("SettingsService", () => {
       autoMatchEnabled: false,
       aiEnabled: true,
       trialCallsUsed: 0,
+      trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
       duplicateWindowDays: 30,
       blockedKeywords: [],
       blockedCompanies: [],
@@ -46,7 +48,7 @@ describe("SettingsService", () => {
     const result = await service.getSettings("user-1");
 
     expect(repo.findOne).toHaveBeenCalledWith({ where: { userId: "user-1" } });
-    expect(repo.create).toHaveBeenCalledWith({ userId: "user-1" });
+    expect(repo.create).toHaveBeenCalledWith({ userId: "user-1", trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT });
     expect(repo.save).toHaveBeenCalledWith({ userId: "user-1" });
     expect(result).toMatchObject({
       autoFillEnabled: false,
@@ -277,5 +279,30 @@ describe("SettingsService", () => {
     expect(result.aiEnabled).toBe(false);
     expect(result.trialCallsUsed).toBe(50);
     expect(result.openaiApiKeyEncrypted).toBeNull();
+  });
+
+  it("setTrialCallsLimit — persists a new per-user limit", async () => {
+    const existing = {
+      userId: "user-1",
+      aiEnabled: true,
+      trialCallsUsed: 5,
+      trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
+      openaiApiKeyEncrypted: null,
+    };
+    repo.findOne.mockResolvedValue(existing);
+    repo.save.mockImplementation((entity) => Promise.resolve(entity));
+
+    const result = await service.setTrialCallsLimit("user-1", 100);
+
+    expect(repo.save).toHaveBeenCalled();
+    expect(result.trialCallsLimit).toBe(100);
+  });
+
+  it("setTrialCallsLimit — rejects a negative limit without persisting", async () => {
+    await expect(service.setTrialCallsLimit("user-1", -1)).rejects.toMatchObject({
+      extensions: { code: "BAD_USER_INPUT" },
+    });
+
+    expect(repo.save).not.toHaveBeenCalled();
   });
 });

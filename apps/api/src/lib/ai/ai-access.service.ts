@@ -43,7 +43,7 @@ export class AiAccessService {
 
     if (setting.openaiApiKeyEncrypted) return;
 
-    if (setting.trialCallsUsed >= apiEnv.TRIAL_AI_CALL_LIMIT) {
+    if (setting.trialCallsUsed >= setting.trialCallsLimit) {
       throw new GraphQLError("Your AI trial is over — add your own OpenAI key.", {
         extensions: { code: AI_ERROR_CODES.AI_KEY_REQUIRED },
       });
@@ -73,7 +73,7 @@ export class AiAccessService {
       .createQueryBuilder()
       .update(UserSettingEntity)
       .set({ trialCallsUsed: () => '"trial_calls_used" + 1' })
-      .where("user_id = :userId AND trial_calls_used < :limit", { userId, limit: apiEnv.TRIAL_AI_CALL_LIMIT })
+      .where("user_id = :userId AND trial_calls_used < trial_calls_limit", { userId })
       .execute();
 
     if (!affected) {

@@ -5,7 +5,7 @@ import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
-import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, ID, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 
 import { SettingsService } from "./settings.service";
 import { UpdateSettingsInput } from "./update-settings.input";
@@ -39,5 +39,14 @@ export class SettingsResolver {
   @Mutation(() => UserSettingType)
   removeOpenAiKey(@CurrentUser() user: { userId: string }): Promise<UserSettingEntity> {
     return this.service.removeOpenAiKey(user.userId);
+  }
+
+  @Mutation(() => UserSettingType)
+  @Roles(RoleEnum.Admin)
+  setUserTrialCallsLimit(
+    @Args("userId", { type: () => ID }) userId: string,
+    @Args("limit", { type: () => Int }) limit: number,
+  ): Promise<UserSettingEntity> {
+    return this.service.setTrialCallsLimit(userId, limit);
   }
 }

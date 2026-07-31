@@ -1,4 +1,6 @@
 import { UserSettingEntity } from "@api/database/entities/user-setting.entity";
+import { apiEnv } from "@api/env/server";
+import { assignIfDefined } from "@api/lib/assign-if-defined";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { GraphQLError } from "graphql";
@@ -24,13 +26,19 @@ export class SettingsService {
     if (existing) {
       return existing;
     }
-    const created = this.repo.create({ userId });
+    const created = this.repo.create({ userId, trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT });
     return this.repo.save(created);
   }
 
   async updateSettings(userId: string, input: UpdateSettingsInput): Promise<UserSettingEntity> {
     const settings = await this.getSettings(userId);
-    Object.assign(settings, input);
+    assignIfDefined(settings, "autoFillEnabled", input.autoFillEnabled);
+    assignIfDefined(settings, "autoSummaryEnabled", input.autoSummaryEnabled);
+    assignIfDefined(settings, "autoMatchEnabled", input.autoMatchEnabled);
+    assignIfDefined(settings, "aiEnabled", input.aiEnabled);
+    assignIfDefined(settings, "duplicateWindowDays", input.duplicateWindowDays);
+    assignIfDefined(settings, "blockedKeywords", input.blockedKeywords);
+    assignIfDefined(settings, "blockedCompanies", input.blockedCompanies);
     return this.repo.save(settings);
   }
 
@@ -55,6 +63,18 @@ export class SettingsService {
     settings.openaiApiKeyEncrypted = null;
     const saved = await this.repo.save(settings);
     this.eventBus.emit(new AiUsageChanged(userId, saved.trialCallsUsed, false));
+    return saved;
+  }
+
+  async setTrialCallsLimit(userId: string, limit: number): Promise<UserSettingEntity> {
+    if (limit < 0) {
+      throw new GraphQLError("Trial calls limit must be zero or greater.", { extensions: { code: "BAD_USER_INPUT" } });
+    }
+
+    const settings = await this.getSettings(userId);
+    settings.trialCallsLimit = limit;
+    const saved = await this.repo.save(settings);
+    this.eventBus.emit(new AiUsageChanged(userId, saved.trialCallsUsed, saved.openaiApiKeyEncrypted != null));
     return saved;
   }
 }

@@ -501,6 +501,7 @@ type Mutation {
   updateSettings(input: UpdateSettingsInput!): UserSetting!
   saveOpenAiKey(key: String!): UserSetting!
   removeOpenAiKey: UserSetting!
+  setUserTrialCallsLimit(userId: ID!, limit: Int!): UserSetting!
   createJobNote(input: CreateNoteInput!): NoteType!
   updateJobNote(id: ID!, input: UpdateNoteInput!): NoteType!
   deleteJobNote(id: ID!): DeleteMutationPayloadType!

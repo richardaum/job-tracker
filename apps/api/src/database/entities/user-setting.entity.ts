@@ -45,6 +45,9 @@ export class UserSettingEntity {
   @Column({ name: "trial_calls_used", type: "int", default: 0 })
   trialCallsUsed!: number;
 
+  @Column({ name: "trial_calls_limit", type: "int", default: 50 })
+  trialCallsLimit!: number;
+
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
 
