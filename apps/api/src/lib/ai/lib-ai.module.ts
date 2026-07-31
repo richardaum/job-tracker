@@ -11,7 +11,6 @@ import { OpenAIClient } from "./openai.client";
 import { PromptRendererService } from "./prompt-renderer.service";
 import { RestructureJDService } from "./restructure-jd.service";
 import { RewriteTextService } from "./rewrite-text.service";
-import { EncryptedColumnTransformer } from "@api/lib/crypto/encrypted-column.transformer";
 
 @Module({
   imports: [TemplateModule, TypeOrmModule.forFeature([UserSettingEntity]), SettingsModule],
@@ -20,7 +19,6 @@ import { EncryptedColumnTransformer } from "@api/lib/crypto/encrypted-column.tra
     PromptRendererService,
     AiBaseService,
     AiAccessService,
-    EncryptedColumnTransformer,
     RewriteTextService,
     RestructureJDService,
     LocationInferenceService,

@@ -33,12 +33,7 @@ describe.skipIf(!hasDb)("AiBaseService (integration) — gating enforcement", ()
     dataSource = new DataSource(buildDataSourceOptions(apiEnv.DATABASE_INTEGRATION_URL!));
     await dataSource.initialize();
 
-    const encryption = new EncryptedColumnTransformer();
-    aiAccessService = new AiAccessService(
-      dataSource.getRepository(UserSettingEntity),
-      encryption,
-      new SettingsEventBus(),
-    );
+    aiAccessService = new AiAccessService(dataSource.getRepository(UserSettingEntity), new SettingsEventBus());
     openAIClient = new OpenAIClient();
     promptRenderer = {} as PromptRendererService;
     aiBaseService = new AiBaseService(openAIClient, promptRenderer, aiAccessService);

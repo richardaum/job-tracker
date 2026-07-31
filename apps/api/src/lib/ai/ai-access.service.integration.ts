@@ -6,7 +6,6 @@ import { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
-import { EncryptedColumnTransformer } from "@api/lib/crypto/encrypted-column.transformer";
 import { SettingsEventBus } from "@api/domains/settings/settings-event.bus";
 import { AiAccessService } from "./ai-access.service";
 import { AI_ERROR_CODES } from "./ai-errors.constants";
@@ -25,8 +24,7 @@ describe("AiAccessService (integration) — concurrent quota consumption", () =>
     dataSource = new DataSource(buildDataSourceOptions(apiEnv.DATABASE_INTEGRATION_URL!));
     await dataSource.initialize();
 
-    const encryption = new EncryptedColumnTransformer();
-    service = new AiAccessService(dataSource.getRepository(UserSettingEntity), encryption, new SettingsEventBus());
+    service = new AiAccessService(dataSource.getRepository(UserSettingEntity), new SettingsEventBus());
 
     const userRepo = dataSource.getRepository(UserEntity);
     const settingsRepo = dataSource.getRepository(UserSettingEntity);

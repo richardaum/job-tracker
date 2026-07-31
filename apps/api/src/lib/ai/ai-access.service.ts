@@ -5,7 +5,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { GraphQLError } from "graphql";
 import { Repository } from "typeorm";
 
-import { EncryptedColumnTransformer } from "@api/lib/crypto/encrypted-column.transformer";
 import { SettingsEventBus } from "@api/domains/settings/settings-event.bus";
 import { AiUsageChanged } from "@api/domains/settings/settings.events";
 import { AI_ERROR_CODES } from "./ai-errors.constants";
@@ -21,7 +20,6 @@ import { AI_ERROR_CODES } from "./ai-errors.constants";
 export class AiAccessService {
   constructor(
     @InjectRepository(UserSettingEntity) private readonly settings: Repository<UserSettingEntity>,
-    private readonly encryption: EncryptedColumnTransformer,
     private readonly eventBus: SettingsEventBus,
   ) {}
 
@@ -60,13 +58,7 @@ export class AiAccessService {
     }
 
     if (setting.openaiApiKeyEncrypted) {
-      const decrypted = this.encryption.from(setting.openaiApiKeyEncrypted);
-      if (!decrypted) {
-        throw new GraphQLError("Failed to decrypt personal OpenAI key.", {
-          extensions: { code: "INTERNAL_SERVER_ERROR" },
-        });
-      }
-      return decrypted;
+      return setting.openaiApiKeyEncrypted;
     }
 
     const { affected } = await this.settings

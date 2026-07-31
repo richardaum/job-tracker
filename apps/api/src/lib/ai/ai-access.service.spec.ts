@@ -4,7 +4,6 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { GraphQLError } from "graphql";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-import { EncryptedColumnTransformer } from "@api/lib/crypto/encrypted-column.transformer";
 import { apiEnv } from "@api/env/server";
 import { SettingsEventBus } from "@api/domains/settings/settings-event.bus";
 import { AiAccessService } from "./ai-access.service";
@@ -13,13 +12,10 @@ import { AI_ERROR_CODES } from "./ai-errors.constants";
 describe("AiAccessService", () => {
   let service: AiAccessService;
   let mockSettingsRepo: Record<"findOneByOrFail" | "createQueryBuilder", ReturnType<typeof vi.fn>>;
-  let mockEncryption: Record<"from", ReturnType<typeof vi.fn>>;
   let mockEventBus: { emit: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     mockSettingsRepo = { findOneByOrFail: vi.fn(), createQueryBuilder: vi.fn() };
-
-    mockEncryption = { from: vi.fn() };
 
     mockEventBus = { emit: vi.fn() };
 
@@ -27,7 +23,6 @@ describe("AiAccessService", () => {
       providers: [
         AiAccessService,
         { provide: getRepositoryToken(UserSettingEntity), useValue: mockSettingsRepo },
-        { provide: EncryptedColumnTransformer, useValue: mockEncryption },
         { provide: SettingsEventBus, useValue: mockEventBus },
       ],
     }).compile();
@@ -79,41 +74,34 @@ describe("AiAccessService", () => {
     });
 
     describe("personal key path → returns decrypted key, no quota mutation", () => {
-      it("returns decrypted personal key without modifying quota", async () => {
-        const encryptedKey = "base64-encrypted-key-data";
+      it("returns the personal key already decrypted by TypeORM, without modifying quota", async () => {
         const decryptedKey = "sk-12345-actual-key";
 
         mockSettingsRepo.findOneByOrFail.mockResolvedValue({
           userId,
           aiEnabled: true,
-          openaiApiKeyEncrypted: encryptedKey,
+          openaiApiKeyEncrypted: decryptedKey,
           trialCallsUsed: 10,
           trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
         });
 
-        mockEncryption.from.mockReturnValue(decryptedKey);
-
         const key = await service.resolveClientKey(userId);
 
         expect(key).toBe(decryptedKey);
-        expect(mockEncryption.from).toHaveBeenCalledWith(encryptedKey);
         // Verify no database update was performed
         expect(mockSettingsRepo.createQueryBuilder).not.toHaveBeenCalled();
       });
 
-      it("decrypts personal key even if trial quota is exhausted", async () => {
-        const encryptedKey = "base64-encrypted-key-data";
+      it("returns personal key even if trial quota is exhausted", async () => {
         const decryptedKey = "sk-12345-actual-key";
 
         mockSettingsRepo.findOneByOrFail.mockResolvedValue({
           userId,
           aiEnabled: true,
-          openaiApiKeyEncrypted: encryptedKey,
+          openaiApiKeyEncrypted: decryptedKey,
           trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT,
           trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
         });
-
-        mockEncryption.from.mockReturnValue(decryptedKey);
 
         const key = await service.resolveClientKey(userId);
 
@@ -250,7 +238,6 @@ describe("AiAccessService", () => {
       });
 
       await expect(service.checkAccess(userId)).rejects.toThrow(GraphQLError);
-      expect(mockEncryption.from).not.toHaveBeenCalled();
       expect(mockSettingsRepo.createQueryBuilder).not.toHaveBeenCalled();
     });
 
@@ -264,7 +251,6 @@ describe("AiAccessService", () => {
       });
 
       await expect(service.checkAccess(userId)).resolves.toBeUndefined();
-      expect(mockEncryption.from).not.toHaveBeenCalled();
       expect(mockSettingsRepo.createQueryBuilder).not.toHaveBeenCalled();
     });
 
