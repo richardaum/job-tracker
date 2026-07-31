@@ -32,6 +32,7 @@
   --color-border-brand: var(--semantic-color-border-brand);
   --color-border-success: var(--semantic-color-border-success);
   --color-border-error: var(--semantic-color-border-error);
+  --color-border-warning: var(--semantic-color-border-warning);
 
   --radius-sm: var(--primitive-radius-sm);
   --radius-md: var(--primitive-radius-md);

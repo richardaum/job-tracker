@@ -13,6 +13,8 @@ export interface TooltipProps {
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   enabled?: boolean;
+  /** Constrains content width and wraps text, for longer copy that would otherwise render as one long line. */
+  maxWidth?: number | string;
 }
 
 const ARROW_OFFSET = 5;
@@ -104,9 +106,9 @@ function getViewBox(side: string, bodyWidth: number, bodyHeight: number) {
   return { x: 0, y: 0, width: bodyWidth, height: bodyHeight };
 }
 
-type UnifiedTooltipContentProps = { content: ReactNode; side: string };
+type UnifiedTooltipContentProps = { content: ReactNode; side: string; maxWidth?: number | string };
 
-function UnifiedTooltipContent({ content, side }: UnifiedTooltipContentProps) {
+function UnifiedTooltipContent({ content, side, maxWidth }: UnifiedTooltipContentProps) {
   const pathRef = useRef<SVGPathElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
@@ -132,7 +134,7 @@ function UnifiedTooltipContent({ content, side }: UnifiedTooltipContentProps) {
     }
 
     setReady(true);
-  }, [content, side]);
+  }, [content, side, maxWidth]);
 
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
@@ -156,7 +158,8 @@ function UnifiedTooltipContent({ content, side }: UnifiedTooltipContentProps) {
         style={{
           padding: `${PAD_Y}px ${PAD_X}px`,
           visibility: ready ? "visible" : "hidden",
-          whiteSpace: "nowrap",
+          whiteSpace: maxWidth ? "normal" : "nowrap",
+          maxWidth,
           position: "relative",
           zIndex: 1,
           marginTop: side === "bottom" ? ARROW_OFFSET : 0,
@@ -177,6 +180,7 @@ export function Tooltip({
   defaultOpen,
   onOpenChange,
   enabled = true,
+  maxWidth,
 }: TooltipProps) {
   if (!enabled) {
     return children;
@@ -194,7 +198,7 @@ export function Tooltip({
         <RadixTooltip.Trigger asChild>{children}</RadixTooltip.Trigger>
         <RadixTooltip.Portal>
           <RadixTooltip.Content side={side} align={align} sideOffset={6} className={cn("z-50")}>
-            <UnifiedTooltipContent content={content} side={side} />
+            <UnifiedTooltipContent content={content} side={side} maxWidth={maxWidth} />
           </RadixTooltip.Content>
         </RadixTooltip.Portal>
       </RadixTooltip.Root>

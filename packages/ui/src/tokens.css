@@ -147,5 +147,6 @@
   --semantic-color-border-brand: var(--primitive-color-brand-500);
   --semantic-color-border-success: var(--primitive-color-green-500);
   --semantic-color-border-error: var(--primitive-color-red-500);
+  --semantic-color-border-warning: var(--primitive-color-yellow-500);
   --semantic-color-overlay-backdrop: rgb(37 78 112 / 0.45);
 }
