@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 import { AuthAccountType } from "./auth-account.type";
+import { RoleEnum } from "./role.enum";
 
 @ObjectType()
 export class UserType {
@@ -16,8 +17,8 @@ export class UserType {
   @Field(() => String, { nullable: true })
   avatarUrl!: string | null;
 
-  @Field()
-  role!: string;
+  @Field(() => RoleEnum)
+  role!: RoleEnum;
 
   @Field(() => [AuthAccountType])
   accounts!: AuthAccountType[];

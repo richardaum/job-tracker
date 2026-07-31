@@ -23,8 +23,13 @@ type UserType {
   email: String!
   name: String!
   avatarUrl: String
-  role: String!
+  role: Role!
   accounts: [AuthAccount!]!
+}
+
+enum Role {
+  User
+  Admin
 }
 
 type AiUsageChangedEventType {
