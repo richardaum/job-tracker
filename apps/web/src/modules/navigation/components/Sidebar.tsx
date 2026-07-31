@@ -36,8 +36,13 @@ const navItems: Array<{ href: Route; label: string; icon: typeof BriefcaseIcon }
   { href: "/sources", label: "Sources", icon: DownloadSimpleIcon },
   { href: "/companies", label: "Companies", icon: BuildingsIcon },
   { href: "/tools/salary-calculator", label: "Salary Calculator", icon: CalculatorIcon },
-  { href: "/admin", label: "Admin", icon: GaugeIcon },
 ];
+
+const adminNavItem: { href: Route; label: string; icon: typeof GaugeIcon } = {
+  href: "/admin",
+  label: "Admin",
+  icon: GaugeIcon,
+};
 
 const bottomItems: Array<{ href: Route; label: string; icon: typeof QuestionIcon }> = [
   { href: "#" as Route, label: "Help Center", icon: QuestionIcon },
@@ -77,7 +82,10 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   });
   const posthog = usePostHog();
   const sourcesEnabled = useFeatureFlagEnabled("sources-enabled") ?? false;
-  const visibleNavItems = navItems.filter((item) => item.href !== "/sources" || sourcesEnabled);
+  const visibleNavItems = [
+    ...navItems.filter((item) => item.href !== "/sources" || sourcesEnabled),
+    ...(user.role === "Admin" ? [adminNavItem] : []),
+  ];
 
   useEffect(() => {
     posthog?.identify(user.id, { email: user.email, name: user.name });

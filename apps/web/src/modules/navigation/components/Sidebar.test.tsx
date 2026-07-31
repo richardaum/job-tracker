@@ -114,7 +114,7 @@ const mockUser: CurrentUser = {
   id: "user-1",
   name: "John Doe",
   email: "john@example.com",
-  role: "USER",
+  role: "Admin",
   avatarUrl: null,
   accounts: [],
 };
@@ -189,6 +189,11 @@ describe("Sidebar", () => {
     expect(screen.getAllByText("Companies").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Salary Calculator").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Admin").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("hides Admin nav item for non-admin users", () => {
+    render(<Sidebar user={{ ...mockUser, role: "User" }} />);
+    expect(screen.queryByText("Admin")).toBeNull();
   });
 
   it("renders bottom items — Help Center and Settings", () => {

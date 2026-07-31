@@ -1,13 +1,18 @@
 "use client";
 
 import { SlotsProvider } from "@job-tracker/react-slots";
-import { cn, Heading, Tabs, TabsList, TabsTrigger } from "@job-tracker/ui";
+import { cn, Heading, Tabs, TabsList, TabsTrigger, Text } from "@job-tracker/ui";
 import type { Route } from "next";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
 import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { AdminHeaderActions } from "@/modules/admin/layout/admin-header.slots";
+
+const ADMIN_ROLE = "Admin";
+const NON_ADMIN_REDIRECT_ROUTE: Route = "/jobs";
 
 function deriveTab(pathname: string): string {
   if (pathname.startsWith("/admin/overview")) return "overview";
@@ -77,8 +82,16 @@ type AdminShellProps = { children: React.ReactNode };
 export function AdminShell({ children }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, loading } = useCurrentUser();
+  const isAdmin = user?.role === ADMIN_ROLE;
   const currentTab = deriveTab(pathname);
   const currentExtensionSubTab = deriveExtensionSubTab(pathname);
+
+  useEffect(() => {
+    if (!loading && !isAdmin) {
+      router.replace(NON_ADMIN_REDIRECT_ROUTE);
+    }
+  }, [loading, isAdmin, router]);
 
   function navigateToTab(value: string) {
     const route = TAB_ROUTES[value] ?? "/admin/extension/status";
@@ -88,6 +101,16 @@ export function AdminShell({ children }: AdminShellProps) {
   function navigateToExtensionSubTab(value: string) {
     const route = EXTENSION_SUB_TAB_ROUTES[value] ?? "/admin/extension/status";
     router.push(route);
+  }
+
+  if (loading || !isAdmin) {
+    return (
+      <div className={cn("flex h-full min-h-0 flex-1 items-center justify-center")}>
+        <Text as="span" size="sm" color="secondary">
+          Loading…
+        </Text>
+      </div>
+    );
   }
 
   return (
