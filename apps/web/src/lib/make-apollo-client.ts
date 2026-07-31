@@ -9,6 +9,7 @@ import { clientEnv } from "@/env/client";
 
 import { getApiBaseUrl, getApiGraphqlUrl, getApiGraphqlWsUrl } from "./api-endpoints";
 import { createWebSocketLink } from "./create-websocket-link";
+import { aiBlockedLink } from "./ai-blocked-link";
 
 export const APOLLO_GRAPHQL_URI = getApiGraphqlUrl();
 
@@ -26,7 +27,7 @@ export function createApolloClient() {
   );
 
   return new ApolloClient({
-    link: authRefreshLink.concat(transportLink),
+    link: aiBlockedLink.concat(authRefreshLink.concat(transportLink)),
     cache: new InMemoryCache(),
     devtools: { enabled: clientEnv.NODE_ENV === "development" },
   });
