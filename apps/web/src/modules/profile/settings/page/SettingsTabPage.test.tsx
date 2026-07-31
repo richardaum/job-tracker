@@ -5,6 +5,8 @@ import SettingsTabPage from "./SettingsTabPage";
 
 const settingsQueryMock = vi.fn();
 const updateSettingsMock = vi.fn();
+const saveOpenAiKeyMock = vi.fn();
+const removeOpenAiKeyMock = vi.fn();
 
 vi.mock("@/gql/hooks", async () => {
   const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
@@ -12,6 +14,8 @@ vi.mock("@/gql/hooks", async () => {
     ...actual,
     useSettingsQuery: () => settingsQueryMock(),
     useUpdateSettingsMutation: () => [updateSettingsMock],
+    useSaveOpenAiKeyMutation: () => [saveOpenAiKeyMock],
+    useRemoveOpenAiKeyMutation: () => [removeOpenAiKeyMock],
   };
 });
 
@@ -20,7 +24,11 @@ function mockSettings(
     autoFillEnabled: boolean;
     autoSummaryEnabled: boolean;
     autoMatchEnabled: boolean;
+    aiEnabled: boolean;
+    hasOpenAiKey: boolean;
     duplicateWindowDays: number;
+    trialCallsUsed: number;
+    trialCallsLimit: number;
     blockedKeywords: Array<{ keyword: string; scope: string; matchMode: string; __typename?: string }>;
     blockedCompanies: string[];
   }> = {},
@@ -31,7 +39,11 @@ function mockSettings(
     autoFillEnabled: false,
     autoSummaryEnabled: false,
     autoMatchEnabled: false,
+    aiEnabled: true,
+    hasOpenAiKey: false,
     duplicateWindowDays: 30,
+    trialCallsUsed: 0,
+    trialCallsLimit: 50,
     blockedKeywords: null,
     blockedCompanies: null,
   };
@@ -69,7 +81,7 @@ describe("SettingsTabPage", () => {
     render(<SettingsTabPage />);
 
     const switches = screen.getAllByRole("switch");
-    const autoFillSwitch = switches[0]!;
+    const autoFillSwitch = switches[1]!;
 
     fireEvent.click(autoFillSwitch);
     expect(updateSettingsMock).toHaveBeenCalledWith(
@@ -94,7 +106,7 @@ describe("SettingsTabPage", () => {
     render(<SettingsTabPage />);
 
     const switches = screen.getAllByRole("switch");
-    const autoSummarySwitch = switches[1]!;
+    const autoSummarySwitch = switches[2]!;
 
     fireEvent.click(autoSummarySwitch);
     expect(updateSettingsMock).toHaveBeenCalledWith(
@@ -109,7 +121,7 @@ describe("SettingsTabPage", () => {
     settingsQueryMock.mockReturnValue(mockSettings());
     render(<SettingsTabPage />);
 
-    const autoMatchSwitch = screen.getAllByRole("switch")[2]!;
+    const autoMatchSwitch = screen.getAllByRole("switch")[3]!;
 
     fireEvent.click(autoMatchSwitch);
     expect(updateSettingsMock).toHaveBeenCalledWith(
@@ -131,7 +143,7 @@ describe("SettingsTabPage", () => {
     settingsQueryMock.mockReturnValue(mockSettings());
     render(<SettingsTabPage />);
 
-    const autoFillSwitch = screen.getAllByRole("switch")[0]!;
+    const autoFillSwitch = screen.getAllByRole("switch")[1]!;
     fireEvent.click(autoFillSwitch);
 
     expect(autoFillSwitch).toBeDisabled();
@@ -157,7 +169,7 @@ describe("SettingsTabPage", () => {
     settingsQueryMock.mockReturnValue(mockSettings());
     render(<SettingsTabPage />);
 
-    fireEvent.click(screen.getAllByRole("switch")[0]!);
+    fireEvent.click(screen.getAllByRole("switch")[1]!);
 
     await act(async () => {
       await Promise.resolve();
@@ -192,14 +204,15 @@ describe("SettingsTabPage", () => {
     render(<SettingsTabPage />);
 
     const numberInput = screen.getByRole("spinbutton");
-    const saveButton = screen.getByRole("button", { name: "Save" });
-    expect(saveButton).toBeDisabled();
+    const saveButtons = screen.getAllByRole("button", { name: "Save" });
+    const duplicateWindowSaveButton = saveButtons[saveButtons.length - 1]!;
+    expect(duplicateWindowSaveButton).toBeDisabled();
 
     fireEvent.change(numberInput, { target: { value: "60" } });
-    expect(saveButton).not.toBeDisabled();
+    expect(duplicateWindowSaveButton).not.toBeDisabled();
     expect(updateSettingsMock).not.toHaveBeenCalled();
 
-    fireEvent.click(saveButton);
+    fireEvent.click(duplicateWindowSaveButton);
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         variables: { input: { duplicateWindowDays: 60 } },
@@ -213,12 +226,13 @@ describe("SettingsTabPage", () => {
     render(<SettingsTabPage />);
 
     const numberInput = screen.getByRole("spinbutton");
-    const saveButton = screen.getByRole("button", { name: "Save" });
+    const saveButtons = screen.getAllByRole("button", { name: "Save" });
+    const duplicateWindowSaveButton = saveButtons[saveButtons.length - 1]!;
     fireEvent.change(numberInput, { target: { value: "60" } });
-    expect(saveButton).not.toBeDisabled();
+    expect(duplicateWindowSaveButton).not.toBeDisabled();
 
     fireEvent.change(numberInput, { target: { value: "30" } });
-    expect(saveButton).toBeDisabled();
+    expect(duplicateWindowSaveButton).toBeDisabled();
   });
 
   it("loading state shows placeholder", () => {
@@ -242,7 +256,8 @@ describe("SettingsTabPage", () => {
 
     const numberInput = screen.getByRole("spinbutton");
     fireEvent.change(numberInput, { target: { value: "500" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    const saveButtons = screen.getAllByRole("button", { name: "Save" });
+    fireEvent.click(saveButtons[saveButtons.length - 1]!);
 
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({ variables: { input: { duplicateWindowDays: 365 } } }),
@@ -253,5 +268,182 @@ describe("SettingsTabPage", () => {
     settingsQueryMock.mockReturnValue({ loading: false, data: { settings: null } });
     render(<SettingsTabPage />);
     expect(screen.queryByText("Auto-fill job fields")).not.toBeInTheDocument();
+  });
+
+  it("renders AI-enabled toggle and OpenAI key field", () => {
+    settingsQueryMock.mockReturnValue(mockSettings());
+    render(<SettingsTabPage />);
+    expect(screen.getByText("AI-enabled")).toBeInTheDocument();
+    expect(screen.getByText("OpenAI API key")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("sk-...")).toBeInTheDocument();
+  });
+
+  it("toggle onChange for AI-enabled calls updateSettings mutation", async () => {
+    settingsQueryMock.mockReturnValue(mockSettings());
+    render(<SettingsTabPage />);
+
+    const switches = screen.getAllByRole("switch");
+    const aiEnabledSwitch = switches[0]!;
+
+    fireEvent.click(aiEnabledSwitch);
+    expect(updateSettingsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { input: { aiEnabled: false } },
+        optimisticResponse: { updateSettings: expect.objectContaining({ aiEnabled: false }) },
+      }),
+    );
+  });
+
+  it("disables Auto-fill, Auto-summary, Auto-match, and OpenAI key when aiEnabled is false", () => {
+    settingsQueryMock.mockReturnValue(mockSettings({ aiEnabled: false }));
+    render(<SettingsTabPage />);
+
+    const switches = screen.getAllByRole("switch");
+    expect(switches[0]).not.toBeDisabled(); // AI-enabled toggle stays interactive
+    expect(switches[1]).toBeDisabled(); // Auto-fill
+    expect(switches[2]).toBeDisabled(); // Auto-summary
+    expect(switches[3]).toBeDisabled(); // Auto-match
+    expect(screen.getByPlaceholderText("sk-...")).toBeDisabled();
+  });
+
+  it("keeps Auto-fill, Auto-summary, Auto-match, and OpenAI key interactive when aiEnabled is true", () => {
+    settingsQueryMock.mockReturnValue(mockSettings({ aiEnabled: true }));
+    render(<SettingsTabPage />);
+
+    const switches = screen.getAllByRole("switch");
+    expect(switches[1]).not.toBeDisabled();
+    expect(switches[2]).not.toBeDisabled();
+    expect(switches[3]).not.toBeDisabled();
+    expect(screen.getByPlaceholderText("sk-...")).not.toBeDisabled();
+  });
+
+  it("saving an OpenAI key calls savOpenAiKeyMutation", async () => {
+    saveOpenAiKeyMock.mockResolvedValue({ data: { saveOpenAiKey: mockSettings().data.settings } });
+    settingsQueryMock.mockReturnValue(mockSettings());
+    render(<SettingsTabPage />);
+
+    const keyInput = screen.getByPlaceholderText("sk-...");
+    fireEvent.change(keyInput, { target: { value: "sk-test-key" } });
+
+    const saveButtons = screen.getAllByRole("button", { name: "Save" });
+    fireEvent.click(saveButtons[0]!);
+
+    expect(saveOpenAiKeyMock).toHaveBeenCalledWith({ variables: { key: "sk-test-key" } });
+  });
+
+  it("saving an OpenAI key clears the input field on success", async () => {
+    saveOpenAiKeyMock.mockResolvedValue({ data: { saveOpenAiKey: mockSettings().data.settings } });
+    settingsQueryMock.mockReturnValue(mockSettings());
+    render(<SettingsTabPage />);
+
+    const keyInput = screen.getByPlaceholderText("sk-...") as HTMLInputElement;
+    fireEvent.change(keyInput, { target: { value: "sk-test-key" } });
+
+    const saveButtons = screen.getAllByRole("button", { name: "Save" });
+    fireEvent.click(saveButtons[0]!);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(keyInput.value).toBe("");
+  });
+
+  it("shows validation error when saving an invalid OpenAI key", async () => {
+    const error = Object.assign(new Error("Invalid API key"), {
+      graphQLErrors: [{ extensions: { code: "AI_KEY_INVALID" }, message: "The provided API key is invalid." }],
+    });
+    saveOpenAiKeyMock.mockRejectedValue(error);
+    settingsQueryMock.mockReturnValue(mockSettings());
+    render(<SettingsTabPage />);
+
+    const keyInput = screen.getByPlaceholderText("sk-...");
+    fireEvent.change(keyInput, { target: { value: "invalid-key" } });
+
+    const saveButtons = screen.getAllByRole("button", { name: "Save" });
+    fireEvent.click(saveButtons[0]!);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText("The provided API key is invalid.")).toBeInTheDocument();
+  });
+
+  it("shows Remove button when hasOpenAiKey is true", () => {
+    settingsQueryMock.mockReturnValue(mockSettings({ hasOpenAiKey: true }));
+    render(<SettingsTabPage />);
+
+    expect(screen.getByRole("button", { name: "Remove" })).toBeInTheDocument();
+    const saveButtons = screen.queryAllByRole("button", { name: "Save" });
+    expect(saveButtons).toHaveLength(1);
+  });
+
+  it("shows masked placeholder when hasOpenAiKey is true", () => {
+    settingsQueryMock.mockReturnValue(mockSettings({ hasOpenAiKey: true }));
+    render(<SettingsTabPage />);
+
+    const keyInput = screen.getByPlaceholderText("••••••••") as HTMLInputElement;
+    expect(keyInput).toBeInTheDocument();
+    expect(keyInput.value).toBe("");
+  });
+
+  it("shows lock icon when hasOpenAiKey is true", () => {
+    settingsQueryMock.mockReturnValue(mockSettings({ hasOpenAiKey: true }));
+    render(<SettingsTabPage />);
+
+    expect(screen.getByRole("img", { name: "Encrypted" })).toBeInTheDocument();
+  });
+
+  it("clicking Remove button calls removeOpenAiKeyMutation", async () => {
+    removeOpenAiKeyMock.mockResolvedValue({ data: { removeOpenAiKey: mockSettings().data.settings } });
+    settingsQueryMock.mockReturnValue(mockSettings({ hasOpenAiKey: true }));
+    render(<SettingsTabPage />);
+
+    const removeButton = screen.getByRole("button", { name: "Remove" });
+    fireEvent.click(removeButton);
+
+    expect(removeOpenAiKeyMock).toHaveBeenCalled();
+  });
+
+  it("renders 6 settings cards: 3 toggles, 1 AI-enabled, 1 key field, 1 duplicate window", () => {
+    settingsQueryMock.mockReturnValue(mockSettings());
+    render(<SettingsTabPage />);
+
+    expect(screen.getByText("Auto-fill job fields")).toBeInTheDocument();
+    expect(screen.getByText("Auto-summary")).toBeInTheDocument();
+    expect(screen.getByText("Auto-match")).toBeInTheDocument();
+    expect(screen.getByText("AI-enabled")).toBeInTheDocument();
+    expect(screen.getByText("OpenAI API key")).toBeInTheDocument();
+    expect(screen.getByText("Duplicate detection window")).toBeInTheDocument();
+  });
+
+  it("disables key input while saving", async () => {
+    let resolveKey: (() => void) | undefined;
+    saveOpenAiKeyMock.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveKey = resolve;
+      }),
+    );
+    settingsQueryMock.mockReturnValue(mockSettings());
+    render(<SettingsTabPage />);
+
+    const keyInput = screen.getByPlaceholderText("sk-...");
+    fireEvent.change(keyInput, { target: { value: "sk-test-key" } });
+
+    const saveButtons = screen.getAllByRole("button", { name: "Save" });
+    const saveButton = saveButtons[0]!;
+    fireEvent.click(saveButton);
+
+    expect(keyInput).toBeDisabled();
+    expect(saveButton).toBeDisabled();
+
+    await act(async () => {
+      resolveKey?.();
+      await Promise.resolve();
+    });
+
+    expect(keyInput).not.toBeDisabled();
+    expect(saveButton).toBeDisabled();
   });
 });

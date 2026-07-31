@@ -38,7 +38,13 @@ export function SettingCardLabel({ icon, children, className }: SettingCardLabel
   );
 }
 
-type SettingCardProps = { label: ReactNode; description: string; control: ReactNode; pending?: boolean };
+type SettingCardProps = {
+  label: ReactNode;
+  description: string;
+  control: ReactNode;
+  pending?: boolean;
+  disabled?: boolean;
+};
 
 function warnIfSettingCardLabelViolates(label: ReactNode): void {
   if (clientEnv.NODE_ENV !== "development") return;
@@ -52,13 +58,19 @@ function warnIfSettingCardLabelViolates(label: ReactNode): void {
   }
 }
 
-export function SettingCard({ label, description, control, pending = false }: SettingCardProps) {
+export function SettingCard({ label, description, control, pending = false, disabled = false }: SettingCardProps) {
   warnIfSettingCardLabelViolates(label);
 
   const showSpinner = useDelayedTrue(pending, SAVING_SPINNER_DELAY_MS);
 
   return (
-    <div className={cn("flex items-center gap-4 rounded-lg border border-border-subtle p-4")}>
+    <div
+      className={cn(
+        "flex items-center gap-4 rounded-lg border border-border-subtle p-4",
+        disabled && "opacity-50 pointer-events-none",
+      )}
+      aria-disabled={disabled || undefined}
+    >
       <div className={cn("flex flex-col gap-0.5")}>
         <div className={cn("flex items-center gap-2")}>
           {label}

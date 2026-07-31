@@ -42,7 +42,11 @@ function buildOptimisticSettings(
     autoFillEnabled: settings.autoFillEnabled,
     autoSummaryEnabled: settings.autoSummaryEnabled,
     autoMatchEnabled: settings.autoMatchEnabled,
+    aiEnabled: settings.aiEnabled,
+    hasOpenAiKey: settings.hasOpenAiKey,
     duplicateWindowDays: settings.duplicateWindowDays,
+    trialCallsUsed: settings.trialCallsUsed,
+    trialCallsLimit: settings.trialCallsLimit,
     blockedKeywords: input.blockedKeywords ?? settings.blockedKeywords ?? null,
     blockedCompanies: input.blockedCompanies ?? settings.blockedCompanies ?? null,
   };
