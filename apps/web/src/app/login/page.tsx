@@ -38,7 +38,7 @@ export default function LoginPage() {
     <main className={cn("jt-login-shell-backdrop flex min-h-svh flex-col text-text-primary")}>
       <div
         className={cn(
-          "relative mx-auto flex w-full max-w-[1340px] flex-1 flex-col justify-center px-6 pb-6 pt-8 lg:flex-1 lg:px-12 lg:pb-10 lg:pt-22",
+          "relative mx-auto flex w-full max-w-335 flex-1 flex-col justify-center px-6 pb-6 pt-8 lg:flex-1 lg:px-12 lg:pb-10 lg:pt-22",
         )}
       >
         <header className={cn("mb-8 shrink-0", "text-text-inverted")}>
