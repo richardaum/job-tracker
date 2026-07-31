@@ -379,13 +379,12 @@ describe("SettingsTabPage", () => {
     expect(saveButtons).toHaveLength(1);
   });
 
-  it("shows masked placeholder when hasOpenAiKey is true", () => {
+  it("hides the key input when hasOpenAiKey is true", () => {
     settingsQueryMock.mockReturnValue(mockSettings({ hasOpenAiKey: true }));
     render(<SettingsTabPage />);
 
-    const keyInput = screen.getByPlaceholderText("••••••••") as HTMLInputElement;
-    expect(keyInput).toBeInTheDocument();
-    expect(keyInput.value).toBe("");
+    expect(screen.queryByRole("textbox", { name: "" })).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("sk-...")).not.toBeInTheDocument();
   });
 
   it("shows lock icon when hasOpenAiKey is true", () => {

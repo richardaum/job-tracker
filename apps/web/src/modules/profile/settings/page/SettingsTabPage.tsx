@@ -228,15 +228,17 @@ export default function SettingsTabPage() {
                 handleOpenAiKeySave();
               }}
             >
-              <Input
-                type="password"
-                size="sm"
-                className={cn("flex-1", openAiKeyError && "border-red-500")}
-                placeholder={settings.hasOpenAiKey ? "••••••••" : "sk-..."}
-                disabled={isOpenAiKeySaving || isOpenAiKeyRemoving || aiSettingsDisabled}
-                value={displayedOpenAiKey}
-                onChange={(e) => handleOpenAiKeyChange(e.target.value)}
-              />
+              {!settings.hasOpenAiKey && (
+                <Input
+                  type="password"
+                  size="sm"
+                  className={cn("flex-1", openAiKeyError && "border-red-500")}
+                  placeholder="sk-..."
+                  disabled={isOpenAiKeySaving || isOpenAiKeyRemoving || aiSettingsDisabled}
+                  value={displayedOpenAiKey}
+                  onChange={(e) => handleOpenAiKeyChange(e.target.value)}
+                />
+              )}
               {settings.hasOpenAiKey && (
                 <Tooltip content="Stored encrypted, used only for your own requests">
                   <LockIcon
