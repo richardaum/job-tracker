@@ -27,6 +27,7 @@ import { apiEnv } from "./env/server";
 import { fixSubscriptionResolve } from "./graphql/fix-subscription-resolve";
 import { graphqlFormatError } from "./graphql/graphql-format-error";
 import { createWsSubscribe } from "./graphql/graphql-ws-logger";
+import { parseWsCookies } from "./graphql/parse-ws-cookies";
 
 @Module({
   imports: [
@@ -59,9 +60,11 @@ import { createWsSubscribe } from "./graphql/graphql-ws-logger";
         },
       },
       transformSchema: fixSubscriptionResolve,
-      context: (ctx: { req?: Request; connectionParams?: Record<string, unknown>; extra?: { request: Request } }) => ({
-        req: ctx.req ?? ctx.extra?.request,
-      }),
+      context: (ctx: { req?: Request; connectionParams?: Record<string, unknown>; extra?: { request: Request } }) => {
+        const req = ctx.req ?? ctx.extra?.request;
+        if (req) parseWsCookies(req);
+        return { req };
+      },
     }),
   ],
   controllers: [AppController],
