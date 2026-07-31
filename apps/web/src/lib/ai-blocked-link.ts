@@ -34,17 +34,23 @@ export const aiBlockedLink = new ApolloLink((operation, forward) => {
               aiBlockedDialogState.openDialog("AI_KEY_REQUIRED");
             }
 
-            // Filter out the AI-blocked error so it doesn't trigger other error handlers
-            result.errors = (result.errors as FormattedError[]).filter((e) => {
-              const errCode = e.extensions?.code || "";
-              return !(errCode === AI_ERROR_CODES.AI_DISABLED_BY_USER || errCode === AI_ERROR_CODES.AI_KEY_REQUIRED);
-            });
+            // A non-nullable field errors out to a null `data`, not a partial object — there's
+            // nothing to salvage, so let the error propagate instead of faking a success with
+            // no data (which breaks Apollo's cache write with "Missing field ... while writing
+            // result {}").
+            if (result.data != null) {
+              // Filter out the AI-blocked error so it doesn't trigger other error handlers
+              result.errors = (result.errors as FormattedError[]).filter((e) => {
+                const errCode = e.extensions?.code || "";
+                return !(errCode === AI_ERROR_CODES.AI_DISABLED_BY_USER || errCode === AI_ERROR_CODES.AI_KEY_REQUIRED);
+              });
 
-            // If all errors were AI-blocked errors, treat as success (no errors)
-            if (result.errors.length === 0) {
-              observer.next(result);
-              observer.complete();
-              return;
+              // If all errors were AI-blocked errors, treat as success (no errors)
+              if (result.errors.length === 0) {
+                observer.next(result);
+                observer.complete();
+                return;
+              }
             }
           }
         }

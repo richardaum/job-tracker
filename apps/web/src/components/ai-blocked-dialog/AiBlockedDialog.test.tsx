@@ -68,6 +68,24 @@ describe("AiBlockedDialog", () => {
     });
   });
 
+  it("should close dialog when Go to Settings is clicked", async () => {
+    const user = userEvent.setup();
+    render(<AiBlockedDialog />);
+
+    aiBlockedDialogState.openDialog("AI_KEY_REQUIRED");
+
+    await waitFor(() => {
+      expect(screen.getByText("AI Features Unavailable")).toBeInTheDocument();
+    });
+
+    const settingsButton = screen.getByRole("button", { name: /Go to Settings/i });
+    await user.click(settingsButton);
+
+    await waitFor(() => {
+      expect(aiBlockedDialogState.getState().open).toBe(false);
+    });
+  });
+
   it("should respond to state changes", async () => {
     render(<AiBlockedDialog />);
 

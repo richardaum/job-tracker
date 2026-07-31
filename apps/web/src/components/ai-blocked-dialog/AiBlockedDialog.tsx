@@ -47,7 +47,9 @@ export function AiBlockedDialog() {
             Dismiss
           </Button>
           <Link href="/profile/settings">
-            <Button intent="primary">Go to Settings</Button>
+            <Button intent="primary" onClick={() => handleOpenChange(false)}>
+              Go to Settings
+            </Button>
           </Link>
         </Stack>
       }
