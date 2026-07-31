@@ -6,6 +6,7 @@ import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
+import { AiAccessService } from "@api/lib/ai/ai-access.service";
 import { markdownToTipTap, tipTapToPlainText } from "@job-tracker/tiptap";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
@@ -20,6 +21,7 @@ export class JobSummaryService implements OnModuleInit {
 
   constructor(
     private readonly summaryAiService: SummaryAiService,
+    private readonly aiAccess: AiAccessService,
     private readonly eventBus: JobEventBus,
     private readonly jobsRepo: JobsRepository,
     @InjectRepository(JobStageEventEntity)
@@ -48,6 +50,8 @@ export class JobSummaryService implements OnModuleInit {
 
     if (job.summaryMetadata?.status === AsyncMetadataStatusEnum.Processing) return;
 
+    await this.aiAccess.checkAccess(userId);
+
     const ok = await this.jobsRepo.updateSummaryMetadataIfStatus(jobId, userId, job.summaryMetadata?.status ?? null, {
       status: AsyncMetadataStatusEnum.Processing,
     });
@@ -63,6 +67,8 @@ export class JobSummaryService implements OnModuleInit {
     if (!job) return;
 
     if (job.summaryMetadata?.status === AsyncMetadataStatusEnum.Processing) return;
+
+    await this.aiAccess.checkAccess(userId);
 
     const ok = await this.jobsRepo.updateSummaryMetadataIfStatus(jobId, userId, job.summaryMetadata?.status ?? null, {
       status: AsyncMetadataStatusEnum.Processing,

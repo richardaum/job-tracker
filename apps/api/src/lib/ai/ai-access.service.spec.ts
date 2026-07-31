@@ -228,4 +228,65 @@ describe("AiAccessService", () => {
       });
     });
   });
+
+  describe("checkAccess", () => {
+    const userId = "test-user-123";
+
+    it("throws AI_DISABLED_BY_USER when aiEnabled is false, without decrypting or querying quota", async () => {
+      mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+        userId,
+        aiEnabled: false,
+        openaiApiKeyEncrypted: "encrypted-key-value",
+        trialCallsUsed: 0,
+      });
+
+      await expect(service.checkAccess(userId)).rejects.toThrow(GraphQLError);
+      expect(mockEncryption.from).not.toHaveBeenCalled();
+      expect(mockSettingsRepo.createQueryBuilder).not.toHaveBeenCalled();
+    });
+
+    it("resolves without side effects when a personal key is set", async () => {
+      mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+        userId,
+        aiEnabled: true,
+        openaiApiKeyEncrypted: "encrypted-key-value",
+        trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT,
+      });
+
+      await expect(service.checkAccess(userId)).resolves.toBeUndefined();
+      expect(mockEncryption.from).not.toHaveBeenCalled();
+      expect(mockSettingsRepo.createQueryBuilder).not.toHaveBeenCalled();
+    });
+
+    it("resolves without incrementing quota when trial calls remain", async () => {
+      mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+        userId,
+        aiEnabled: true,
+        openaiApiKeyEncrypted: null,
+        trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT - 1,
+      });
+
+      await expect(service.checkAccess(userId)).resolves.toBeUndefined();
+      expect(mockSettingsRepo.createQueryBuilder).not.toHaveBeenCalled();
+    });
+
+    it("throws AI_KEY_REQUIRED when trial quota is exhausted and no personal key", async () => {
+      mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+        userId,
+        aiEnabled: true,
+        openaiApiKeyEncrypted: null,
+        trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT,
+      });
+
+      try {
+        await service.checkAccess(userId);
+        expect.unreachable("checkAccess should have thrown");
+      } catch (err) {
+        expect(err).toBeInstanceOf(GraphQLError);
+        if (err instanceof GraphQLError) {
+          expect(err.extensions.code).toBe(AI_ERROR_CODES.AI_KEY_REQUIRED);
+        }
+      }
+    });
+  });
 });

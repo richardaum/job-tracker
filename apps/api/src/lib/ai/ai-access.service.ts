@@ -25,6 +25,31 @@ export class AiAccessService {
     private readonly eventBus: SettingsEventBus,
   ) {}
 
+  /**
+   * Same gating rules as {@link resolveClientKey} but read-only — does not
+   * decrypt a personal key or mutate the trial quota. Used to fail fast on
+   * AI-gated actions that queue async work (e.g. summary/match generation),
+   * so the gating error surfaces synchronously instead of being swallowed
+   * once the work moves off the request/response cycle.
+   */
+  async checkAccess(userId: string): Promise<void> {
+    const setting = await this.settings.findOneByOrFail({ userId });
+
+    if (!setting.aiEnabled) {
+      throw new GraphQLError("AI is turned off for your account.", {
+        extensions: { code: AI_ERROR_CODES.AI_DISABLED_BY_USER },
+      });
+    }
+
+    if (setting.openaiApiKeyEncrypted) return;
+
+    if (setting.trialCallsUsed >= apiEnv.TRIAL_AI_CALL_LIMIT) {
+      throw new GraphQLError("Your AI trial is over — add your own OpenAI key.", {
+        extensions: { code: AI_ERROR_CODES.AI_KEY_REQUIRED },
+      });
+    }
+  }
+
   async resolveClientKey(userId: string): Promise<string> {
     const setting = await this.settings.findOneByOrFail({ userId });
 

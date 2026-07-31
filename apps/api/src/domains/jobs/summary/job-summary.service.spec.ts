@@ -6,7 +6,9 @@ import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
+import { AiAccessService } from "@api/lib/ai/ai-access.service";
 import { tipTapToPlainText } from "@job-tracker/tiptap";
+import { GraphQLError } from "graphql";
 import { Repository } from "typeorm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -25,6 +27,7 @@ describe("JobSummaryService", () => {
     "findOneByIdAndUserId" | "updateSummary" | "updateSummaryMetadataIfStatus" | "resetStaleSummaryProcessing"
   >;
   let summaryAiService: Pick<SummaryAiService, "generateSummary">;
+  let aiAccess: Pick<AiAccessService, "checkAccess">;
   let eventBus: Pick<JobEventBus, "emit">;
   /** Shared chain returned by `stageEventsRepo.createQueryBuilder("e")`. */
   let stageTimelineQb: {
@@ -46,6 +49,8 @@ describe("JobSummaryService", () => {
 
     summaryAiService = { generateSummary: vi.fn() };
 
+    aiAccess = { checkAccess: vi.fn().mockResolvedValue(undefined) };
+
     eventBus = { emit: vi.fn() };
 
     notesRepo = { find: vi.fn().mockResolvedValue([]) };
@@ -64,6 +69,7 @@ describe("JobSummaryService", () => {
 
     service = new JobSummaryService(
       summaryAiService as SummaryAiService,
+      aiAccess as AiAccessService,
       eventBus as JobEventBus,
       appRepo as JobsRepository,
       stageEventsRepo as unknown as Repository<JobStageEventEntity>,
@@ -98,6 +104,22 @@ describe("JobSummaryService", () => {
     await service.requestSummary("job-1", "user-1");
 
     expect(appRepo.updateSummaryMetadataIfStatus).not.toHaveBeenCalled();
+  });
+
+  it("requestSummary rejects synchronously when AI access is gated, without flipping status", async () => {
+    vi.mocked(appRepo.findOneByIdAndUserId).mockResolvedValue({
+      id: "job-1",
+      title: "T",
+      summaryMetadata: null,
+    } as never);
+    vi.mocked(aiAccess.checkAccess).mockRejectedValue(
+      new GraphQLError("AI is turned off for your account.", { extensions: { code: "AI_DISABLED_BY_USER" } }),
+    );
+
+    await expect(service.requestSummary("job-1", "user-1")).rejects.toThrow(GraphQLError);
+
+    expect(appRepo.updateSummaryMetadataIfStatus).not.toHaveBeenCalled();
+    expect(eventBus.emit).not.toHaveBeenCalled();
   });
 
   it("requestSummary transitions metadata to PROCESSING and emits events on success", async () => {
