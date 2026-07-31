@@ -57,6 +57,58 @@ vi.mock("@/modules/navigation/components/ObfuscatedText", () => ({
   ObfuscatedText: ({ text }: { text: string; obfuscatedText: string }) => <span>{text}</span>,
 }));
 
+type MockedSettingsQueryResult = {
+  data: {
+    settings: {
+      id: string;
+      autoFillEnabled: boolean;
+      autoSummaryEnabled: boolean;
+      autoMatchEnabled: boolean;
+      aiEnabled: boolean;
+      hasOpenAiKey: boolean;
+      duplicateWindowDays: number;
+      trialCallsUsed: number;
+      trialCallsLimit: number;
+      blockedCompanies: null;
+      blockedKeywords: null;
+    };
+  } | null;
+  loading: boolean;
+  error: null;
+};
+
+const { mockUseSettingsQuery, mockUseAiUsageChangedSubscription } = vi.hoisted(() => ({
+  mockUseSettingsQuery: vi.fn<() => MockedSettingsQueryResult>(() => ({
+    data: {
+      settings: {
+        id: "setting-1",
+        autoFillEnabled: false,
+        autoSummaryEnabled: false,
+        autoMatchEnabled: false,
+        aiEnabled: true,
+        hasOpenAiKey: false,
+        duplicateWindowDays: 30,
+        trialCallsUsed: 0,
+        trialCallsLimit: 50,
+        blockedCompanies: null,
+        blockedKeywords: null,
+      },
+    },
+    loading: false,
+    error: null,
+  })),
+  mockUseAiUsageChangedSubscription: vi.fn(),
+}));
+
+vi.mock("@/gql/hooks", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/gql/hooks")>();
+  return {
+    ...actual,
+    useSettingsQuery: mockUseSettingsQuery,
+    useAiUsageChangedSubscription: mockUseAiUsageChangedSubscription,
+  };
+});
+
 const mockUser: CurrentUser = {
   __typename: "UserType" as const,
   id: "user-1",
@@ -148,5 +200,159 @@ describe("Sidebar", () => {
   it("renders logout button", () => {
     render(<Sidebar user={mockUser} />);
     expect(screen.getAllByText("Log Out").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("renders trial quota trackbar when hasOpenAiKey is false", () => {
+    mockUseSettingsQuery.mockReturnValue({
+      data: {
+        settings: {
+          id: "setting-1",
+          autoFillEnabled: false,
+          autoSummaryEnabled: false,
+          autoMatchEnabled: false,
+          aiEnabled: true,
+          hasOpenAiKey: false,
+          duplicateWindowDays: 30,
+          trialCallsUsed: 10,
+          trialCallsLimit: 50,
+          blockedCompanies: null,
+          blockedKeywords: null,
+        },
+      },
+      loading: false,
+      error: null,
+    });
+
+    render(<Sidebar user={mockUser} />);
+    expect(screen.getAllByText("AI Trial").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("10/50").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("does not render trial quota trackbar when hasOpenAiKey is true", () => {
+    mockUseSettingsQuery.mockReturnValue({
+      data: {
+        settings: {
+          id: "setting-1",
+          autoFillEnabled: false,
+          autoSummaryEnabled: false,
+          autoMatchEnabled: false,
+          aiEnabled: true,
+          hasOpenAiKey: true,
+          duplicateWindowDays: 30,
+          trialCallsUsed: 10,
+          trialCallsLimit: 50,
+          blockedCompanies: null,
+          blockedKeywords: null,
+        },
+      },
+      loading: false,
+      error: null,
+    });
+
+    render(<Sidebar user={mockUser} />);
+    expect(screen.queryByText("AI Trial")).not.toBeInTheDocument();
+  });
+
+  it("updates trackbar when trialCallsUsed changes", () => {
+    mockUseSettingsQuery.mockReturnValue({
+      data: {
+        settings: {
+          id: "setting-1",
+          autoFillEnabled: false,
+          autoSummaryEnabled: false,
+          autoMatchEnabled: false,
+          aiEnabled: true,
+          hasOpenAiKey: false,
+          duplicateWindowDays: 30,
+          trialCallsUsed: 10,
+          trialCallsLimit: 50,
+          blockedCompanies: null,
+          blockedKeywords: null,
+        },
+      },
+      loading: false,
+      error: null,
+    });
+
+    const { rerender } = render(<Sidebar user={mockUser} />);
+    expect(screen.getAllByText("10/50").length).toBeGreaterThanOrEqual(1);
+
+    mockUseSettingsQuery.mockReturnValue({
+      data: {
+        settings: {
+          id: "setting-1",
+          autoFillEnabled: false,
+          autoSummaryEnabled: false,
+          autoMatchEnabled: false,
+          aiEnabled: true,
+          hasOpenAiKey: false,
+          duplicateWindowDays: 30,
+          trialCallsUsed: 25,
+          trialCallsLimit: 50,
+          blockedCompanies: null,
+          blockedKeywords: null,
+        },
+      },
+      loading: false,
+      error: null,
+    });
+
+    rerender(<Sidebar user={mockUser} />);
+    expect(screen.getAllByText("25/50").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("hides trackbar immediately when hasOpenAiKey transitions to true", () => {
+    mockUseSettingsQuery.mockReturnValue({
+      data: {
+        settings: {
+          id: "setting-1",
+          autoFillEnabled: false,
+          autoSummaryEnabled: false,
+          autoMatchEnabled: false,
+          aiEnabled: true,
+          hasOpenAiKey: false,
+          duplicateWindowDays: 30,
+          trialCallsUsed: 20,
+          trialCallsLimit: 50,
+          blockedCompanies: null,
+          blockedKeywords: null,
+        },
+      },
+      loading: false,
+      error: null,
+    });
+
+    const { rerender } = render(<Sidebar user={mockUser} />);
+    expect(screen.getAllByText("AI Trial").length).toBeGreaterThanOrEqual(1);
+
+    mockUseSettingsQuery.mockReturnValue({
+      data: {
+        settings: {
+          id: "setting-1",
+          autoFillEnabled: false,
+          autoSummaryEnabled: false,
+          autoMatchEnabled: false,
+          aiEnabled: true,
+          hasOpenAiKey: true,
+          duplicateWindowDays: 30,
+          trialCallsUsed: 20,
+          trialCallsLimit: 50,
+          blockedCompanies: null,
+          blockedKeywords: null,
+        },
+      },
+      loading: false,
+      error: null,
+    });
+
+    rerender(<Sidebar user={mockUser} />);
+    expect(screen.queryByText("AI Trial")).not.toBeInTheDocument();
+  });
+
+  it("does not render trackbar when settings data is not loaded", () => {
+    mockUseSettingsQuery.mockReturnValue({ data: null, loading: true, error: null });
+
+    render(<Sidebar user={mockUser} />);
+    expect(screen.queryByText("AI Trial")).not.toBeInTheDocument();
   });
 });

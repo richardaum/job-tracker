@@ -21,10 +21,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { useAiUsageChangedSubscription, useSettingsQuery } from "@/gql/hooks";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
+import { TrialQuotaTrackbar } from "@/modules/navigation/components/TrialQuotaTrackbar";
 
 const API_URL = getApiBaseUrl();
 
@@ -65,12 +67,20 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   const router = useRouter();
   const apolloClient = useApolloClient();
   const [loggingOut, setLoggingOut] = useState(false);
+  const { data: settingsData, refetch: refetchSettings } = useSettingsQuery();
+
+  useAiUsageChangedSubscription({
+    onData: () => {
+      void refetchSettings();
+    },
+  });
   const initials = user.name
     .split(" ")
     .slice(0, 2)
     .map((namePart) => namePart[0])
     .join("")
     .toUpperCase();
+  const shouldShowTrialTrackbar = settingsData?.settings && !settingsData.settings.hasOpenAiKey;
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -137,6 +147,12 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
 
       {/* Bottom items */}
       <div className={cn("flex flex-col gap-0 p-3 ")}>
+        {shouldShowTrialTrackbar && settingsData?.settings && (
+          <TrialQuotaTrackbar
+            trialCallsUsed={settingsData.settings.trialCallsUsed}
+            trialCallsLimit={settingsData.settings.trialCallsLimit}
+          />
+        )}
         <div className={cn("mx-1 mb-1 border-t border-border-default")} />
         <Link
           href="/profile"
