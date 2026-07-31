@@ -1,5 +1,6 @@
 import { CompanyEntity } from "@api/database/entities/company.entity";
 import { JobEntity } from "@api/database/entities/job.entity";
+import { assignIfDefined } from "@api/lib/assign-if-defined";
 import { tryRun } from "@job-tracker/try-run";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -66,7 +67,8 @@ export class CompanyRepository {
     if (!company) {
       return null;
     }
-    Object.assign(company, dto);
+    assignIfDefined(company, "name", dto.name);
+    assignIfDefined(company, "description", dto.description);
     return this.repo.save(company);
   }
 

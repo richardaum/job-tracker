@@ -1,4 +1,5 @@
 import { ResumeEntity } from "@api/database/entities/resume.entity";
+import { assignIfDefined } from "@api/lib/assign-if-defined";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -42,7 +43,9 @@ export class ResumeRepository {
     if (!resume) {
       return null;
     }
-    Object.assign(resume, dto);
+    assignIfDefined(resume, "title", dto.title);
+    assignIfDefined(resume, "content", dto.content);
+    assignIfDefined(resume, "isDefault", dto.isDefault);
     return this.repo.save(resume);
   }
 
