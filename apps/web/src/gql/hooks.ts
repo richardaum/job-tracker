@@ -63,6 +63,12 @@ export type AiMessageType = {
   role: AiMessageRole;
 };
 
+export type AiUsageChangedEventType = {
+  __typename?: 'AiUsageChangedEventType';
+  hasOpenAiKey: Scalars['Boolean']['output'];
+  trialCallsUsed: Scalars['Int']['output'];
+};
+
 export enum ApplicationQuickFilter {
   Active = 'Active',
   Applied = 'Applied',
@@ -429,9 +435,11 @@ export type Mutation = {
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
   removeJobTag: JobType;
+  removeOpenAiKey: UserSetting;
   reportExtensionActivity: ExtensionActivityEvent;
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
+  saveOpenAiKey: UserSetting;
   updateCompany: CompanyType;
   updateJob: JobType;
   updateJobNote: NoteType;
@@ -582,6 +590,11 @@ export type MutationRequestJobSummaryArgs = {
 
 export type MutationRerunSourceTemplateArgs = {
   templateId: Scalars['ID']['input'];
+};
+
+
+export type MutationSaveOpenAiKeyArgs = {
+  key: Scalars['String']['input'];
 };
 
 
@@ -947,6 +960,7 @@ export enum StopWhen {
 export type Subscription = {
   __typename?: 'Subscription';
   aiMessageStreamed: AiMessageStreamEventType;
+  aiUsageChanged: AiUsageChangedEventType;
   extensionActivityEvents: ExtensionActivityEvent;
   jobFillStatusChanged: JobFillStatusEventType;
   jobMatchStatusChanged: JobMatchStatusEventType;
@@ -1016,6 +1030,7 @@ export type UpdateResumeInput = {
 };
 
 export type UpdateSettingsInput = {
+  aiEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   autoFillEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   autoMatchEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   autoSummaryEnabled?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1037,13 +1052,17 @@ export type UpdateSourceTemplateInput = {
 
 export type UserSetting = {
   __typename?: 'UserSetting';
+  aiEnabled: Scalars['Boolean']['output'];
   autoFillEnabled: Scalars['Boolean']['output'];
   autoMatchEnabled: Scalars['Boolean']['output'];
   autoSummaryEnabled: Scalars['Boolean']['output'];
   blockedCompanies?: Maybe<Array<Scalars['String']['output']>>;
   blockedKeywords?: Maybe<Array<BlockedKeyword>>;
   duplicateWindowDays: Scalars['Int']['output'];
+  hasOpenAiKey: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
+  trialCallsLimit: Scalars['Int']['output'];
+  trialCallsUsed: Scalars['Int']['output'];
   userId: Scalars['String']['output'];
 };
 
@@ -1464,14 +1483,31 @@ export type DeleteResumeMutation = { __typename?: 'Mutation', deleteResume: { __
 export type SettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SettingsQuery = { __typename?: 'Query', settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
+export type SettingsQuery = { __typename?: 'Query', settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, aiEnabled: boolean, hasOpenAiKey: boolean, duplicateWindowDays: number, trialCallsUsed: number, trialCallsLimit: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
 
 export type UpdateSettingsMutationVariables = Exact<{
   input: UpdateSettingsInput;
 }>;
 
 
-export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
+export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, aiEnabled: boolean, hasOpenAiKey: boolean, duplicateWindowDays: number, trialCallsUsed: number, trialCallsLimit: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
+
+export type SaveOpenAiKeyMutationVariables = Exact<{
+  key: Scalars['String']['input'];
+}>;
+
+
+export type SaveOpenAiKeyMutation = { __typename?: 'Mutation', saveOpenAiKey: { __typename?: 'UserSetting', id: string, aiEnabled: boolean, hasOpenAiKey: boolean, trialCallsUsed: number, trialCallsLimit: number } };
+
+export type RemoveOpenAiKeyMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RemoveOpenAiKeyMutation = { __typename?: 'Mutation', removeOpenAiKey: { __typename?: 'UserSetting', id: string, aiEnabled: boolean, hasOpenAiKey: boolean, trialCallsUsed: number, trialCallsLimit: number } };
+
+export type AiUsageChangedSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AiUsageChangedSubscription = { __typename?: 'Subscription', aiUsageChanged: { __typename?: 'AiUsageChangedEventType', trialCallsUsed: number, hasOpenAiKey: boolean } };
 
 export type RerunSourceTemplateMutationVariables = Exact<{
   templateId: Scalars['ID']['input'];
@@ -3934,7 +3970,11 @@ export const SettingsDocument = gql`
     autoFillEnabled
     autoSummaryEnabled
     autoMatchEnabled
+    aiEnabled
+    hasOpenAiKey
     duplicateWindowDays
+    trialCallsUsed
+    trialCallsLimit
     blockedKeywords {
       keyword
       scope
@@ -3979,7 +4019,11 @@ export const UpdateSettingsDocument = gql`
     autoFillEnabled
     autoSummaryEnabled
     autoMatchEnabled
+    aiEnabled
+    hasOpenAiKey
     duplicateWindowDays
+    trialCallsUsed
+    trialCallsLimit
     blockedKeywords {
       keyword
       scope
@@ -4013,6 +4057,107 @@ export function useUpdateSettingsMutation(baseOptions?: ApolloReactHooks.Mutatio
         return ApolloReactHooks.useMutation<UpdateSettingsMutation, UpdateSettingsMutationVariables>(UpdateSettingsDocument, options);
       }
 
+
+export const SaveOpenAiKeyDocument = gql`
+    mutation SaveOpenAiKey($key: String!) {
+  saveOpenAiKey(key: $key) {
+    id
+    aiEnabled
+    hasOpenAiKey
+    trialCallsUsed
+    trialCallsLimit
+  }
+}
+    `;
+
+
+/**
+ * __useSaveOpenAiKeyMutation__
+ *
+ * To run a mutation, you first call `useSaveOpenAiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveOpenAiKeyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveOpenAiKeyMutation, { data, loading, error }] = useSaveOpenAiKeyMutation({
+ *   variables: {
+ *      key: // value for 'key'
+ *   },
+ * });
+ */
+export function useSaveOpenAiKeyMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveOpenAiKeyMutation, SaveOpenAiKeyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveOpenAiKeyMutation, SaveOpenAiKeyMutationVariables>(SaveOpenAiKeyDocument, options);
+      }
+
+
+export const RemoveOpenAiKeyDocument = gql`
+    mutation RemoveOpenAiKey {
+  removeOpenAiKey {
+    id
+    aiEnabled
+    hasOpenAiKey
+    trialCallsUsed
+    trialCallsLimit
+  }
+}
+    `;
+
+
+/**
+ * __useRemoveOpenAiKeyMutation__
+ *
+ * To run a mutation, you first call `useRemoveOpenAiKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveOpenAiKeyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeOpenAiKeyMutation, { data, loading, error }] = useRemoveOpenAiKeyMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useRemoveOpenAiKeyMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RemoveOpenAiKeyMutation, RemoveOpenAiKeyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RemoveOpenAiKeyMutation, RemoveOpenAiKeyMutationVariables>(RemoveOpenAiKeyDocument, options);
+      }
+
+
+export const AiUsageChangedDocument = gql`
+    subscription AiUsageChanged {
+  aiUsageChanged {
+    trialCallsUsed
+    hasOpenAiKey
+  }
+}
+    `;
+
+/**
+ * __useAiUsageChangedSubscription__
+ *
+ * To run a query within a React component, call `useAiUsageChangedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useAiUsageChangedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAiUsageChangedSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAiUsageChangedSubscription(baseOptions?: ApolloReactHooks.SubscriptionHookOptions<AiUsageChangedSubscription, AiUsageChangedSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useSubscription<AiUsageChangedSubscription, AiUsageChangedSubscriptionVariables>(AiUsageChangedDocument, options);
+      }
+export type AiUsageChangedSubscriptionHookResult = ReturnType<typeof useAiUsageChangedSubscription>;
 
 export const RerunSourceTemplateDocument = gql`
     mutation RerunSourceTemplate($templateId: ID!) {

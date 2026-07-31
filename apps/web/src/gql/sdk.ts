@@ -62,6 +62,12 @@ export type AiMessageType = {
   role: AiMessageRole;
 };
 
+export type AiUsageChangedEventType = {
+  __typename?: 'AiUsageChangedEventType';
+  hasOpenAiKey: Scalars['Boolean']['output'];
+  trialCallsUsed: Scalars['Int']['output'];
+};
+
 export enum ApplicationQuickFilter {
   Active = 'Active',
   Applied = 'Applied',
@@ -428,9 +434,11 @@ export type Mutation = {
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
   removeJobTag: JobType;
+  removeOpenAiKey: UserSetting;
   reportExtensionActivity: ExtensionActivityEvent;
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
+  saveOpenAiKey: UserSetting;
   updateCompany: CompanyType;
   updateJob: JobType;
   updateJobNote: NoteType;
@@ -581,6 +589,11 @@ export type MutationRequestJobSummaryArgs = {
 
 export type MutationRerunSourceTemplateArgs = {
   templateId: Scalars['ID']['input'];
+};
+
+
+export type MutationSaveOpenAiKeyArgs = {
+  key: Scalars['String']['input'];
 };
 
 
@@ -946,6 +959,7 @@ export enum StopWhen {
 export type Subscription = {
   __typename?: 'Subscription';
   aiMessageStreamed: AiMessageStreamEventType;
+  aiUsageChanged: AiUsageChangedEventType;
   extensionActivityEvents: ExtensionActivityEvent;
   jobFillStatusChanged: JobFillStatusEventType;
   jobMatchStatusChanged: JobMatchStatusEventType;
@@ -1015,6 +1029,7 @@ export type UpdateResumeInput = {
 };
 
 export type UpdateSettingsInput = {
+  aiEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   autoFillEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   autoMatchEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   autoSummaryEnabled?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1036,13 +1051,17 @@ export type UpdateSourceTemplateInput = {
 
 export type UserSetting = {
   __typename?: 'UserSetting';
+  aiEnabled: Scalars['Boolean']['output'];
   autoFillEnabled: Scalars['Boolean']['output'];
   autoMatchEnabled: Scalars['Boolean']['output'];
   autoSummaryEnabled: Scalars['Boolean']['output'];
   blockedCompanies?: Maybe<Array<Scalars['String']['output']>>;
   blockedKeywords?: Maybe<Array<BlockedKeyword>>;
   duplicateWindowDays: Scalars['Int']['output'];
+  hasOpenAiKey: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
+  trialCallsLimit: Scalars['Int']['output'];
+  trialCallsUsed: Scalars['Int']['output'];
   userId: Scalars['String']['output'];
 };
 
@@ -1463,14 +1482,31 @@ export type DeleteResumeMutation = { __typename?: 'Mutation', deleteResume: { __
 export type SettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SettingsQuery = { __typename?: 'Query', settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
+export type SettingsQuery = { __typename?: 'Query', settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, aiEnabled: boolean, hasOpenAiKey: boolean, duplicateWindowDays: number, trialCallsUsed: number, trialCallsLimit: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
 
 export type UpdateSettingsMutationVariables = Exact<{
   input: UpdateSettingsInput;
 }>;
 
 
-export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
+export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, aiEnabled: boolean, hasOpenAiKey: boolean, duplicateWindowDays: number, trialCallsUsed: number, trialCallsLimit: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
+
+export type SaveOpenAiKeyMutationVariables = Exact<{
+  key: Scalars['String']['input'];
+}>;
+
+
+export type SaveOpenAiKeyMutation = { __typename?: 'Mutation', saveOpenAiKey: { __typename?: 'UserSetting', id: string, aiEnabled: boolean, hasOpenAiKey: boolean, trialCallsUsed: number, trialCallsLimit: number } };
+
+export type RemoveOpenAiKeyMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RemoveOpenAiKeyMutation = { __typename?: 'Mutation', removeOpenAiKey: { __typename?: 'UserSetting', id: string, aiEnabled: boolean, hasOpenAiKey: boolean, trialCallsUsed: number, trialCallsLimit: number } };
+
+export type AiUsageChangedSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AiUsageChangedSubscription = { __typename?: 'Subscription', aiUsageChanged: { __typename?: 'AiUsageChangedEventType', trialCallsUsed: number, hasOpenAiKey: boolean } };
 
 export type RerunSourceTemplateMutationVariables = Exact<{
   templateId: Scalars['ID']['input'];
@@ -2406,7 +2442,11 @@ export const SettingsDocument = gql`
     autoFillEnabled
     autoSummaryEnabled
     autoMatchEnabled
+    aiEnabled
+    hasOpenAiKey
     duplicateWindowDays
+    trialCallsUsed
+    trialCallsLimit
     blockedKeywords {
       keyword
       scope
@@ -2423,13 +2463,47 @@ export const UpdateSettingsDocument = gql`
     autoFillEnabled
     autoSummaryEnabled
     autoMatchEnabled
+    aiEnabled
+    hasOpenAiKey
     duplicateWindowDays
+    trialCallsUsed
+    trialCallsLimit
     blockedKeywords {
       keyword
       scope
       matchMode
     }
     blockedCompanies
+  }
+}
+    `;
+export const SaveOpenAiKeyDocument = gql`
+    mutation SaveOpenAiKey($key: String!) {
+  saveOpenAiKey(key: $key) {
+    id
+    aiEnabled
+    hasOpenAiKey
+    trialCallsUsed
+    trialCallsLimit
+  }
+}
+    `;
+export const RemoveOpenAiKeyDocument = gql`
+    mutation RemoveOpenAiKey {
+  removeOpenAiKey {
+    id
+    aiEnabled
+    hasOpenAiKey
+    trialCallsUsed
+    trialCallsLimit
+  }
+}
+    `;
+export const AiUsageChangedDocument = gql`
+    subscription AiUsageChanged {
+  aiUsageChanged {
+    trialCallsUsed
+    hasOpenAiKey
   }
 }
     `;
@@ -2843,6 +2917,15 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     UpdateSettings(variables: UpdateSettingsMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<UpdateSettingsMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateSettingsMutation>({ document: UpdateSettingsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'UpdateSettings', 'mutation', variables);
+    },
+    SaveOpenAiKey(variables: SaveOpenAiKeyMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SaveOpenAiKeyMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SaveOpenAiKeyMutation>({ document: SaveOpenAiKeyDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SaveOpenAiKey', 'mutation', variables);
+    },
+    RemoveOpenAiKey(variables?: RemoveOpenAiKeyMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<RemoveOpenAiKeyMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RemoveOpenAiKeyMutation>({ document: RemoveOpenAiKeyDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'RemoveOpenAiKey', 'mutation', variables);
+    },
+    AiUsageChanged(variables?: AiUsageChangedSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AiUsageChangedSubscription> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AiUsageChangedSubscription>({ document: AiUsageChangedDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AiUsageChanged', 'subscription', variables);
     },
     RerunSourceTemplate(variables: RerunSourceTemplateMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<RerunSourceTemplateMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<RerunSourceTemplateMutation>({ document: RerunSourceTemplateDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'RerunSourceTemplate', 'mutation', variables);

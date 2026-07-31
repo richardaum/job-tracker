@@ -4,7 +4,11 @@ query Settings {
     autoFillEnabled
     autoSummaryEnabled
     autoMatchEnabled
+    aiEnabled
+    hasOpenAiKey
     duplicateWindowDays
+    trialCallsUsed
+    trialCallsLimit
     blockedKeywords {
       keyword
       scope
@@ -20,12 +24,43 @@ mutation UpdateSettings($input: UpdateSettingsInput!) {
     autoFillEnabled
     autoSummaryEnabled
     autoMatchEnabled
+    aiEnabled
+    hasOpenAiKey
     duplicateWindowDays
+    trialCallsUsed
+    trialCallsLimit
     blockedKeywords {
       keyword
       scope
       matchMode
     }
     blockedCompanies
+  }
+}
+
+mutation SaveOpenAiKey($key: String!) {
+  saveOpenAiKey(key: $key) {
+    id
+    aiEnabled
+    hasOpenAiKey
+    trialCallsUsed
+    trialCallsLimit
+  }
+}
+
+mutation RemoveOpenAiKey {
+  removeOpenAiKey {
+    id
+    aiEnabled
+    hasOpenAiKey
+    trialCallsUsed
+    trialCallsLimit
+  }
+}
+
+subscription AiUsageChanged {
+  aiUsageChanged {
+    trialCallsUsed
+    hasOpenAiKey
   }
 }
