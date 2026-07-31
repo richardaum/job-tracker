@@ -1,6 +1,8 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { Role } from "@/gql/graphql";
+
 import type { CurrentUser } from "./useCurrentUser";
 
 const useMeQueryMock = vi.fn();
@@ -20,7 +22,7 @@ describe("useCurrentUser", () => {
       id: "user-1",
       email: "test@example.com",
       name: "Test User",
-      role: "user",
+      role: Role.User,
       avatarUrl: null,
       accounts: [],
     };

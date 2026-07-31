@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
+import { Role } from "@/gql/graphql";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 
 import { Sidebar } from "./Sidebar";
@@ -114,7 +115,7 @@ const mockUser: CurrentUser = {
   id: "user-1",
   name: "John Doe",
   email: "john@example.com",
-  role: "Admin",
+  role: Role.Admin,
   avatarUrl: null,
   accounts: [],
 };
@@ -192,7 +193,7 @@ describe("Sidebar", () => {
   });
 
   it("hides Admin nav item for non-admin users", () => {
-    render(<Sidebar user={{ ...mockUser, role: "User" }} />);
+    render(<Sidebar user={{ ...mockUser, role: Role.User }} />);
     expect(screen.queryByText("Admin")).toBeNull();
   });
 

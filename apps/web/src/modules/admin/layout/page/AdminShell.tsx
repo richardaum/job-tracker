@@ -8,10 +8,10 @@ import { useEffect } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
 import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
+import { Role } from "@/gql/graphql";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { AdminHeaderActions } from "@/modules/admin/layout/admin-header.slots";
 
-const ADMIN_ROLE = "Admin";
 const NON_ADMIN_REDIRECT_ROUTE: Route = "/jobs";
 
 function deriveTab(pathname: string): string {
@@ -83,7 +83,7 @@ export function AdminShell({ children }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading } = useCurrentUser();
-  const isAdmin = user?.role === ADMIN_ROLE;
+  const isAdmin = user?.role === Role.Admin;
   const currentTab = deriveTab(pathname);
   const currentExtensionSubTab = deriveExtensionSubTab(pathname);
 

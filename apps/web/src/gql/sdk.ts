@@ -439,6 +439,7 @@ export type Mutation = {
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
   saveOpenAiKey: UserSetting;
+  setUserTrialCallsLimit: UserSetting;
   updateCompany: CompanyType;
   updateJob: JobType;
   updateJobNote: NoteType;
@@ -594,6 +595,12 @@ export type MutationRerunSourceTemplateArgs = {
 
 export type MutationSaveOpenAiKeyArgs = {
   key: Scalars['String']['input'];
+};
+
+
+export type MutationSetUserTrialCallsLimitArgs = {
+  limit: Scalars['Int']['input'];
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -884,6 +891,11 @@ export type ResumeType = {
   userId: Scalars['String']['output'];
 };
 
+export enum Role {
+  Admin = 'Admin',
+  User = 'User'
+}
+
 export enum SalaryPeriod {
   Hour = 'Hour',
   Month = 'Month',
@@ -1072,7 +1084,7 @@ export type UserType = {
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  role: Scalars['String']['output'];
+  role: Role;
 };
 
 export enum Weight {
@@ -1105,7 +1117,7 @@ export type AdminExtensionActivityEventsSubscription = { __typename?: 'Subscript
 export type AdminUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AdminUsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'UserType', id: string, email: string, name: string, role: string, avatarUrl?: string | null }> };
+export type AdminUsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'UserType', id: string, email: string, name: string, role: Role, avatarUrl?: string | null }> };
 
 export type AiConversationFieldsFragment = { __typename?: 'AiConversationType', id: string, jobId: string, title: string, createdAt: any, updatedAt: any };
 
@@ -1159,7 +1171,7 @@ export type AiMessageStreamedSubscription = { __typename?: 'Subscription', aiMes
 export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AuthenticatedShellQuery = { __typename?: 'Query', me: { __typename?: 'UserType', id: string, email: string, name: string, role: string, avatarUrl?: string | null, accounts: Array<{ __typename?: 'AuthAccount', id: string, providerName: AuthProvider, providerAccountId: string, createdAt: any }> }, settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number } };
+export type AuthenticatedShellQuery = { __typename?: 'Query', me: { __typename?: 'UserType', id: string, email: string, name: string, role: Role, avatarUrl?: string | null, accounts: Array<{ __typename?: 'AuthAccount', id: string, providerName: AuthProvider, providerAccountId: string, createdAt: any }> }, settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number } };
 
 export type UpdateCompanyMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1430,7 +1442,7 @@ export type DeleteMatchAnalysisMutation = { __typename?: 'Mutation', deleteMatch
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'UserType', id: string, email: string, name: string, role: string, avatarUrl?: string | null, accounts: Array<{ __typename?: 'AuthAccount', id: string, providerName: AuthProvider, providerAccountId: string, createdAt: any }> } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'UserType', id: string, email: string, name: string, role: Role, avatarUrl?: string | null, accounts: Array<{ __typename?: 'AuthAccount', id: string, providerName: AuthProvider, providerAccountId: string, createdAt: any }> } };
 
 export type QuickFilterCountsQueryVariables = Exact<{
   company?: InputMaybe<Scalars['String']['input']>;

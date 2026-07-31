@@ -22,6 +22,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useFeatureFlagEnabled, usePostHog } from "posthog-js/react";
 import { useEffect, useState } from "react";
 
+import { Role } from "@/gql/graphql";
 import { useAiUsageChangedSubscription, useSettingsQuery } from "@/gql/hooks";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
@@ -84,7 +85,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   const sourcesEnabled = useFeatureFlagEnabled("sources-enabled") ?? false;
   const visibleNavItems = [
     ...navItems.filter((item) => item.href !== "/sources" || sourcesEnabled),
-    ...(user.role === "Admin" ? [adminNavItem] : []),
+    ...(user.role === Role.Admin ? [adminNavItem] : []),
   ];
 
   useEffect(() => {
