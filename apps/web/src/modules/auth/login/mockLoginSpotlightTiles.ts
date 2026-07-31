@@ -2,7 +2,14 @@
  * Decorative tiles for the login mosaic ([P-142], [T-165]).
  * Static marketing-style highlights — not CMS or GraphQL-backed.
  */
-export type LoginSpotlightIconKey = "briefcase" | "chartLineUp" | "clipboardText" | "pulse" | "folders" | "rss";
+export type LoginSpotlightIconKey =
+  | "briefcase"
+  | "chartLineUp"
+  | "clipboardText"
+  | "target"
+  | "magicWand"
+  | "funnel"
+  | "calculator";
 
 interface LoginSpotlightCardTile {
   readonly kind: "card";
@@ -30,16 +37,12 @@ interface LoginSpotlightVisualTile {
   readonly title: string;
   readonly body: string;
   readonly layoutClassName: string;
+  readonly imageSrc: string;
+  readonly imageSizes: string;
   readonly imageCaption?: string;
 }
 
 export type LoginSpotlightTile = LoginSpotlightCardTile | LoginSpotlightWideTile | LoginSpotlightVisualTile;
-
-export interface LoginSpotlightNavTag {
-  readonly id: string;
-  readonly label: string;
-  readonly active: boolean;
-}
 
 export const LOGIN_SPOTLIGHT_TILES: readonly LoginSpotlightTile[] = [
   {
@@ -60,20 +63,22 @@ export const LOGIN_SPOTLIGHT_TILES: readonly LoginSpotlightTile[] = [
   },
   {
     kind: "card",
-    id: "sources",
-    icon: "rss",
-    title: "Save roles from the browser",
-    body: "Capture listings with the Job Tracker Chrome extension next to everything else you track.",
+    id: "match",
+    icon: "target",
+    title: "See your fit before you apply",
+    body: "AI compares your resume against each posting and scores the match, so you know where to focus.",
     layoutClassName: "h-full min-h-0 lg:col-span-4 lg:col-start-9 lg:row-start-1",
   },
   {
     kind: "visual",
-    id: "imports",
-    icon: "folders",
-    title: "Importer templates",
-    body: "Reusable import setups and rerun history replace one-off spreadsheets when feeds or boards change.",
+    id: "auto-fill",
+    icon: "magicWand",
+    title: "Paste a link, get a draft",
+    body: "Drop in a posting or its URL and AI extracts the title, company, and requirements into a ready-to-edit draft.",
     layoutClassName: "h-full min-h-0 lg:col-span-8 lg:col-start-1 lg:row-start-2",
-    imageCaption: "Templates & reruns preview",
+    imageSrc: "/login/paste-link-draft.png",
+    imageSizes: "(min-width: 1024px) 620px, 90vw",
+    imageCaption: "Draft-ready in seconds",
   },
   {
     kind: "visual",
@@ -82,30 +87,24 @@ export const LOGIN_SPOTLIGHT_TILES: readonly LoginSpotlightTile[] = [
     title: "Interview cadence",
     body: "Prep notes and outcomes sit beside each role so debriefs and offer comparisons stay grounded.",
     layoutClassName: "h-full min-h-0 lg:col-span-4 lg:col-start-9 lg:row-span-2 lg:row-start-2",
+    imageSrc: "/login/interview-cadence.png",
+    imageSizes: "(min-width: 1024px) 320px, 90vw",
     imageCaption: "Review-ready context",
   },
   {
     kind: "card",
     id: "signals",
-    icon: "pulse",
-    title: "Progress without noise",
-    body: "A light dashboard reminds you when timing matters—not to live inside another analytics tool.",
+    icon: "funnel",
+    title: "Filter out the noise",
+    body: "Block keywords and companies you don't want to see, so your list stays focused on roles worth your time.",
     layoutClassName: "h-full min-h-0 lg:col-span-4 lg:col-start-1 lg:row-start-3",
   },
   {
     kind: "card",
-    id: "posting-to-pipeline",
-    icon: "rss",
-    title: "From URL to next step",
-    body: "One card holds the posting link, title, stage, and the action you owe yourself this week.",
+    id: "salary",
+    icon: "calculator",
+    title: "Know your number",
+    body: "Compare offers with the built-in salary calculator, converted to your currency automatically.",
     layoutClassName: "h-full min-h-0 lg:col-span-4 lg:col-start-5 lg:row-start-3",
   },
 ] satisfies readonly LoginSpotlightTile[];
-
-export const LOGIN_SPOTLIGHT_NAV_TAGS: readonly LoginSpotlightNavTag[] = [
-  { id: "overview", label: "Overview", active: true },
-  { id: "applications", label: "Applications", active: false },
-  { id: "pipeline", label: "Pipeline", active: false },
-  { id: "extension", label: "Extension", active: false },
-  { id: "imports", label: "Imports", active: false },
-] satisfies readonly LoginSpotlightNavTag[];

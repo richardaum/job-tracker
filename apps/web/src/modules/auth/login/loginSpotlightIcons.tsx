@@ -2,11 +2,12 @@ import { cn } from "@job-tracker/ui";
 import type { IconWeight } from "@phosphor-icons/react";
 import {
   BriefcaseIcon,
+  CalculatorIcon,
   ChartLineUpIcon,
   ClipboardTextIcon,
-  FoldersIcon,
-  PulseIcon,
-  RssSimpleIcon,
+  FunnelIcon,
+  MagicWandIcon,
+  TargetIcon,
 } from "@phosphor-icons/react";
 import type { ComponentType } from "react";
 
@@ -16,9 +17,10 @@ const MAP: Record<LoginSpotlightIconKey, ComponentType<{ className?: string; wei
   briefcase: BriefcaseIcon,
   chartLineUp: ChartLineUpIcon,
   clipboardText: ClipboardTextIcon,
-  pulse: PulseIcon,
-  folders: FoldersIcon,
-  rss: RssSimpleIcon,
+  target: TargetIcon,
+  magicWand: MagicWandIcon,
+  funnel: FunnelIcon,
+  calculator: CalculatorIcon,
 };
 
 /** Icon chip for spotlight tiles on the dark glass shell (invert-facing). */
@@ -31,14 +33,13 @@ export function LoginSpotlightGlyph({ icon, className, variant = "tile" }: Login
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-md border border-text-inverted/22",
-        "bg-bg-surface/22",
-        isHero ? "size-19 rounded-lg sm:size-21" : "size-11",
+        "inline-flex shrink-0 items-center justify-center",
+        isHero ? "size-19 sm:size-21" : "-ml-2 size-11",
         className,
       )}
       aria-hidden
     >
-      <Cmp className={cn("text-text-inverted", isHero ? "size-11 sm:size-12" : "size-5")} weight="duotone" />
+      <Cmp className={cn("text-text-inverted", isHero ? "size-11 sm:size-12" : "size-7")} weight="duotone" />
     </span>
   );
 }

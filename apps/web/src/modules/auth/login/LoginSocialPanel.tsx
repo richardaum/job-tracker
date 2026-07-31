@@ -44,11 +44,11 @@ export function LoginSocialPanel({ brandName, onGoogleClick, error, className }:
     <div
       className={cn(
         "w-full max-w-md rounded-xl border border-border-default bg-bg-surface p-8 shadow-lg",
-        "lg:max-w-none lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:justify-center lg:p-10",
+        "lg:flex lg:h-full lg:max-w-none lg:flex-col lg:justify-center lg:p-10",
         className,
       )}
     >
-      <Heading as="h1" size="3xl" className={cn("text-text-brand")}>
+      <Heading as="h1" size="3xl" className={cn("font-semibold text-text-brand")}>
         Get started
       </Heading>
       <p className={cn("mt-2 text-sm text-text-muted")}>
