@@ -43,6 +43,8 @@ vi.mock("next/link", () => ({
 
 vi.mock("@/lib/api-endpoints", () => ({ getApiBaseUrl: () => "http://localhost:3101" }));
 
+vi.mock("posthog-js/react", () => ({ usePostHog: () => ({ identify: vi.fn() }), useFeatureFlagEnabled: () => true }));
+
 const clearStoreMock = vi.fn().mockResolvedValue(undefined);
 
 vi.mock("@apollo/client/react", async (importOriginal) => {

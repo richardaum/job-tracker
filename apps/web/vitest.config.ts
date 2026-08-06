@@ -17,6 +17,7 @@ export default defineConfig({
     },
   },
   resolve: {
+    conditions: ["browser"],
     alias: [
       { find: "@/app/icon.svg", replacement: path.resolve(__dirname, "./src/test/stubs/jobTrackerAppIcon.stub.ts") },
       { find: "@", replacement: path.resolve(__dirname, "./src") },

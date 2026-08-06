@@ -1,4 +1,4 @@
-import { ApolloProvider } from "@apollo/client/react";
+import { ApolloNextAppProvider } from "@apollo/client-integration-nextjs";
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -17,11 +17,22 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/hooks/useCurrentUser", () => ({ useCurrentUser: () => useCurrentUserMock() }));
 
+vi.mock("posthog-js/react", () => ({ usePostHog: () => ({ identify: vi.fn() }), useFeatureFlagEnabled: () => true }));
+
+vi.mock("@/gql/hooks", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/gql/hooks")>();
+  return {
+    ...actual,
+    useSettingsQuery: () => ({ data: undefined, refetch: vi.fn() }),
+    useAiUsageChangedSubscription: () => undefined,
+  };
+});
+
 function renderAuthenticatedLayout(children: ReactNode) {
   return render(
-    <ApolloProvider client={createApolloClient()}>
+    <ApolloNextAppProvider makeClient={createApolloClient}>
       <AuthenticatedLayout>{children}</AuthenticatedLayout>
-    </ApolloProvider>,
+    </ApolloNextAppProvider>,
   );
 }
 

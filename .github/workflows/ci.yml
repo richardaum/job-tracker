@@ -143,8 +143,6 @@ jobs:
 
       - name: Run migrations (seed source DB for clone)
         run: pnpm --filter @job-tracker/api run db:migrate
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/job_tracker
 
       - name: Install Playwright Chromium
         run: pnpm --filter @job-tracker/web exec playwright install chromium --with-deps
