@@ -5,11 +5,11 @@ import { SearchInput } from "@job-tracker/ui";
 import { PlusIcon } from "@phosphor-icons/react";
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRef } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { JobCard } from "@/modules/jobs/list/components/JobCard";
-import { JobQuickEditDialog } from "@/modules/jobs/list/components/JobQuickEditDialog";
+import { JobQuickEditDialog, type JobQuickEditDialogHandle } from "@/modules/jobs/list/components/JobQuickEditDialog";
 import { JobsCompanyFilterBanner } from "@/modules/jobs/list/components/JobsCompanyFilterBanner";
 import { JobsImportRunFilterBanner } from "@/modules/jobs/list/components/JobsImportRunFilterBanner";
 import { QuickFilters } from "@/modules/jobs/list/components/QuickFilters";
@@ -18,6 +18,7 @@ import { useCreateQuickJob } from "@/modules/jobs/shared/hooks/useCreateQuickJob
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { useUpdateQuickJob } from "@/modules/jobs/shared/hooks/useUpdateQuickJob";
 import { Onboarding } from "@/modules/onboarding/Onboarding";
+import { useNewJobOnboarding } from "@/modules/onboarding/hooks/useNewJobOnboarding";
 
 function stripSearchKeys(currentSearch: string, keysToRemove: Array<string>): string {
   const params = new URLSearchParams(currentSearch);
@@ -87,7 +88,8 @@ export default function JobsPage() {
   const { enqueueToast } = useToastQueue();
 
   const newJob = useDialog();
-  const [isNewJobOnboardingStepActive, setIsNewJobOnboardingStepActive] = useState(false);
+  const newJobDialogRef = useRef<JobQuickEditDialogHandle>(null);
+  const [newJobOnboarding, dispatchNewJobOnboarding] = useNewJobOnboarding();
 
   function showToast(message: string, intent: "success" | "error") {
     enqueueToast({ title: message, intent });
@@ -107,7 +109,20 @@ export default function JobsPage() {
 
   return (
     <div className={cn("flex h-full flex-col")}>
-      <Onboarding onOpenNewJob={newJob.open} onJobTitleStepActiveChange={setIsNewJobOnboardingStepActive} />
+      <Onboarding
+        tourLabel={"Create your first job"}
+        onOpenNewJob={() => {
+          if (!newJob.isOpen) {
+            dispatchNewJobOnboarding({ type: "form-opened" });
+          }
+          newJob.open();
+        }}
+        onCloseNewJob={newJob.close}
+        onFocusJobField={(field) => newJobDialogRef.current?.focusField(field)}
+        onJobFormStepChange={(step) => dispatchNewJobOnboarding({ type: "step-changed", step })}
+        isJobTitleFilled={newJobOnboarding.titleFilled}
+        isJobCompanyFilled={newJobOnboarding.companyFilled}
+      />
 
       {/* Action bar */}
       <div
@@ -119,10 +134,18 @@ export default function JobsPage() {
 
         <div className={cn("w-full sm:w-auto")}>
           <JobQuickEditDialog
+            ref={newJobDialogRef}
             control={newJob}
             loading={isCreatingQuickJob}
-            dismissible={!isNewJobOnboardingStepActive}
+            dismissible={newJobOnboarding.activeStep === null}
+            disableSubmitOnEnter={newJobOnboarding.activeStep !== null}
+            disableCompanyOptions={newJobOnboarding.activeStep !== null}
             onCreate={createQuickJob}
+            onFormChange={({ name, values }) => {
+              if (name === "title" || name === "company") {
+                dispatchNewJobOnboarding({ type: "field-changed", name, value: values[name] });
+              }
+            }}
           />
           <Button intent="primary" size="md" onClick={newJob.open} data-onboarding-step="new-job-button">
             <PlusIcon size={16} weight="bold" className={cn("mr-2")} />
