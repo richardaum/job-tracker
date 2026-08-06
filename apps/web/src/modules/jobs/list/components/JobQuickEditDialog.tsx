@@ -3,7 +3,8 @@
 import { Button, cn, Combobox, Dialog, FormField, Input, Stack, useDialog } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
 import { Controller, useForm } from "react-hook-form";
-import type { ReactElement } from "react";
+import { useEffect, useImperativeHandle, useRef } from "react";
+import type { KeyboardEvent, ReactElement, Ref, SubmitEvent } from "react";
 
 import { useCompaniesQuery } from "@/gql/hooks";
 
@@ -16,12 +17,23 @@ interface JobValues {
   workRegion?: string | null;
 }
 
-interface JobQuickEditFormValues {
+export type JobQuickEditField = "title" | "company";
+
+export interface JobQuickEditDialogHandle {
+  focusField: (field: JobQuickEditField) => void;
+}
+
+export interface JobQuickEditFormValues {
   title: string;
   company: string;
   urlsText: string;
   location: string;
   workRegion: string;
+}
+
+export interface JobQuickEditFormChange {
+  name: string;
+  values: JobQuickEditFormValues;
 }
 
 export interface JobQuickEditInput {
@@ -38,14 +50,30 @@ interface JobQuickEditDialogFormProps {
   loading: boolean;
   onCreate?: (input: JobQuickEditInput) => Promise<boolean>;
   onUpdate?: (jobId: string, input: JobQuickEditInput) => Promise<boolean>;
+  onFormChange?: (change: JobQuickEditFormChange) => void;
+  disableSubmitOnEnter: boolean;
+  disableCompanyOptions: boolean;
+  dialogRef?: Ref<JobQuickEditDialogHandle>;
   onClose: () => void;
 }
 
-function JobQuickEditDialogForm({ isEdit, job, loading, onCreate, onUpdate, onClose }: JobQuickEditDialogFormProps) {
+function JobQuickEditDialogForm({
+  isEdit,
+  job,
+  loading,
+  onCreate,
+  onUpdate,
+  onFormChange,
+  disableSubmitOnEnter,
+  disableCompanyOptions,
+  dialogRef,
+  onClose,
+}: JobQuickEditDialogFormProps) {
   const {
     control,
     handleSubmit,
     register,
+    subscribe,
     formState: { errors },
   } = useForm<JobQuickEditFormValues>({
     defaultValues: {
@@ -57,8 +85,37 @@ function JobQuickEditDialogForm({ isEdit, job, loading, onCreate, onUpdate, onCl
     },
   });
 
+  useEffect(
+    () =>
+      subscribe({
+        formState: { values: true },
+        callback: ({ name, values }) => {
+          if (!name) return;
+
+          onFormChange?.({ name, values });
+        },
+      }),
+    [onFormChange, subscribe],
+  );
+
   const { data: companiesData } = useCompaniesQuery();
   const companyOptions = (companiesData?.companies ?? []).map((c) => ({ label: c.name, value: c.id }));
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const companyInputRef = useRef<HTMLInputElement>(null);
+  const { ref: registerTitleRef, ...titleInputProps } = register("title", {
+    validate: (value) => Boolean(value.trim()) || "Title is required.",
+  });
+
+  useImperativeHandle(
+    dialogRef,
+    () => ({
+      focusField: (field) => {
+        if (field === "title") titleInputRef.current?.focus();
+        if (field === "company") companyInputRef.current?.focus();
+      },
+    }),
+    [],
+  );
 
   async function submit(form: JobQuickEditFormValues) {
     const input = {
@@ -76,11 +133,19 @@ function JobQuickEditDialogForm({ isEdit, job, loading, onCreate, onUpdate, onCl
     if (didSubmit) onClose();
   }
 
+  function handleFormSubmit(event: SubmitEvent<HTMLFormElement>) {
+    void handleSubmit(submit)(event);
+  }
+
+  function handleFormKeyDown(event: KeyboardEvent<HTMLFormElement>) {
+    if (disableSubmitOnEnter && event.key === "Enter") event.preventDefault();
+  }
+
   const formId = "job-quick-edit-dialog-form";
 
   return (
     <>
-      <form id={formId} onSubmit={handleSubmit(submit)} noValidate>
+      <form id={formId} onSubmit={handleFormSubmit} onKeyDown={handleFormKeyDown} noValidate>
         <Stack gap="sm">
           <FormField label="Job title" htmlFor="job-title" required error={errors.title?.message}>
             <Input
@@ -90,7 +155,11 @@ function JobQuickEditDialogForm({ isEdit, job, loading, onCreate, onUpdate, onCl
               placeholder="e.g. Senior Frontend Engineer"
               state={errors.title ? "error" : "default"}
               disabled={loading}
-              {...register("title", { validate: (value) => Boolean(value.trim()) || "Title is required." })}
+              {...titleInputProps}
+              ref={(element) => {
+                titleInputRef.current = element;
+                registerTitleRef(element);
+              }}
             />
           </FormField>
 
@@ -106,7 +175,10 @@ function JobQuickEditDialogForm({ isEdit, job, loading, onCreate, onUpdate, onCl
                     value={field.value}
                     onInputValueChange={field.onChange}
                     onValueChange={(option) => field.onChange(option.label)}
-                    options={companyOptions}
+                    onInputElementChange={(element) => {
+                      companyInputRef.current = element;
+                    }}
+                    options={disableCompanyOptions ? [] : companyOptions}
                     placeholder="e.g. Acme Corp"
                     state={errors.company ? "error" : "default"}
                     disabled={loading}
@@ -165,23 +237,31 @@ function JobQuickEditDialogForm({ isEdit, job, loading, onCreate, onUpdate, onCl
 }
 
 export interface JobQuickEditDialogProps {
+  ref?: Ref<JobQuickEditDialogHandle>;
   control?: DialogControl;
   trigger?: ReactElement;
   job?: JobValues;
   loading: boolean;
   dismissible?: boolean;
+  disableSubmitOnEnter?: boolean;
+  disableCompanyOptions?: boolean;
   onCreate?: (input: JobQuickEditInput) => Promise<boolean>;
   onUpdate?: (jobId: string, input: JobQuickEditInput) => Promise<boolean>;
+  onFormChange?: (change: JobQuickEditFormChange) => void;
 }
 
 export function JobQuickEditDialog({
+  ref,
   control: controlProp,
   trigger,
   job,
   loading,
   dismissible,
+  disableSubmitOnEnter = false,
+  disableCompanyOptions = false,
   onCreate,
   onUpdate,
+  onFormChange,
 }: JobQuickEditDialogProps) {
   const internalControl = useDialog();
   const control = controlProp ?? internalControl;
@@ -207,6 +287,10 @@ export function JobQuickEditDialog({
           loading={loading}
           onCreate={onCreate}
           onUpdate={onUpdate}
+          onFormChange={onFormChange}
+          disableSubmitOnEnter={disableSubmitOnEnter}
+          disableCompanyOptions={disableCompanyOptions}
+          dialogRef={ref}
           onClose={() => control.onOpenChange(false)}
         />
       ) : null}

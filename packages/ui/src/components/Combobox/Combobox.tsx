@@ -22,6 +22,7 @@ export interface ComboboxProps {
   state?: "default" | "error";
   id?: string;
   autoComplete?: string;
+  onInputElementChange?: (element: HTMLInputElement | null) => void;
 }
 
 export function Combobox({
@@ -35,6 +36,7 @@ export function Combobox({
   state = "default",
   id,
   autoComplete = "one-time-code",
+  onInputElementChange,
 }: ComboboxProps) {
   const selectedByStableValue = options.find((option) => option.value === value);
   const inputDisplayValue = selectedByStableValue?.label ?? value;
@@ -51,7 +53,14 @@ export function Combobox({
       hasItems={filteredOptions.length > 0}
       disabled={disabled}
     >
-      <AnchoredCombobox.Input placeholder={placeholder} size={size} state={state} id={id} autoComplete={autoComplete} />
+      <AnchoredCombobox.Input
+        placeholder={placeholder}
+        size={size}
+        state={state}
+        id={id}
+        autoComplete={autoComplete}
+        onInputElementChange={onInputElementChange}
+      />
       <AnchoredCombobox.Portal>
         <AnchoredCombobox.Content className={cn("z-50 p-1")}>
           <AnchoredCombobox.List className={cn("gap-2")}>

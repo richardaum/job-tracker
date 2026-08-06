@@ -6,7 +6,7 @@ import { Input as TextInput } from "@ui/components/Input/Input";
 import { cn } from "@ui/lib/cn";
 import { returnComboboxFocusToInputOnFirstItemArrowUp } from "@ui/lib/focusRadixMenuItem";
 import { useMenuAnchoredCombobox } from "@ui/lib/menuAnchoredCombobox";
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type {
   ComponentPropsWithoutRef,
   Dispatch,
@@ -120,11 +120,15 @@ function Root({
 export type AnchoredComboboxInputProps = Omit<
   InputProps,
   "value" | "defaultValue" | "onChange" | "onKeyDown" | "onClick" | "ref" | "disabled"
-> & { ignoreBlurWithinMenu?: boolean; leading?: ReactElement };
+> & {
+  ignoreBlurWithinMenu?: boolean;
+  onInputElementChange?: (element: HTMLInputElement | null) => void;
+  leading?: ReactElement;
+};
 
 /** Anchors the input under `Menu.Root` and wires menu open + keyboard routing. */
 function ComboInput(props: AnchoredComboboxInputProps): ReactElement {
-  const { ignoreBlurWithinMenu = false, leading, onBlur, ...inputProps } = props;
+  const { ignoreBlurWithinMenu = false, onInputElementChange, leading, onBlur, ...inputProps } = props;
   const {
     value,
     onValueChange,
@@ -139,6 +143,11 @@ function ComboInput(props: AnchoredComboboxInputProps): ReactElement {
   } = useAnchoredComboboxCtx();
 
   const onInputKeyDown = createInputKeyDownHandler({ disabled, hasItems, open, menuOpen, setOpen });
+
+  useEffect(() => {
+    onInputElementChange?.(inputRef.current);
+    return () => onInputElementChange?.(null);
+  }, [inputRef, onInputElementChange]);
 
   return (
     <Menu.Anchor asChild>

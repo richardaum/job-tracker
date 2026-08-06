@@ -2,17 +2,31 @@
 
 import type { ReactNode } from "react";
 import type { EventData, Step, TooltipRenderProps } from "react-joyride";
-import { EVENTS, Joyride } from "react-joyride";
+import { ACTIONS, EVENTS, Joyride } from "react-joyride";
 import { useFeatureFlagEnabled } from "posthog-js/react";
 import { cn } from "@job-tracker/ui";
 
 export interface OnboardingProps {
   tourLabel?: ReactNode;
   onOpenNewJob?: () => void;
-  onJobTitleStepActiveChange?: (active: boolean) => void;
+  onCloseNewJob?: () => void;
+  onFocusJobField?: (field: "title" | "company") => void;
+  onJobFormStepChange?: (step: "title" | "company" | null) => void;
+  isJobTitleFilled?: boolean;
+  isJobCompanyFilled?: boolean;
 }
 
-export function Onboarding({ tourLabel = "Guided tour", onOpenNewJob, onJobTitleStepActiveChange }: OnboardingProps) {
+const DEFAULT_TOUR_LABEL = "Guided tour";
+
+export function Onboarding({
+  tourLabel = DEFAULT_TOUR_LABEL,
+  onOpenNewJob,
+  onCloseNewJob,
+  onFocusJobField,
+  onJobFormStepChange,
+  isJobTitleFilled = false,
+  isJobCompanyFilled = false,
+}: OnboardingProps) {
   const onboardingEnabled = useFeatureFlagEnabled("onboarding-enabled");
 
   if (onboardingEnabled !== true) return null;
@@ -21,8 +35,15 @@ export function Onboarding({ tourLabel = "Guided tour", onOpenNewJob, onJobTitle
     <Joyride
       run
       continuous
-      steps={getOnboardingSteps(tourLabel, onOpenNewJob, onJobTitleStepActiveChange)}
-      onEvent={(event) => handleOnboardingEvent(event, onJobTitleStepActiveChange)}
+      steps={getOnboardingSteps(
+        tourLabel,
+        onOpenNewJob,
+        onCloseNewJob,
+        onJobFormStepChange,
+        isJobTitleFilled,
+        isJobCompanyFilled,
+      )}
+      onEvent={(event) => handleOnboardingEvent(event, onJobFormStepChange, onFocusJobField)}
       options={{
         buttons: ["back", "primary", "skip"],
         skipBeacon: true,
@@ -48,6 +69,8 @@ function OnboardingTooltip({
   step,
   tooltipProps,
 }: TooltipRenderProps) {
+  const isPrimaryDisabled = step.data?.disablePrimary === true;
+
   return (
     <section
       className={cn(
@@ -87,11 +110,12 @@ function OnboardingTooltip({
             />
           ) : null}
           <button
+            {...primaryProps}
             className={cn(
-              "cursor-pointer rounded-md border border-transparent bg-bg-brand px-3 py-1.5 text-sm font-medium text-text-inverted shadow-sm transition-colors hover:bg-bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
+              "rounded-md border border-transparent bg-bg-brand px-3 py-1.5 text-sm font-medium text-text-inverted shadow-sm transition-colors hover:bg-bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-bg-brand",
             )}
             type="button"
-            {...primaryProps}
+            disabled={isPrimaryDisabled}
           >
             {primaryProps.title}
           </button>
@@ -104,48 +128,60 @@ function OnboardingTooltip({
 function getOnboardingSteps(
   tourLabel: ReactNode,
   onOpenNewJob?: () => void,
-  onJobTitleStepActiveChange?: (active: boolean) => void,
+  onCloseNewJob?: () => void,
+  onJobFormStepChange?: (step: "title" | "company" | null) => void,
+  isJobTitleFilled = false,
+  isJobCompanyFilled = false,
 ): Step[] {
-  return [
+  const steps: Array<Omit<Step, "title">> = [
     {
       target: "body",
       placement: "center",
-      title: tourLabel,
       content: "Welcome to Job Tracker! This onboarding will guide you through the main features of the application.",
     },
     {
       target: '[data-onboarding-step="new-job-button"]',
       placement: "bottom",
-      title: tourLabel,
       content: "Click here to create a new job application.",
     },
     {
       target: '[data-onboarding-step="job-title-input"]',
       placement: "bottom",
-      title: tourLabel,
       content: "Start by giving this application a title.",
       disableFocusTrap: true,
+      data: { disablePrimary: !isJobTitleFilled },
       targetWaitTimeout: 2_000,
       before: async () => {
-        onJobTitleStepActiveChange?.(true);
         onOpenNewJob?.();
+        onJobFormStepChange?.("title");
       },
-      after: () => onJobTitleStepActiveChange?.(false),
+      after: ({ action }) => {
+        onJobFormStepChange?.(null);
+        if (action === ACTIONS.PREV) onCloseNewJob?.();
+      },
     },
     {
       target: '[data-onboarding-step="job-company-field"]',
       placement: "bottom",
-      title: tourLabel,
       content: "Next, choose the company for this application.",
       disableFocusTrap: true,
+      data: { disablePrimary: !isJobCompanyFilled },
       before: async () => {
-        onJobTitleStepActiveChange?.(true);
+        onJobFormStepChange?.("company");
       },
-      after: () => onJobTitleStepActiveChange?.(false),
+      after: () => onJobFormStepChange?.(null),
     },
   ];
+
+  return steps.map((step) => ({ ...step, title: tourLabel }));
 }
 
-function handleOnboardingEvent(event: EventData, onJobTitleStepActiveChange?: (active: boolean) => void) {
-  if (event.type === EVENTS.TOUR_END) onJobTitleStepActiveChange?.(false);
+function handleOnboardingEvent(
+  event: EventData,
+  onJobFormStepChange?: (step: "title" | "company" | null) => void,
+  onFocusJobField?: (field: "title" | "company") => void,
+) {
+  if (event.type === EVENTS.TOOLTIP && event.index === 2) onFocusJobField?.("title");
+  if (event.type === EVENTS.TOOLTIP && event.index === 3) onFocusJobField?.("company");
+  if (event.type === EVENTS.TOUR_END) onJobFormStepChange?.(null);
 }
