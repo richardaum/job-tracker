@@ -42,6 +42,7 @@
     "posthog-js": "^1.408.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-joyride": "^3.2.0",
     "react-number-format": "^5.4.5",
     "react-portalslots": "^1.0.6",
     "rxjs": "^7.8.2",

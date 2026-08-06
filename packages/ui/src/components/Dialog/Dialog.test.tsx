@@ -28,4 +28,17 @@ describe("Dialog", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.queryByText("Dialog content")).not.toBeInTheDocument();
   });
+
+  it("cannot be dismissed when dismissible is false", () => {
+    render(
+      <Dialog defaultOpen dismissible={false} title="Dialog title">
+        <p>Dialog content</p>
+      </Dialog>,
+    );
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(screen.getByText("Dialog content")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /close dialog/i })).not.toBeInTheDocument();
+  });
 });

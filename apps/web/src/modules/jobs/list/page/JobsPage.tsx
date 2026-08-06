@@ -5,6 +5,7 @@ import { SearchInput } from "@job-tracker/ui";
 import { PlusIcon } from "@phosphor-icons/react";
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { JobCard } from "@/modules/jobs/list/components/JobCard";
@@ -13,7 +14,10 @@ import { JobsCompanyFilterBanner } from "@/modules/jobs/list/components/JobsComp
 import { JobsImportRunFilterBanner } from "@/modules/jobs/list/components/JobsImportRunFilterBanner";
 import { QuickFilters } from "@/modules/jobs/list/components/QuickFilters";
 import { useJobsListViewModel } from "@/modules/jobs/list/hooks/useJobsListViewModel";
+import { useCreateQuickJob } from "@/modules/jobs/shared/hooks/useCreateQuickJob";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
+import { useUpdateQuickJob } from "@/modules/jobs/shared/hooks/useUpdateQuickJob";
+import { Onboarding } from "@/modules/onboarding/Onboarding";
 
 function stripSearchKeys(currentSearch: string, keysToRemove: Array<string>): string {
   const params = new URLSearchParams(currentSearch);
@@ -83,13 +87,28 @@ export default function JobsPage() {
   const { enqueueToast } = useToastQueue();
 
   const newJob = useDialog();
+  const [isNewJobOnboardingStepActive, setIsNewJobOnboardingStepActive] = useState(false);
 
   function showToast(message: string, intent: "success" | "error") {
     enqueueToast({ title: message, intent });
   }
 
+  const { createQuickJob, isCreatingQuickJob } = useCreateQuickJob({
+    onCreated: (jobId) => {
+      showToast("Job created.", "success");
+      router.push(`/jobs/${jobId}`);
+    },
+    onError: () => showToast("Something went wrong. Please try again.", "error"),
+  });
+  const { updateQuickJob, isUpdatingQuickJob } = useUpdateQuickJob({
+    onUpdated: () => showToast("Job updated.", "success"),
+    onError: () => showToast("Something went wrong. Please try again.", "error"),
+  });
+
   return (
     <div className={cn("flex h-full flex-col")}>
+      <Onboarding onOpenNewJob={newJob.open} onJobTitleStepActiveChange={setIsNewJobOnboardingStepActive} />
+
       {/* Action bar */}
       <div
         className={cn(
@@ -101,13 +120,11 @@ export default function JobsPage() {
         <div className={cn("w-full sm:w-auto")}>
           <JobQuickEditDialog
             control={newJob}
-            onSuccess={(msg) => showToast(msg, "success")}
-            onError={(msg) => showToast(msg, "error")}
-            onCreated={(jobId) => {
-              router.push(`/jobs/${jobId}`);
-            }}
+            loading={isCreatingQuickJob}
+            dismissible={!isNewJobOnboardingStepActive}
+            onCreate={createQuickJob}
           />
-          <Button intent="primary" size="md" onClick={newJob.open}>
+          <Button intent="primary" size="md" onClick={newJob.open} data-onboarding-step="new-job-button">
             <PlusIcon size={16} weight="bold" className={cn("mr-2")} />
             New job
           </Button>
@@ -135,6 +152,8 @@ export default function JobsPage() {
                 job={job}
                 onSuccess={(msg) => showToast(msg, "success")}
                 onError={(msg) => showToast(msg, "error")}
+                quickEditLoading={isUpdatingQuickJob}
+                onQuickEdit={updateQuickJob}
               />
             ))}
           </Stack>
