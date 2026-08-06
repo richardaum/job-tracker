@@ -10,6 +10,8 @@ const useJobsQueryMock = vi.fn();
 const useJobStageEventsQueryMock = vi.fn();
 const useCurrentUserMock = vi.fn();
 const useQuickFilterCountsQueryMock = vi.fn();
+const useCreateJobMutationMock = vi.fn();
+const useUpdateJobMutationMock = vi.fn();
 const routerPushSpy = vi.fn();
 
 vi.mock("next/navigation", () => ({
@@ -47,6 +49,10 @@ vi.mock("@/gql/hooks", () => ({
   useJobsQuery: (...args: unknown[]) => useJobsQueryMock(...args),
   useJobStageEventsQuery: (...args: unknown[]) => useJobStageEventsQueryMock(...args),
   useQuickFilterCountsQuery: (...args: unknown[]) => useQuickFilterCountsQueryMock(...args),
+  JobsDocument: {},
+  QuickFilterCountsDocument: {},
+  useCreateJobMutation: (...args: unknown[]) => useCreateJobMutationMock(...args),
+  useUpdateJobMutation: (...args: unknown[]) => useUpdateJobMutationMock(...args),
 }));
 
 vi.mock("@/hooks/useCurrentUser", () => ({ useCurrentUser: () => useCurrentUserMock() }));
@@ -69,6 +75,8 @@ describe("JobsPage", () => {
     routerPushSpy.mockClear();
     vi.clearAllMocks();
     useQuickFilterCountsQueryMock.mockReturnValue({ data: { quickFilterCounts: [] }, loading: false });
+    useCreateJobMutationMock.mockReturnValue([vi.fn(), { loading: false }]);
+    useUpdateJobMutationMock.mockReturnValue([vi.fn(), { loading: false }]);
   });
 
   it("passes DRAFT filter to Jobs query when URL has q=draft", () => {

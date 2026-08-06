@@ -18,6 +18,7 @@ export interface DialogProps {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  dismissible?: boolean;
   contentClassName?: string;
   childrenClassName?: string;
   size?: DialogSize;
@@ -43,6 +44,7 @@ export function Dialog({
   open,
   defaultOpen,
   onOpenChange,
+  dismissible = true,
   contentClassName,
   childrenClassName,
   size = "lg",
@@ -61,6 +63,12 @@ export function Dialog({
             contentClassName,
           )}
           {...(!hasDescription ? { "aria-describedby": undefined } : {})}
+          onEscapeKeyDown={(event) => {
+            if (!dismissible) event.preventDefault();
+          }}
+          onPointerDownOutside={(event) => {
+            if (!dismissible) event.preventDefault();
+          }}
         >
           <div className={cn("mb-3 shrink-0 pr-10")}>
             <div className={cn("space-y-1")}>
@@ -72,14 +80,16 @@ export function Dialog({
               ) : null}
             </div>
           </div>
-          <RadixDialog.Close
-            aria-label="Close dialog"
-            className={cn(
-              "absolute right-5 top-5 inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
-            )}
-          >
-            <XIcon size={16} weight="regular" />
-          </RadixDialog.Close>
+          {dismissible ? (
+            <RadixDialog.Close
+              aria-label="Close dialog"
+              className={cn(
+                "absolute right-5 top-5 inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-inset focus-visible:ring-offset-0",
+              )}
+            >
+              <XIcon size={16} weight="regular" />
+            </RadixDialog.Close>
+          ) : null}
           <div data-debug-children className={cn("flex-1 min-h-0", childrenClassName)}>
             {children}
           </div>

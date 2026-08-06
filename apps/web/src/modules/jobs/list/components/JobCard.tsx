@@ -10,7 +10,7 @@ import { SalaryEditDialog } from "@/modules/jobs/details/components/SalaryEditDi
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 import { DeleteJobDialog } from "@/modules/jobs/list/components/DeleteJobDialog";
-import { JobQuickEditDialog } from "@/modules/jobs/list/components/JobQuickEditDialog";
+import { JobQuickEditDialog, type JobQuickEditInput } from "@/modules/jobs/list/components/JobQuickEditDialog";
 import { JobTrackingPanel } from "@/modules/jobs/list/components/JobTrackingPanel";
 import {
   type JobCardJob,
@@ -34,6 +34,8 @@ interface JobCardProps {
   job: JobCardJob;
   onSuccess: (message: string) => void;
   onError: (message: string) => void;
+  quickEditLoading?: boolean;
+  onQuickEdit?: (jobId: string, input: JobQuickEditInput) => Promise<boolean>;
 }
 
 type CurrentStageBadgeProps = {
@@ -136,7 +138,7 @@ function CurrentStageDateText({
   );
 }
 
-export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
+export function JobCard({ job: app, onSuccess, onError, quickEditLoading, onQuickEdit }: JobCardProps) {
   const {
     jobStageEvents,
     stageEventsLoading,
@@ -182,28 +184,30 @@ export function JobCard({ job: app, onSuccess, onError }: JobCardProps) {
             historyLoading={stageEventsLoading}
             onRequestStageEvents={requestStageEvents}
           />
-          <JobQuickEditDialog
-            trigger={
-              <IconButton
-                intent="ghost"
-                size="sm"
-                label={`Quick edit ${displayTitle}`}
-                tooltip="Quick edit"
-                className={cn(ListItemCard.actionIconButtonClassName)}
-                icon={<PencilSimpleIcon size={13} weight="regular" />}
-              />
-            }
-            job={{
-              id: app.id,
-              title: app.title ?? "",
-              company: app.company?.name ?? "",
-              urls: app.urls,
-              location: app.location,
-              workRegion: app.workRegion,
-            }}
-            onSuccess={onSuccess}
-            onError={onError}
-          />
+          {onQuickEdit ? (
+            <JobQuickEditDialog
+              trigger={
+                <IconButton
+                  intent="ghost"
+                  size="sm"
+                  label={`Quick edit ${displayTitle}`}
+                  tooltip="Quick edit"
+                  className={cn(ListItemCard.actionIconButtonClassName)}
+                  icon={<PencilSimpleIcon size={13} weight="regular" />}
+                />
+              }
+              job={{
+                id: app.id,
+                title: app.title ?? "",
+                company: app.company?.name ?? "",
+                urls: app.urls,
+                location: app.location,
+                workRegion: app.workRegion,
+              }}
+              loading={quickEditLoading ?? false}
+              onUpdate={onQuickEdit}
+            />
+          ) : null}
           <SalaryEditDialog
             trigger={
               <IconButton

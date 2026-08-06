@@ -1,18 +1,11 @@
 "use client";
 
-import { tryRun } from "@job-tracker/try-run";
 import { Button, cn, Combobox, Dialog, FormField, Input, Stack, useDialog } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
 import { useState } from "react";
 import type { ChangeEvent, ReactElement, SyntheticEvent } from "react";
 
-import {
-  JobsDocument,
-  QuickFilterCountsDocument,
-  useCompaniesQuery,
-  useCreateJobMutation,
-  useUpdateJobMutation,
-} from "@/gql/hooks";
+import { useCompaniesQuery } from "@/gql/hooks";
 
 interface JobValues {
   id: string;
@@ -31,16 +24,24 @@ interface FormState {
   workRegion: string;
 }
 
+export interface JobQuickEditInput {
+  title: string;
+  company: string;
+  urls: string[];
+  location: string | null;
+  workRegion: string | null;
+}
+
 interface JobQuickEditDialogFormProps {
   isEdit: boolean;
   job?: JobValues;
-  onSuccess?: (message: string) => void;
-  onError?: (message: string) => void;
-  onCreated?: (jobId: string) => void;
+  loading: boolean;
+  onCreate?: (input: JobQuickEditInput) => Promise<boolean>;
+  onUpdate?: (jobId: string, input: JobQuickEditInput) => Promise<boolean>;
   onClose: () => void;
 }
 
-function JobQuickEditDialogForm({ isEdit, job, onSuccess, onError, onCreated, onClose }: JobQuickEditDialogFormProps) {
+function JobQuickEditDialogForm({ isEdit, job, loading, onCreate, onUpdate, onClose }: JobQuickEditDialogFormProps) {
   const [form, setForm] = useState<FormState>({
     title: job?.title ?? "",
     company: job?.company ?? "",
@@ -49,11 +50,6 @@ function JobQuickEditDialogForm({ isEdit, job, onSuccess, onError, onCreated, on
     workRegion: job?.workRegion ?? "",
   });
   const [errors, setErrors] = useState<Partial<FormState>>({});
-
-  const refetchQueries = [{ query: JobsDocument }, { query: QuickFilterCountsDocument }];
-  const [createJob, { loading: creating }] = useCreateJobMutation({ refetchQueries, awaitRefetchQueries: true });
-  const [updateJob, { loading: updating }] = useUpdateJobMutation({ refetchQueries, awaitRefetchQueries: true });
-  const loading = creating || updating;
 
   const { data: companiesData } = useCompaniesQuery();
   const companyOptions = (companiesData?.companies ?? []).map((c) => ({ label: c.name, value: c.id }));
@@ -93,28 +89,8 @@ function JobQuickEditDialogForm({ isEdit, job, onSuccess, onError, onCreated, on
       workRegion: form.workRegion.trim() || null,
     };
 
-    if (isEdit && job) {
-      const [error] = await tryRun(updateJob({ variables: { id: job.id, input } }));
-      if (error) {
-        onError?.("Something went wrong. Please try again.");
-        return;
-      }
-      onSuccess?.("Job updated.");
-      onClose();
-      return;
-    }
-
-    const [error, result] = await tryRun(createJob({ variables: { input } }));
-    if (error) {
-      onError?.("Something went wrong. Please try again.");
-      return;
-    }
-    const createdJobId = result.data?.createJob.id;
-    onSuccess?.("Job created.");
-    if (createdJobId) {
-      onCreated?.(createdJobId);
-    }
-    onClose();
+    const didSubmit = job ? await onUpdate?.(job.id, input) : await onCreate?.(input);
+    if (didSubmit) onClose();
   }
 
   const formId = "job-quick-edit-dialog-form";
@@ -126,6 +102,8 @@ function JobQuickEditDialogForm({ isEdit, job, onSuccess, onError, onCreated, on
           <FormField label="Job title" htmlFor="job-title" required error={errors.title}>
             <Input
               id="job-title"
+              data-onboarding-step="job-title-input"
+              autoComplete="off"
               value={form.title}
               onChange={set("title")}
               placeholder="e.g. Senior Frontend Engineer"
@@ -135,16 +113,18 @@ function JobQuickEditDialogForm({ isEdit, job, onSuccess, onError, onCreated, on
           </FormField>
 
           <FormField label="Company" htmlFor="job-company" required error={errors.company}>
-            <Combobox
-              id="job-company"
-              value={form.company}
-              onInputValueChange={(text) => setForm((f) => ({ ...f, company: text }))}
-              onValueChange={(option) => setForm((f) => ({ ...f, company: option.label }))}
-              options={companyOptions}
-              placeholder="e.g. Acme Corp"
-              state={errors.company ? "error" : "default"}
-              disabled={loading}
-            />
+            <div data-onboarding-step="job-company-field">
+              <Combobox
+                id="job-company"
+                value={form.company}
+                onInputValueChange={(text) => setForm((f) => ({ ...f, company: text }))}
+                onValueChange={(option) => setForm((f) => ({ ...f, company: option.label }))}
+                options={companyOptions}
+                placeholder="e.g. Acme Corp"
+                state={errors.company ? "error" : "default"}
+                disabled={loading}
+              />
+            </div>
           </FormField>
 
           <FormField label="Job URLs" htmlFor="job-urls" error={errors.urlsText}>
@@ -196,18 +176,20 @@ export interface JobQuickEditDialogProps {
   control?: DialogControl;
   trigger?: ReactElement;
   job?: JobValues;
-  onSuccess?: (message: string) => void;
-  onError?: (message: string) => void;
-  onCreated?: (jobId: string) => void;
+  loading: boolean;
+  dismissible?: boolean;
+  onCreate?: (input: JobQuickEditInput) => Promise<boolean>;
+  onUpdate?: (jobId: string, input: JobQuickEditInput) => Promise<boolean>;
 }
 
 export function JobQuickEditDialog({
   control: controlProp,
   trigger,
   job,
-  onSuccess,
-  onError,
-  onCreated,
+  loading,
+  dismissible,
+  onCreate,
+  onUpdate,
 }: JobQuickEditDialogProps) {
   const internalControl = useDialog();
   const control = controlProp ?? internalControl;
@@ -224,14 +206,15 @@ export function JobQuickEditDialog({
       }
       open={control.isOpen}
       onOpenChange={control.onOpenChange}
+      dismissible={dismissible}
     >
       {control.isOpen ? (
         <JobQuickEditDialogForm
           isEdit={isEdit}
           job={job}
-          onSuccess={onSuccess}
-          onError={onError}
-          onCreated={onCreated}
+          loading={loading}
+          onCreate={onCreate}
+          onUpdate={onUpdate}
           onClose={() => control.onOpenChange(false)}
         />
       ) : null}

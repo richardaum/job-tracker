@@ -31,6 +31,7 @@ import { CompanyEditDialog } from "@/modules/companies/shared/components/Company
 import { TipTapEditor } from "@/modules/jobs/details/components/TipTapEditor";
 import { JobCard } from "@/modules/jobs/list/components/JobCard";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
+import { useUpdateQuickJob } from "@/modules/jobs/shared/hooks/useUpdateQuickJob";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -51,6 +52,10 @@ export default function CompanyDetailsPage({ params }: PageProps) {
   });
   const [updateCompany, { loading: savingDescription }] = useUpdateCompanyMutation({
     refetchQueries: [{ query: CompaniesDocument }],
+  });
+  const { updateQuickJob, isUpdatingQuickJob } = useUpdateQuickJob({
+    onUpdated: () => enqueueToast({ title: "Job updated.", intent: "success" }),
+    onError: () => enqueueToast({ title: "Something went wrong. Please try again.", intent: "error" }),
   });
   const generateCompanyDescriptionAction = useGenerateCompanyDescriptionAiAction({
     companyName: company?.name ?? "",
@@ -185,7 +190,14 @@ export default function CompanyDetailsPage({ params }: PageProps) {
               ) : (
                 <div className={cn("space-y-3")}>
                   {companyJobs.map((job) => (
-                    <JobCard key={job.id} job={job} onSuccess={() => undefined} onError={() => undefined} />
+                    <JobCard
+                      key={job.id}
+                      job={job}
+                      onSuccess={() => undefined}
+                      onError={() => undefined}
+                      quickEditLoading={isUpdatingQuickJob}
+                      onQuickEdit={updateQuickJob}
+                    />
                   ))}
                 </div>
               )}
