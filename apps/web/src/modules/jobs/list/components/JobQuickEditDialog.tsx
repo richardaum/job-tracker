@@ -26,9 +26,6 @@ export interface JobQuickEditDialogHandle {
 export interface JobQuickEditFormValues {
   title: string;
   company: string;
-  urlsText: string;
-  location: string;
-  workRegion: string;
 }
 
 export interface JobQuickEditFormChange {
@@ -39,9 +36,6 @@ export interface JobQuickEditFormChange {
 export interface JobQuickEditInput {
   title: string;
   company: string;
-  urls: string[];
-  location: string | null;
-  workRegion: string | null;
 }
 
 interface JobQuickEditDialogFormProps {
@@ -77,15 +71,7 @@ function JobQuickEditDialogForm({
     register,
     subscribe,
     formState: { errors },
-  } = useForm<JobQuickEditFormValues>({
-    defaultValues: {
-      title: job?.title ?? "",
-      company: job?.company ?? "",
-      urlsText: (job?.urls ?? []).join("\n"),
-      location: job?.location ?? "",
-      workRegion: job?.workRegion ?? "",
-    },
-  });
+  } = useForm<JobQuickEditFormValues>({ defaultValues: { title: job?.title ?? "", company: job?.company ?? "" } });
 
   useEffect(
     () =>
@@ -120,16 +106,7 @@ function JobQuickEditDialogForm({
   );
 
   async function submit(form: JobQuickEditFormValues) {
-    const input = {
-      title: form.title.trim(),
-      company: form.company.trim(),
-      urls: form.urlsText
-        .split("\n")
-        .map((item) => item.trim())
-        .filter(Boolean),
-      location: form.location.trim() || null,
-      workRegion: form.workRegion.trim() || null,
-    };
+    const input = { title: form.title.trim(), company: form.company.trim() };
 
     const didSubmit = job ? await onUpdate?.(job.id, input) : await onCreate?.(input);
     if (didSubmit) onClose();
@@ -192,42 +169,6 @@ function JobQuickEditDialogForm({
               />
             </FormField>
           </div>
-
-          <div inert={interactiveField !== undefined}>
-            <FormField label="Job URLs" htmlFor="job-urls" error={errors.urlsText?.message}>
-              <Input
-                id="job-urls"
-                placeholder="https://example.com/jobs/123"
-                state={errors.urlsText ? "error" : "default"}
-                disabled={loading}
-                {...register("urlsText", {
-                  validate: (value) => {
-                    const urls = value
-                      .split("\n")
-                      .map((item) => item.trim())
-                      .filter(Boolean);
-
-                    return (
-                      urls.every((url) => /^https?:\/\/.+/.test(url)) || "Each URL must start with http:// or https://"
-                    );
-                  },
-                })}
-              />
-            </FormField>
-
-            <FormField label="Location" htmlFor="job-location">
-              <Input id="job-location" placeholder="e.g. São Paulo, SP" disabled={loading} {...register("location")} />
-            </FormField>
-
-            <FormField label="Work region" htmlFor="job-work-region">
-              <Input
-                id="job-work-region"
-                placeholder="e.g. Brazil, Latam, Anywhere"
-                disabled={loading}
-                {...register("workRegion")}
-              />
-            </FormField>
-          </div>
         </Stack>
       </form>
 
@@ -282,11 +223,7 @@ export function JobQuickEditDialog({
     <Dialog
       trigger={trigger}
       title={isEdit ? "Edit job" : "New job"}
-      description={
-        isEdit
-          ? "Update core job details like title, company, and URLs."
-          : "Add a new job with a title, company, and optional URLs."
-      }
+      description={isEdit ? "Update the title and company for this job." : "Add a new job with a title and company."}
       open={control.isOpen}
       onOpenChange={control.onOpenChange}
       dismissible={dismissible}
