@@ -10,6 +10,7 @@ import { Sidebar } from "./Sidebar";
 const pushMock = vi.fn();
 const replaceMock = vi.fn();
 const pathnameMock = vi.fn(() => "/jobs");
+const useFeatureFlagEnabledMock = vi.hoisted(() => vi.fn<(flagKey: string) => boolean>(() => true));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock, replace: replaceMock }),
@@ -43,7 +44,10 @@ vi.mock("next/link", () => ({
 
 vi.mock("@/lib/api-endpoints", () => ({ getApiBaseUrl: () => "http://localhost:3101" }));
 
-vi.mock("posthog-js/react", () => ({ usePostHog: () => ({ identify: vi.fn() }), useFeatureFlagEnabled: () => true }));
+vi.mock("posthog-js/react", () => ({
+  usePostHog: () => ({ identify: vi.fn() }),
+  useFeatureFlagEnabled: (flagKey: string) => useFeatureFlagEnabledMock(flagKey),
+}));
 
 const clearStoreMock = vi.fn().mockResolvedValue(undefined);
 
@@ -123,6 +127,14 @@ const mockUser: CurrentUser = {
 };
 
 describe("Sidebar", () => {
+  it("hides Help Center when its feature flag is disabled", () => {
+    useFeatureFlagEnabledMock.mockImplementation((flagKey: string) => flagKey !== "help-center-enabled");
+
+    render(<Sidebar user={mockUser} />);
+
+    expect(screen.queryByText("Help Center")).not.toBeInTheDocument();
+  });
+
   it("user card is Link with href=/profile", () => {
     render(<Sidebar user={mockUser} />);
     const userLinks = screen.getAllByTestId("link-/profile");
@@ -200,6 +212,8 @@ describe("Sidebar", () => {
   });
 
   it("renders bottom items — Help Center and Settings", () => {
+    useFeatureFlagEnabledMock.mockImplementation(() => true);
+
     render(<Sidebar user={mockUser} />);
     expect(screen.getAllByText("Help Center").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Settings").length).toBeGreaterThanOrEqual(1);

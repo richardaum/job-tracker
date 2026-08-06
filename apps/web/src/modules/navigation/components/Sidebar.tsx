@@ -83,10 +83,12 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   });
   const posthog = usePostHog();
   const sourcesEnabled = useFeatureFlagEnabled("sources-enabled") ?? false;
+  const helpCenterEnabled = useFeatureFlagEnabled("help-center-enabled") ?? false;
   const visibleNavItems = [
     ...navItems.filter((item) => item.href !== "/sources" || sourcesEnabled),
     ...(user.role === Role.Admin ? [adminNavItem] : []),
   ];
+  const visibleBottomItems = bottomItems.filter((item) => item.label !== "Help Center" || helpCenterEnabled);
 
   useEffect(() => {
     posthog?.identify(user.id, { email: user.email, name: user.name });
@@ -206,7 +208,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
           <CaretRightIcon size={14} weight="regular" className={cn("shrink-0 text-text-muted")} />
         </Link>
         <div className={cn("mx-1 mb-1 border-t border-border-default")} />
-        {bottomItems.map(({ href, label, icon: Icon }) => (
+        {visibleBottomItems.map(({ href, label, icon: Icon }) => (
           <Link
             key={label}
             href={href}
