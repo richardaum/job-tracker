@@ -2,8 +2,8 @@
 
 import { Button, cn, Combobox, Dialog, FormField, Input, Stack, useDialog } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
-import { useState } from "react";
-import type { ChangeEvent, ReactElement, SyntheticEvent } from "react";
+import { Controller, useForm } from "react-hook-form";
+import type { ReactElement } from "react";
 
 import { useCompaniesQuery } from "@/gql/hooks";
 
@@ -16,7 +16,7 @@ interface JobValues {
   workRegion?: string | null;
 }
 
-interface FormState {
+interface JobQuickEditFormValues {
   title: string;
   company: string;
   urlsText: string;
@@ -42,42 +42,25 @@ interface JobQuickEditDialogFormProps {
 }
 
 function JobQuickEditDialogForm({ isEdit, job, loading, onCreate, onUpdate, onClose }: JobQuickEditDialogFormProps) {
-  const [form, setForm] = useState<FormState>({
-    title: job?.title ?? "",
-    company: job?.company ?? "",
-    urlsText: (job?.urls ?? []).join("\n"),
-    location: job?.location ?? "",
-    workRegion: job?.workRegion ?? "",
+  const {
+    control,
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<JobQuickEditFormValues>({
+    defaultValues: {
+      title: job?.title ?? "",
+      company: job?.company ?? "",
+      urlsText: (job?.urls ?? []).join("\n"),
+      location: job?.location ?? "",
+      workRegion: job?.workRegion ?? "",
+    },
   });
-  const [errors, setErrors] = useState<Partial<FormState>>({});
 
   const { data: companiesData } = useCompaniesQuery();
   const companyOptions = (companiesData?.companies ?? []).map((c) => ({ label: c.name, value: c.id }));
 
-  function set(field: keyof FormState) {
-    return (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setForm((f) => ({ ...f, [field]: e.target.value }));
-  }
-
-  function validate(): boolean {
-    const next: Partial<FormState> = {};
-    if (!form.title.trim()) next.title = "Title is required.";
-    if (!form.company.trim()) next.company = "Company is required.";
-    const urls = form.urlsText
-      .split("\n")
-      .map((item) => item.trim())
-      .filter(Boolean);
-    if (urls.some((url) => !/^https?:\/\/.+/.test(url))) {
-      next.urlsText = "Each URL must start with http:// or https://";
-    }
-    setErrors(next);
-    return Object.keys(next).length === 0;
-  }
-
-  async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!validate()) return;
-
+  async function submit(form: JobQuickEditFormValues) {
     const input = {
       title: form.title.trim(),
       company: form.company.trim(),
@@ -97,64 +80,73 @@ function JobQuickEditDialogForm({ isEdit, job, loading, onCreate, onUpdate, onCl
 
   return (
     <>
-      <form id={formId} onSubmit={handleSubmit} noValidate>
+      <form id={formId} onSubmit={handleSubmit(submit)} noValidate>
         <Stack gap="sm">
-          <FormField label="Job title" htmlFor="job-title" required error={errors.title}>
+          <FormField label="Job title" htmlFor="job-title" required error={errors.title?.message}>
             <Input
               id="job-title"
               data-onboarding-step="job-title-input"
               autoComplete="off"
-              value={form.title}
-              onChange={set("title")}
               placeholder="e.g. Senior Frontend Engineer"
               state={errors.title ? "error" : "default"}
               disabled={loading}
+              {...register("title", { validate: (value) => Boolean(value.trim()) || "Title is required." })}
             />
           </FormField>
 
-          <FormField label="Company" htmlFor="job-company" required error={errors.company}>
+          <FormField label="Company" htmlFor="job-company" required error={errors.company?.message}>
             <div data-onboarding-step="job-company-field">
-              <Combobox
-                id="job-company"
-                value={form.company}
-                onInputValueChange={(text) => setForm((f) => ({ ...f, company: text }))}
-                onValueChange={(option) => setForm((f) => ({ ...f, company: option.label }))}
-                options={companyOptions}
-                placeholder="e.g. Acme Corp"
-                state={errors.company ? "error" : "default"}
-                disabled={loading}
+              <Controller
+                control={control}
+                name="company"
+                rules={{ validate: (value) => Boolean(value.trim()) || "Company is required." }}
+                render={({ field }) => (
+                  <Combobox
+                    id="job-company"
+                    value={field.value}
+                    onInputValueChange={field.onChange}
+                    onValueChange={(option) => field.onChange(option.label)}
+                    options={companyOptions}
+                    placeholder="e.g. Acme Corp"
+                    state={errors.company ? "error" : "default"}
+                    disabled={loading}
+                  />
+                )}
               />
             </div>
           </FormField>
 
-          <FormField label="Job URLs" htmlFor="job-urls" error={errors.urlsText}>
+          <FormField label="Job URLs" htmlFor="job-urls" error={errors.urlsText?.message}>
             <Input
               id="job-urls"
-              value={form.urlsText}
-              onChange={set("urlsText")}
               placeholder="https://example.com/jobs/123"
               state={errors.urlsText ? "error" : "default"}
               disabled={loading}
+              {...register("urlsText", {
+                validate: (value) => {
+                  const urls = value
+                    .split("\n")
+                    .map((item) => item.trim())
+                    .filter(Boolean);
+
+                  return (
+                    urls.every((url) => /^https?:\/\/.+/.test(url)) || "Each URL must start with http:// or https://"
+                  );
+                },
+              })}
             />
           </FormField>
 
           <FormField label="Location" htmlFor="job-location">
-            <Input
-              id="job-location"
-              value={form.location}
-              onChange={set("location")}
-              placeholder="e.g. São Paulo, SP"
-              disabled={loading}
-            />
+            <Input id="job-location" placeholder="e.g. São Paulo, SP" disabled={loading} {...register("location")} />
           </FormField>
 
           <FormField label="Work region" htmlFor="job-work-region">
             <Input
               id="job-work-region"
-              value={form.workRegion}
-              onChange={set("workRegion")}
               placeholder="e.g. Brazil, Latam, Anywhere"
               disabled={loading}
+              {...register("workRegion")}
             />
           </FormField>
         </Stack>
