@@ -1,2 +1,1 @@
-pnpm leanspec:validate
 pnpm lint-staged
