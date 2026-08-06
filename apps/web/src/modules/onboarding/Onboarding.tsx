@@ -161,7 +161,7 @@ function getOnboardingSteps(
       },
     },
     {
-      target: '[data-onboarding-step="job-company-field"]',
+      target: '[data-onboarding-step="job-company-input"]',
       placement: "bottom",
       content: "Next, choose the company for this application.",
       disableFocusTrap: true,

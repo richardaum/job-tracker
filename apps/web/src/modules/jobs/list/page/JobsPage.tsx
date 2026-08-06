@@ -140,6 +140,7 @@ export default function JobsPage() {
             dismissible={newJobOnboarding.activeStep === null}
             disableSubmitOnEnter={newJobOnboarding.activeStep !== null}
             disableCompanyOptions={newJobOnboarding.activeStep !== null}
+            interactiveField={newJobOnboarding.activeStep ?? undefined}
             onCreate={createQuickJob}
             onFormChange={({ name, values }) => {
               if (name === "title" || name === "company") {

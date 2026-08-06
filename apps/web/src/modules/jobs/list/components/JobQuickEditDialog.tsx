@@ -53,6 +53,7 @@ interface JobQuickEditDialogFormProps {
   onFormChange?: (change: JobQuickEditFormChange) => void;
   disableSubmitOnEnter: boolean;
   disableCompanyOptions: boolean;
+  interactiveField?: JobQuickEditField;
   dialogRef?: Ref<JobQuickEditDialogHandle>;
   onClose: () => void;
 }
@@ -66,6 +67,7 @@ function JobQuickEditDialogForm({
   onFormChange,
   disableSubmitOnEnter,
   disableCompanyOptions,
+  interactiveField,
   dialogRef,
   onClose,
 }: JobQuickEditDialogFormProps) {
@@ -147,24 +149,26 @@ function JobQuickEditDialogForm({
     <>
       <form id={formId} onSubmit={handleFormSubmit} onKeyDown={handleFormKeyDown} noValidate>
         <Stack gap="sm">
-          <FormField label="Job title" htmlFor="job-title" required error={errors.title?.message}>
-            <Input
-              id="job-title"
-              data-onboarding-step="job-title-input"
-              autoComplete="off"
-              placeholder="e.g. Senior Frontend Engineer"
-              state={errors.title ? "error" : "default"}
-              disabled={loading}
-              {...titleInputProps}
-              ref={(element) => {
-                titleInputRef.current = element;
-                registerTitleRef(element);
-              }}
-            />
-          </FormField>
+          <div inert={interactiveField === "company"}>
+            <FormField label="Job title" htmlFor="job-title" required error={errors.title?.message}>
+              <Input
+                id="job-title"
+                data-onboarding-step="job-title-input"
+                autoComplete="off"
+                placeholder="e.g. Senior Frontend Engineer"
+                state={errors.title ? "error" : "default"}
+                disabled={loading}
+                {...titleInputProps}
+                ref={(element) => {
+                  titleInputRef.current = element;
+                  registerTitleRef(element);
+                }}
+              />
+            </FormField>
+          </div>
 
-          <FormField label="Company" htmlFor="job-company" required error={errors.company?.message}>
-            <div data-onboarding-step="job-company-field">
+          <div inert={interactiveField === "title"}>
+            <FormField label="Company" htmlFor="job-company" required error={errors.company?.message}>
               <Controller
                 control={control}
                 name="company"
@@ -178,6 +182,7 @@ function JobQuickEditDialogForm({
                     onInputElementChange={(element) => {
                       companyInputRef.current = element;
                     }}
+                    inputProps={{ "data-onboarding-step": "job-company-input" }}
                     options={disableCompanyOptions ? [] : companyOptions}
                     placeholder="e.g. Acme Corp"
                     state={errors.company ? "error" : "default"}
@@ -185,53 +190,57 @@ function JobQuickEditDialogForm({
                   />
                 )}
               />
-            </div>
-          </FormField>
+            </FormField>
+          </div>
 
-          <FormField label="Job URLs" htmlFor="job-urls" error={errors.urlsText?.message}>
-            <Input
-              id="job-urls"
-              placeholder="https://example.com/jobs/123"
-              state={errors.urlsText ? "error" : "default"}
-              disabled={loading}
-              {...register("urlsText", {
-                validate: (value) => {
-                  const urls = value
-                    .split("\n")
-                    .map((item) => item.trim())
-                    .filter(Boolean);
+          <div inert={interactiveField !== undefined}>
+            <FormField label="Job URLs" htmlFor="job-urls" error={errors.urlsText?.message}>
+              <Input
+                id="job-urls"
+                placeholder="https://example.com/jobs/123"
+                state={errors.urlsText ? "error" : "default"}
+                disabled={loading}
+                {...register("urlsText", {
+                  validate: (value) => {
+                    const urls = value
+                      .split("\n")
+                      .map((item) => item.trim())
+                      .filter(Boolean);
 
-                  return (
-                    urls.every((url) => /^https?:\/\/.+/.test(url)) || "Each URL must start with http:// or https://"
-                  );
-                },
-              })}
-            />
-          </FormField>
+                    return (
+                      urls.every((url) => /^https?:\/\/.+/.test(url)) || "Each URL must start with http:// or https://"
+                    );
+                  },
+                })}
+              />
+            </FormField>
 
-          <FormField label="Location" htmlFor="job-location">
-            <Input id="job-location" placeholder="e.g. São Paulo, SP" disabled={loading} {...register("location")} />
-          </FormField>
+            <FormField label="Location" htmlFor="job-location">
+              <Input id="job-location" placeholder="e.g. São Paulo, SP" disabled={loading} {...register("location")} />
+            </FormField>
 
-          <FormField label="Work region" htmlFor="job-work-region">
-            <Input
-              id="job-work-region"
-              placeholder="e.g. Brazil, Latam, Anywhere"
-              disabled={loading}
-              {...register("workRegion")}
-            />
-          </FormField>
+            <FormField label="Work region" htmlFor="job-work-region">
+              <Input
+                id="job-work-region"
+                placeholder="e.g. Brazil, Latam, Anywhere"
+                disabled={loading}
+                {...register("workRegion")}
+              />
+            </FormField>
+          </div>
         </Stack>
       </form>
 
-      <Stack direction="row" gap="xs" justify="end" className={cn("mt-4")}>
-        <Button intent="secondary" size="md" onClick={onClose} disabled={loading}>
-          Cancel
-        </Button>
-        <Button type="submit" form={formId} intent="primary" size="md" state={loading ? "loading" : "default"}>
-          {isEdit ? "Save changes" : "Create"}
-        </Button>
-      </Stack>
+      <div inert={interactiveField !== undefined}>
+        <Stack direction="row" gap="xs" justify="end" className={cn("mt-4")}>
+          <Button intent="secondary" size="md" onClick={onClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button type="submit" form={formId} intent="primary" size="md" state={loading ? "loading" : "default"}>
+            {isEdit ? "Save changes" : "Create"}
+          </Button>
+        </Stack>
+      </div>
     </>
   );
 }
@@ -245,6 +254,7 @@ export interface JobQuickEditDialogProps {
   dismissible?: boolean;
   disableSubmitOnEnter?: boolean;
   disableCompanyOptions?: boolean;
+  interactiveField?: JobQuickEditField;
   onCreate?: (input: JobQuickEditInput) => Promise<boolean>;
   onUpdate?: (jobId: string, input: JobQuickEditInput) => Promise<boolean>;
   onFormChange?: (change: JobQuickEditFormChange) => void;
@@ -259,6 +269,7 @@ export function JobQuickEditDialog({
   dismissible,
   disableSubmitOnEnter = false,
   disableCompanyOptions = false,
+  interactiveField,
   onCreate,
   onUpdate,
   onFormChange,
@@ -290,6 +301,7 @@ export function JobQuickEditDialog({
           onFormChange={onFormChange}
           disableSubmitOnEnter={disableSubmitOnEnter}
           disableCompanyOptions={disableCompanyOptions}
+          interactiveField={interactiveField}
           dialogRef={ref}
           onClose={() => control.onOpenChange(false)}
         />

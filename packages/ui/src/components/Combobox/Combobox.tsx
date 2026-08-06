@@ -2,7 +2,9 @@ import { Text } from "@ui/components/Typography/Text";
 import { cn } from "@ui/lib/cn";
 import { useMemo } from "react";
 
-import { AnchoredCombobox } from "./AnchoredCombobox";
+import { AnchoredCombobox, type AnchoredComboboxInputProps } from "./AnchoredCombobox";
+
+type InputDataAttributes = { [key: `data-${string}`]: string | undefined };
 
 export interface ComboboxOption {
   label: string;
@@ -22,6 +24,11 @@ export interface ComboboxProps {
   state?: "default" | "error";
   id?: string;
   autoComplete?: string;
+  inputProps?: Omit<
+    AnchoredComboboxInputProps,
+    "autoComplete" | "id" | "onInputElementChange" | "placeholder" | "size" | "state"
+  > &
+    InputDataAttributes;
   onInputElementChange?: (element: HTMLInputElement | null) => void;
 }
 
@@ -36,6 +43,7 @@ export function Combobox({
   state = "default",
   id,
   autoComplete = "one-time-code",
+  inputProps,
   onInputElementChange,
 }: ComboboxProps) {
   const selectedByStableValue = options.find((option) => option.value === value);
@@ -54,6 +62,7 @@ export function Combobox({
       disabled={disabled}
     >
       <AnchoredCombobox.Input
+        {...inputProps}
         placeholder={placeholder}
         size={size}
         state={state}
