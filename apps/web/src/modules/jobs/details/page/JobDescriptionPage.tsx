@@ -20,7 +20,6 @@ export function JobDescriptionPage({ jobId: _jobId }: JobDescriptionPageProps) {
     <div className={cn("flex-1 min-h-0 overflow-auto")}>
       <DescriptionTabContent
         job={job}
-        onSuccess={() => enqueueToast({ title: "Description saved.", intent: "success" })}
         onError={() => enqueueToast({ title: "Failed to save description.", intent: "error" })}
       />
       <WelcomeTourJobDescription />
