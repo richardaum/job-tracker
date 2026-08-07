@@ -14,19 +14,20 @@ import { AsyncMetadataStatus, useJobFillStatusChangedSubscription, useJobQuery }
 
 export const JobFillStatusContext = createContext<JobFillStatusValue | null>(null);
 
-export function useJobFillStatusValue(jobId: string) {
+export function useJobFillStatusValue(jobId: string, enabled = true) {
   const {
     data: jobData,
     loading: jobLoading,
     error: jobError,
     refetch: refetchJob,
-  } = useJobQuery({ variables: { id: jobId }, fetchPolicy: "cache-and-network" });
+  } = useJobQuery({ variables: { id: jobId }, fetchPolicy: "cache-and-network", skip: !enabled });
 
   const status = jobData?.job?.fillMetadata?.status;
   const error = jobData?.job?.fillMetadata?.error ?? null;
 
   useJobFillStatusChangedSubscription({
     variables: { jobId },
+    skip: !enabled,
     onData: ({ data }) => {
       const eventData = data.data!.jobFillStatusChanged;
 

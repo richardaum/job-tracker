@@ -1,17 +1,12 @@
 "use client";
 
 // TODO: Separate data fetching from data shaping.
-// This hook bundles 2 subscriptions (useJobSummaryStatusChangedSubscription,
-// useJobFillStatusChangedSubscription) with view-model logic and is called from
-// JobDetailsLayout AND 4 tab pages (Overview, Description, Source, Notes).
-// Result: 5x summary subscription + 6x fill-status subscription per jobId.
-// Every tab switch destroys the old page's subscriptions and recreates them.
+// Detail tab routes now consume JobDetailsContext, but this hook still combines
+// the job query and status subscriptions with view-model logic.
 //
-// Fix: subscriptions should live ONLY at JobDetailsLayout level (which already
-// calls this hook). Tab pages should consume job data from context instead of
-// calling useJobDetailsViewModel directly. The data-shaping layer
-// (deriveDetailStatus, deriveJobFillButtonState, displayTitle, etc.) can stay
-// in a view-model hook that reads from context.
+// Fix: move the query and subscriptions to layout-level providers. Keep the
+// data-shaping layer (deriveDetailStatus, deriveJobFillButtonState,
+// displayTitle, etc.) in a view-model hook that reads from context.
 // Reference pattern: JobMatchStatusProvider + useJobMatchStatusValue.
 
 import { useApolloClient } from "@apollo/client/react";
@@ -40,6 +35,9 @@ import {
 import { formatJobSourceLabel } from "@/modules/jobs/shared/utils/jobSourceLabel";
 
 export interface UseJobDetailsViewModelOptions {
+  /** Skips all job data queries and subscriptions. */
+  skip?: boolean;
+
   /**
    * When false, skips the stage-events query (e.g. notes-only route).
    * Defaults to true for the main job details screen.
@@ -49,13 +47,18 @@ export interface UseJobDetailsViewModelOptions {
 
 export function useJobDetailsViewModel(jobId: string, options?: UseJobDetailsViewModelOptions) {
   const includeStageEvents = options?.includeStageEvents ?? true;
+  const skip = options?.skip ?? false;
   const apolloClient = useApolloClient();
 
-  const { data, loading, error, refetch } = useJobQuery({ variables: { id: jobId }, fetchPolicy: "cache-and-network" });
+  const { data, loading, error, refetch } = useJobQuery({
+    variables: { id: jobId },
+    fetchPolicy: "cache-and-network",
+    skip,
+  });
 
   const { data: stageEventsData, refetch: refetchStageEvents } = useJobStageEventsQuery({
     variables: { jobId },
-    skip: !includeStageEvents,
+    skip: !includeStageEvents || skip,
     fetchPolicy: "cache-and-network",
   });
 
@@ -65,6 +68,7 @@ export function useJobDetailsViewModel(jobId: string, options?: UseJobDetailsVie
 
   useJobSummaryStatusChangedSubscription({
     variables: { jobId },
+    skip,
     onData: ({ data }) => {
       const eventData = data.data!.jobSummaryStatusChanged;
 
@@ -98,6 +102,7 @@ export function useJobDetailsViewModel(jobId: string, options?: UseJobDetailsVie
 
   useJobFillStatusChangedSubscription({
     variables: { jobId },
+    skip,
     onData: ({ data }) => {
       const eventData = data.data!.jobFillStatusChanged;
 

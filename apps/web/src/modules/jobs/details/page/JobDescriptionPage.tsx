@@ -3,15 +3,13 @@
 import { cn } from "@job-tracker/ui";
 
 import { DescriptionTabContent } from "@/modules/jobs/details/components/DescriptionTabContent";
-import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetailsViewModel";
+import { useJobDetailsContext } from "@/modules/jobs/details/hooks/useJobDetailsContext";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
 type JobDescriptionPageProps = { jobId: string };
-export function JobDescriptionPage({ jobId }: JobDescriptionPageProps) {
+export function JobDescriptionPage({ jobId: _jobId }: JobDescriptionPageProps) {
   const { enqueueToast } = useToastQueue();
-  // TODO: consume job data from JobDetailsContext instead of calling
-  // useJobDetailsViewModel() here (see TODO in that hook).
-  const { job } = useJobDetailsViewModel(jobId, { includeStageEvents: false });
+  const { job } = useJobDetailsContext();
 
   if (!job) {
     return null;

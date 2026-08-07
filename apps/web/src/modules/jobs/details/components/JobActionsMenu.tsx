@@ -26,6 +26,7 @@ interface JobActionsMenuProps {
   onDelete: () => void;
   fullWidth?: boolean;
   onToggleFullWidth?: () => void;
+  readOnly?: boolean;
 }
 
 export function JobActionsMenu({
@@ -36,6 +37,7 @@ export function JobActionsMenu({
   onDelete,
   fullWidth,
   onToggleFullWidth,
+  readOnly = false,
 }: JobActionsMenuProps) {
   const { enqueueToast } = useToastQueue();
   const [open, setOpen] = useState(false);
@@ -77,16 +79,23 @@ export function JobActionsMenu({
       align="end"
     >
       <JobActionsMenuItems.Slot />
-      <DropdownMenuItem
-        disabled={fillButtonState === "loading"}
-        onSelect={() => void handleFillAutomatically()}
-        icon={<SparkleIcon size={14} weight="regular" />}
-      >
-        Fill job fields automatically
-      </DropdownMenuItem>
-      <DropdownMenuItem onSelect={() => onUpdateStatus()} icon={<ArrowSquareRightIcon size={14} weight="regular" />}>
-        Update status
-      </DropdownMenuItem>
+      {!readOnly ? (
+        <>
+          <DropdownMenuItem
+            disabled={fillButtonState === "loading"}
+            onSelect={() => void handleFillAutomatically()}
+            icon={<SparkleIcon size={14} weight="regular" />}
+          >
+            Fill job fields automatically
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => onUpdateStatus()}
+            icon={<ArrowSquareRightIcon size={14} weight="regular" />}
+          >
+            Update status
+          </DropdownMenuItem>
+        </>
+      ) : null}
       <ExportJobMdMenuItem jobId={job.id} job={job} />
       <CopyJobMdMenuItem jobId={job.id} job={job} />
       {onToggleFullWidth && (
@@ -113,10 +122,14 @@ export function JobActionsMenu({
           </DropdownMenuItem>
         </>
       )}
-      <DropdownMenuSeparator />
-      <DropdownMenuItem destructive onSelect={() => onDelete()} icon={<TrashIcon size={14} weight="regular" />}>
-        Remove
-      </DropdownMenuItem>
+      {!readOnly ? (
+        <>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem destructive onSelect={() => onDelete()} icon={<TrashIcon size={14} weight="regular" />}>
+            Remove
+          </DropdownMenuItem>
+        </>
+      ) : null}
     </DropdownMenu>
   );
 }

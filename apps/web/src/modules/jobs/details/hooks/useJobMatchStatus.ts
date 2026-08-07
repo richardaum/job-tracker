@@ -6,13 +6,13 @@ import { AsyncMetadataStatus, useJobMatchQuery, useJobMatchStatusChangedSubscrip
 
 export const JobMatchStatusContext = createContext<JobMatchStatusValue | null>(null);
 
-export function useJobMatchStatusValue(jobId: string) {
+export function useJobMatchStatusValue(jobId: string, enabled = true) {
   const {
     data: matchData,
     loading: matchLoading,
     error: matchError,
     refetch: refetchJobMatch,
-  } = useJobMatchQuery({ variables: { jobId }, fetchPolicy: "cache-and-network" });
+  } = useJobMatchQuery({ variables: { jobId }, fetchPolicy: "cache-and-network", skip: !enabled });
 
   const matchAnalysis = matchData?.jobMatch ?? null;
   const matchPk = matchAnalysis?.id ?? null;
@@ -21,6 +21,7 @@ export function useJobMatchStatusValue(jobId: string) {
 
   useJobMatchStatusChangedSubscription({
     variables: { jobId },
+    skip: !enabled,
     onData: ({ data }) => {
       const eventData = data.data?.jobMatchStatusChanged;
       if (!eventData) return;
