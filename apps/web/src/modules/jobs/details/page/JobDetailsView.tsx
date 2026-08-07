@@ -95,11 +95,13 @@ export function JobDetailsView(props: JobDetailsViewProps) {
             <span>{displayTitle !== null ? displayTitle : "Job details"}</span>
           </Heading>
           {job ? (
-            <StatusBadge
-              stage={currentStage}
-              reason={currentStageReason}
-              className={cn("align-middle whitespace-nowrap")}
-            />
+            <span data-welcome-tour-step={readOnly ? "job-status" : undefined}>
+              <StatusBadge
+                stage={currentStage}
+                reason={currentStageReason}
+                className={cn("align-middle whitespace-nowrap")}
+              />
+            </span>
           ) : null}
         </div>
         {job && !readOnly ? (

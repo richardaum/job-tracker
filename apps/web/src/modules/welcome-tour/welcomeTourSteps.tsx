@@ -10,7 +10,10 @@ export type WelcomeTourStepId =
   | "job-title-input"
   | "job-company-input"
   | "create-job-button"
-  | "job-detail-title";
+  | "job-detail-title"
+  | "job-status"
+  | "job-company"
+  | "job-description-editor";
 
 type WelcomeTourStepContent = Omit<Step, "title" | "data" | "before" | "after">;
 
@@ -61,6 +64,21 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
     placement: "bottom",
     content: "This is the job details page. Here you'll see and manage everything about this application.",
   },
+  "job-status": {
+    target: '[data-welcome-tour-step="job-status"]',
+    placement: "bottom",
+    content: "Use Status to keep track of where you are in the application process.",
+  },
+  "job-company": {
+    target: '[data-welcome-tour-step="job-company"]',
+    placement: "bottom",
+    content: "This is the company linked to this job. You can view its details or switch it whenever needed.",
+  },
+  "job-description-editor": {
+    target: '[data-welcome-tour-step="job-description-editor"]',
+    placement: "top",
+    content: "Add the job description here, along with role context, the tech stack, or interview notes.",
+  },
 };
 
 const WELCOME_TOUR_STEP_ORDER: WelcomeTourStepId[] = [
@@ -70,6 +88,9 @@ const WELCOME_TOUR_STEP_ORDER: WelcomeTourStepId[] = [
   "job-company-input",
   "create-job-button",
   "job-detail-title",
+  "job-status",
+  "job-company",
+  "job-description-editor",
 ];
 
 const WELCOME_TOUR_STEP_NUMBER = new Map(WELCOME_TOUR_STEP_ORDER.map((id, index) => [id, index + 1]));

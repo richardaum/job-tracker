@@ -37,7 +37,10 @@ export function DescriptionEditor({ jobId, initialDescription, onSuccess, onErro
 
   return (
     <Stack gap="sm" className={cn("h-full min-h-0")}>
-      <div className={cn("flex-1 min-h-0")}>
+      <div
+        className={cn("flex-1 min-h-0")}
+        data-welcome-tour-step={jobId === "welcome-tour-job" ? "job-description-editor" : undefined}
+      >
         <TipTapEditor
           id="details-description"
           value={description}
