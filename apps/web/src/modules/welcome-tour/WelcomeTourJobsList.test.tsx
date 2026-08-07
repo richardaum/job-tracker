@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { OnboardingJobsListTour } from "./OnboardingJobsListTour";
+import { WelcomeTourJobsList } from "./WelcomeTourJobsList";
 
 const useFeatureFlagEnabledMock = vi.fn();
 const joyridePropsMock = vi.fn();
@@ -13,11 +13,11 @@ vi.mock("posthog-js/react", () => ({
 vi.mock("react-joyride", () => ({
   Joyride: (props: unknown) => {
     joyridePropsMock(props);
-    return <div data-testid="onboarding-tour" />;
+    return <div data-testid="welcome-tour" />;
   },
 }));
 
-describe("OnboardingJobsListTour", () => {
+describe("WelcomeTourJobsList", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -25,30 +25,30 @@ describe("OnboardingJobsListTour", () => {
   it("does not render before the feature flag resolves to enabled", () => {
     useFeatureFlagEnabledMock.mockReturnValue(undefined);
 
-    render(<OnboardingJobsListTour />);
+    render(<WelcomeTourJobsList />);
 
-    expect(screen.queryByTestId("onboarding-tour")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("welcome-tour")).not.toBeInTheDocument();
   });
 
-  it("renders when the onboarding feature flag is enabled", () => {
+  it("renders when the welcome tour feature flag is enabled", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
-    render(<OnboardingJobsListTour />);
+    render(<WelcomeTourJobsList />);
 
-    expect(useFeatureFlagEnabledMock).toHaveBeenCalledWith("onboarding-enabled");
-    expect(screen.getByTestId("onboarding-tour")).toBeInTheDocument();
+    expect(useFeatureFlagEnabledMock).toHaveBeenCalledWith("welcome-tour-enabled");
+    expect(screen.getByTestId("welcome-tour")).toBeInTheDocument();
   });
 
   it("includes a final step for the Create button", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
-    render(<OnboardingJobsListTour />);
+    render(<WelcomeTourJobsList />);
 
     expect(joyridePropsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         steps: expect.arrayContaining([
           expect.objectContaining({
-            target: '[data-onboarding-step="create-job-button"]',
+            target: '[data-welcome-tour-step="create-job-button"]',
             content: expect.stringContaining("Click Create"),
           }),
         ]),
@@ -59,7 +59,7 @@ describe("OnboardingJobsListTour", () => {
   it("explains that the tutorial does not require real data", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
-    render(<OnboardingJobsListTour />);
+    render(<WelcomeTourJobsList />);
 
     expect(joyridePropsMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -79,16 +79,16 @@ describe("OnboardingJobsListTour", () => {
     );
   });
 
-  it("numbers the create-job step as 5 of the full 6-step onboarding sequence", () => {
+  it("numbers the create-job step as 5 of the full 6-step welcome tour sequence", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
-    render(<OnboardingJobsListTour />);
+    render(<WelcomeTourJobsList />);
 
     expect(joyridePropsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         steps: expect.arrayContaining([
           expect.objectContaining({
-            target: '[data-onboarding-step="create-job-button"]',
+            target: '[data-welcome-tour-step="create-job-button"]',
             data: expect.objectContaining({ stepNumber: 5, totalSteps: 6 }),
           }),
         ]),

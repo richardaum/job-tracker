@@ -5,10 +5,14 @@ import type { EventData } from "react-joyride";
 import { ACTIONS, EVENTS, Joyride } from "react-joyride";
 import { useFeatureFlagEnabled } from "posthog-js/react";
 
-import { OnboardingTooltip } from "@/modules/onboarding/OnboardingTooltip";
-import { NEW_JOB_ONBOARDING_TOUR_LABEL, pickOnboardingSteps } from "@/modules/onboarding/onboardingSteps";
+import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
+import {
+  NEW_JOB_WELCOME_TOUR_LABEL,
+  WELCOME_TOUR_FEATURE_FLAG,
+  pickWelcomeTourSteps,
+} from "@/modules/welcome-tour/welcomeTourSteps";
 
-export interface OnboardingJobsListTourProps {
+export interface WelcomeTourJobsListProps {
   tourLabel?: ReactNode;
   onOpenNewJob?: () => void;
   onCloseNewJob?: () => void;
@@ -19,8 +23,8 @@ export interface OnboardingJobsListTourProps {
   isJobCompanyFilled?: boolean;
 }
 
-export function OnboardingJobsListTour({
-  tourLabel = NEW_JOB_ONBOARDING_TOUR_LABEL,
+export function WelcomeTourJobsList({
+  tourLabel = NEW_JOB_WELCOME_TOUR_LABEL,
   onOpenNewJob,
   onCloseNewJob,
   onFocusJobField,
@@ -28,12 +32,12 @@ export function OnboardingJobsListTour({
   onSubmitNewJob,
   isJobTitleFilled = false,
   isJobCompanyFilled = false,
-}: OnboardingJobsListTourProps) {
-  const onboardingEnabled = useFeatureFlagEnabled("onboarding-enabled");
+}: WelcomeTourJobsListProps) {
+  const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
 
-  if (onboardingEnabled !== true) return null;
+  if (welcomeTourEnabled !== true) return null;
 
-  const steps = pickOnboardingSteps(
+  const steps = pickWelcomeTourSteps(
     ["welcome", "new-job-button", "job-title-input", "job-company-input", "create-job-button"],
     tourLabel,
     {
@@ -68,7 +72,7 @@ export function OnboardingJobsListTour({
       run
       continuous
       steps={steps}
-      onEvent={(event) => handleOnboardingEvent(event, onJobFormStepChange, onFocusJobField)}
+      onEvent={(event) => handleWelcomeTourEvent(event, onJobFormStepChange, onFocusJobField)}
       options={{
         buttons: ["back", "primary", "skip"],
         skipBeacon: true,
@@ -80,12 +84,12 @@ export function OnboardingJobsListTour({
       }}
       floatingOptions={{ hideArrow: true }}
       styles={{ floater: { pointerEvents: "auto", zIndex: 1000 } }}
-      tooltipComponent={OnboardingTooltip}
+      tooltipComponent={WelcomeTourTooltip}
     />
   );
 }
 
-function handleOnboardingEvent(
+function handleWelcomeTourEvent(
   event: EventData,
   onJobFormStepChange?: (step: "title" | "company" | "create" | null) => void,
   onFocusJobField?: (field: "title" | "company") => void,

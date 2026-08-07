@@ -136,7 +136,7 @@ function JobQuickEditDialogForm({
             <FormField label="Job title" htmlFor="job-title" required error={errors.title?.message}>
               <Input
                 id="job-title"
-                data-onboarding-step="job-title-input"
+                data-welcome-tour-step="job-title-input"
                 autoComplete="off"
                 placeholder="e.g. Senior Frontend Engineer"
                 state={errors.title ? "error" : "default"}
@@ -165,7 +165,7 @@ function JobQuickEditDialogForm({
                     onInputElementChange={(element) => {
                       companyInputRef.current = element;
                     }}
-                    inputProps={{ "data-onboarding-step": "job-company-input" }}
+                    inputProps={{ "data-welcome-tour-step": "job-company-input" }}
                     options={disableCompanyOptions ? [] : companyOptions}
                     placeholder="e.g. Acme Corp"
                     state={errors.company ? "error" : "default"}
@@ -191,7 +191,7 @@ function JobQuickEditDialogForm({
             intent="primary"
             size="md"
             state={loading ? "loading" : "default"}
-            data-onboarding-step="create-job-button"
+            data-welcome-tour-step="create-job-button"
           >
             {isEdit ? "Save changes" : "Create"}
           </Button>

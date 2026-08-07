@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { type CreateJobInput } from "@/gql/hooks";
-import { ONBOARDING_JOB_DRAFT_ID, saveOnboardingJobDraft } from "@/modules/onboarding/utils/onboardingJobDraft";
+import { WELCOME_TOUR_JOB_DRAFT_ID, saveWelcomeTourJobDraft } from "@/modules/welcome-tour/welcomeTourJobDraft";
 
 /** Creates the tutorial-only job in browser storage and returns its virtual ID. */
 export function useCreateLocalJob() {
@@ -11,10 +11,10 @@ export function useCreateLocalJob() {
     if (!input.title || !input.company) return null;
 
     setIsCreatingLocalJob(true);
-    const didSave = await saveOnboardingJobDraft({ title: input.title, company: input.company });
+    const didSave = await saveWelcomeTourJobDraft({ title: input.title, company: input.company });
     setIsCreatingLocalJob(false);
 
-    return didSave ? ONBOARDING_JOB_DRAFT_ID : null;
+    return didSave ? WELCOME_TOUR_JOB_DRAFT_ID : null;
   }
 
   return { createLocalJob, isCreatingLocalJob };

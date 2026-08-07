@@ -33,9 +33,9 @@ import { JobDetailsView } from "@/modules/jobs/details/page/JobDetailsView";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 import { useRouter } from "next/navigation";
 
-import { OnboardingJobDetailsTour } from "@/modules/onboarding/OnboardingJobDetailsTour";
-import { useOnboardingJobDetailsViewModel } from "@/modules/onboarding/hooks/useOnboardingJobDetailsViewModel";
-import { ONBOARDING_JOB_DRAFT_ID } from "@/modules/onboarding/utils/onboardingJobDraft";
+import { WelcomeTourJobDetails } from "@/modules/welcome-tour/WelcomeTourJobDetails";
+import { useWelcomeTourJobDetailsViewModel } from "@/modules/welcome-tour/useWelcomeTourJobDetailsViewModel";
+import { WELCOME_TOUR_JOB_DRAFT_ID } from "@/modules/welcome-tour/welcomeTourJobDraft";
 
 interface JobDetailsLayoutProps {
   params: Promise<{ id: string }>;
@@ -186,7 +186,7 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
   const { id } = use(params);
   const router = useRouter();
   const isDesktop = useBreakpoint("(min-width: 1024px)");
-  const isOnboardingDraft = id === ONBOARDING_JOB_DRAFT_ID;
+  const isWelcomeTourDraft = id === WELCOME_TOUR_JOB_DRAFT_ID;
 
   const { activeTab, sidePanelFromQuery, fullWidth, toggleFullWidth, setSidePanel, needsRedirect } =
     useJobDetailsRouteState(id, isDesktop);
@@ -194,9 +194,9 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
   const [actionsOpen, setActionsOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const liveViewModel = useJobDetailsViewModel(id, { skip: isOnboardingDraft });
-  const draftViewModel = useOnboardingJobDetailsViewModel(isOnboardingDraft);
-  const viewModel = isOnboardingDraft ? draftViewModel : liveViewModel;
+  const liveViewModel = useJobDetailsViewModel(id, { skip: isWelcomeTourDraft });
+  const draftViewModel = useWelcomeTourJobDetailsViewModel(isWelcomeTourDraft);
+  const viewModel = isWelcomeTourDraft ? draftViewModel : liveViewModel;
 
   useJobPageTitle(viewModel.job, activeTab);
 
@@ -204,8 +204,8 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
 
   return (
     <SlotsProvider>
-      <JobFillStatusProvider jobId={id} enabled={!isOnboardingDraft}>
-        <JobMatchStatusProvider jobId={id} enabled={!isOnboardingDraft}>
+      <JobFillStatusProvider jobId={id} enabled={!isWelcomeTourDraft}>
+        <JobMatchStatusProvider jobId={id} enabled={!isWelcomeTourDraft}>
           <JobDetailsProvider job={viewModel.job} sourcePrimaryText={viewModel.sourcePrimaryText}>
             <JobDetailsView
               id={id}
@@ -229,7 +229,7 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                   {children}
                 </JobDetailsMainContent>
               }
-              readOnly={isOnboardingDraft}
+              readOnly={isWelcomeTourDraft}
               isDesktop={isDesktop}
               fullWidth={fullWidth}
               toggleFullWidth={toggleFullWidth}
@@ -241,7 +241,7 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
             >
               {children}
             </JobDetailsView>
-            {isOnboardingDraft ? <OnboardingJobDetailsTour /> : null}
+            {isWelcomeTourDraft ? <WelcomeTourJobDetails /> : null}
           </JobDetailsProvider>
         </JobMatchStatusProvider>
       </JobFillStatusProvider>

@@ -1,32 +1,35 @@
 import { useReducer } from "react";
 
-export type NewJobOnboardingStep = "title" | "company" | "create" | null;
+type NewJobWelcomeTourStep = "title" | "company" | "create" | null;
 
-interface NewJobOnboardingState {
-  activeStep: NewJobOnboardingStep;
+interface NewJobWelcomeTourState {
+  activeStep: NewJobWelcomeTourStep;
   titleFilled: boolean;
   companyFilled: boolean;
 }
 
-type NewJobOnboardingAction =
+type NewJobWelcomeTourAction =
   | { type: "form-opened" }
-  | { type: "step-changed"; step: NewJobOnboardingStep }
+  | { type: "step-changed"; step: NewJobWelcomeTourStep }
   | { type: "field-changed"; name: string; value: string };
 
-const initialNewJobOnboardingState: NewJobOnboardingState = {
+const initialNewJobWelcomeTourState: NewJobWelcomeTourState = {
   activeStep: null,
   titleFilled: false,
   companyFilled: false,
 };
 
-export function useNewJobOnboarding() {
-  return useReducer(newJobOnboardingReducer, initialNewJobOnboardingState);
+export function useNewJobWelcomeTour() {
+  return useReducer(newJobWelcomeTourReducer, initialNewJobWelcomeTourState);
 }
 
-function newJobOnboardingReducer(state: NewJobOnboardingState, action: NewJobOnboardingAction): NewJobOnboardingState {
+function newJobWelcomeTourReducer(
+  state: NewJobWelcomeTourState,
+  action: NewJobWelcomeTourAction,
+): NewJobWelcomeTourState {
   switch (action.type) {
     case "form-opened":
-      return initialNewJobOnboardingState;
+      return initialNewJobWelcomeTourState;
     case "step-changed":
       return { ...state, activeStep: action.step };
     case "field-changed":

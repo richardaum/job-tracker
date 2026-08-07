@@ -3,9 +3,9 @@
 import { ApplicationStage } from "@/gql/hooks";
 import type { EntityDetailViewStatus } from "@/lib/entity-detail-view-status";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
-import { getOnboardingJobDraft, toSyntheticJob } from "@/modules/onboarding/utils/onboardingJobDraft";
+import { getWelcomeTourJobDraft, toSyntheticJob } from "@/modules/welcome-tour/welcomeTourJobDraft";
 
-export interface OnboardingJobDetailsViewModel {
+export interface WelcomeTourJobDetailsViewModel {
   job: JobDetailsValues | undefined;
   sourcePrimaryText: string | null;
   currentStage: ApplicationStage;
@@ -17,10 +17,10 @@ export interface OnboardingJobDetailsViewModel {
 }
 
 /**
- * Provides local onboarding data in the same shape consumed by the job details shell.
+ * Provides local welcome tour data in the same shape consumed by the job details shell.
  */
-export function useOnboardingJobDetailsViewModel(enabled: boolean): OnboardingJobDetailsViewModel {
-  const draft = enabled ? getOnboardingJobDraft() : null;
+export function useWelcomeTourJobDetailsViewModel(enabled: boolean): WelcomeTourJobDetailsViewModel {
+  const draft = enabled ? getWelcomeTourJobDraft() : null;
 
   return {
     job: draft ? toSyntheticJob(draft) : undefined,

@@ -90,7 +90,7 @@ export function JobDetailsView(props: JobDetailsViewProps) {
             as="h1"
             size="2xl"
             className={cn("min-w-0")}
-            data-onboarding-step={readOnly ? "job-detail-title" : undefined}
+            data-welcome-tour-step={readOnly ? "job-detail-title" : undefined}
           >
             <span>{displayTitle !== null ? displayTitle : "Job details"}</span>
           </Heading>

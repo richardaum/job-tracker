@@ -3,15 +3,19 @@
 import { Joyride } from "react-joyride";
 import { useFeatureFlagEnabled } from "posthog-js/react";
 
-import { OnboardingTooltip } from "@/modules/onboarding/OnboardingTooltip";
-import { NEW_JOB_ONBOARDING_TOUR_LABEL, pickOnboardingSteps } from "@/modules/onboarding/onboardingSteps";
+import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
+import {
+  NEW_JOB_WELCOME_TOUR_LABEL,
+  WELCOME_TOUR_FEATURE_FLAG,
+  pickWelcomeTourSteps,
+} from "@/modules/welcome-tour/welcomeTourSteps";
 
-export function OnboardingJobDetailsTour() {
-  const onboardingEnabled = useFeatureFlagEnabled("onboarding-enabled");
+export function WelcomeTourJobDetails() {
+  const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
 
-  if (onboardingEnabled !== true) return null;
+  if (welcomeTourEnabled !== true) return null;
 
-  const steps = pickOnboardingSteps(["job-detail-title"], NEW_JOB_ONBOARDING_TOUR_LABEL);
+  const steps = pickWelcomeTourSteps(["job-detail-title"], NEW_JOB_WELCOME_TOUR_LABEL);
 
   return (
     <Joyride
@@ -30,7 +34,7 @@ export function OnboardingJobDetailsTour() {
       }}
       floatingOptions={{ hideArrow: true }}
       styles={{ floater: { pointerEvents: "auto", zIndex: 1000 } }}
-      tooltipComponent={OnboardingTooltip}
+      tooltipComponent={WelcomeTourTooltip}
     />
   );
 }

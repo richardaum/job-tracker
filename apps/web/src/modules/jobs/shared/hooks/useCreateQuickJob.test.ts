@@ -25,7 +25,7 @@ describe("useCreateQuickJob", () => {
   });
 
   it("stores a tutorial job without calling the create-job mutation", async () => {
-    createLocalJobMock.mockResolvedValue("onboarding-job");
+    createLocalJobMock.mockResolvedValue("welcome-tour-job");
     const { result } = renderHook(() => useCreateQuickJob({ onCreated, onError, persistenceMode: "local" }));
 
     let didCreate = false;
@@ -36,7 +36,7 @@ describe("useCreateQuickJob", () => {
     expect(didCreate).toBe(true);
     expect(createLocalJobMock).toHaveBeenCalledWith({ title: "Frontend Engineer", company: "Acme" });
     expect(createJobMutationMock).not.toHaveBeenCalled();
-    expect(onCreated).toHaveBeenCalledWith("onboarding-job");
+    expect(onCreated).toHaveBeenCalledWith("welcome-tour-job");
     expect(onError).not.toHaveBeenCalled();
   });
 });

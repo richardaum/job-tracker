@@ -17,9 +17,9 @@ import { useJobsListViewModel } from "@/modules/jobs/list/hooks/useJobsListViewM
 import { useCreateQuickJob } from "@/modules/jobs/shared/hooks/useCreateQuickJob";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { useUpdateQuickJob } from "@/modules/jobs/shared/hooks/useUpdateQuickJob";
-import { useNewJobOnboarding } from "@/modules/onboarding/hooks/useNewJobOnboarding";
-import { NEW_JOB_ONBOARDING_TOUR_LABEL } from "@/modules/onboarding/onboardingSteps";
-import { OnboardingJobsListTour } from "@/modules/onboarding/OnboardingJobsListTour";
+import { useNewJobWelcomeTour } from "@/modules/welcome-tour/useNewJobWelcomeTour";
+import { NEW_JOB_WELCOME_TOUR_LABEL } from "@/modules/welcome-tour/welcomeTourSteps";
+import { WelcomeTourJobsList } from "@/modules/welcome-tour/WelcomeTourJobsList";
 
 function stripSearchKeys(currentSearch: string, keysToRemove: Array<string>): string {
   const params = new URLSearchParams(currentSearch);
@@ -90,14 +90,14 @@ export default function JobsPage() {
 
   const newJob = useDialog();
   const newJobDialogRef = useRef<JobQuickEditDialogHandle>(null);
-  const [newJobOnboarding, dispatchNewJobOnboarding] = useNewJobOnboarding();
+  const [newJobWelcomeTour, dispatchNewJobWelcomeTour] = useNewJobWelcomeTour();
 
   function showToast(message: string, intent: "success" | "error") {
     enqueueToast({ title: message, intent });
   }
 
   const { createQuickJob, isCreatingQuickJob } = useCreateQuickJob({
-    persistenceMode: newJobOnboarding.activeStep === "create" ? "local" : "database",
+    persistenceMode: newJobWelcomeTour.activeStep === "create" ? "local" : "database",
     onCreated: (jobId) => {
       showToast("Job created.", "success");
       router.push(`/jobs/${jobId}`);
@@ -110,20 +110,20 @@ export default function JobsPage() {
   });
   return (
     <div className={cn("flex h-full flex-col")}>
-      <OnboardingJobsListTour
-        tourLabel={NEW_JOB_ONBOARDING_TOUR_LABEL}
+      <WelcomeTourJobsList
+        tourLabel={NEW_JOB_WELCOME_TOUR_LABEL}
         onOpenNewJob={() => {
           if (!newJob.isOpen) {
-            dispatchNewJobOnboarding({ type: "form-opened" });
+            dispatchNewJobWelcomeTour({ type: "form-opened" });
           }
           newJob.open();
         }}
         onCloseNewJob={newJob.close}
         onFocusJobField={(field) => newJobDialogRef.current?.focusField(field)}
-        onJobFormStepChange={(step) => dispatchNewJobOnboarding({ type: "step-changed", step })}
+        onJobFormStepChange={(step) => dispatchNewJobWelcomeTour({ type: "step-changed", step })}
         onSubmitNewJob={() => newJobDialogRef.current?.submit()}
-        isJobTitleFilled={newJobOnboarding.titleFilled}
-        isJobCompanyFilled={newJobOnboarding.companyFilled}
+        isJobTitleFilled={newJobWelcomeTour.titleFilled}
+        isJobCompanyFilled={newJobWelcomeTour.companyFilled}
       />
 
       {/* Action bar */}
@@ -139,18 +139,18 @@ export default function JobsPage() {
             ref={newJobDialogRef}
             control={newJob}
             loading={isCreatingQuickJob}
-            dismissible={newJobOnboarding.activeStep === null}
-            disableSubmitOnEnter={newJobOnboarding.activeStep !== null}
-            disableCompanyOptions={newJobOnboarding.activeStep !== null}
-            interactiveField={newJobOnboarding.activeStep ?? undefined}
+            dismissible={newJobWelcomeTour.activeStep === null}
+            disableSubmitOnEnter={newJobWelcomeTour.activeStep !== null}
+            disableCompanyOptions={newJobWelcomeTour.activeStep !== null}
+            interactiveField={newJobWelcomeTour.activeStep ?? undefined}
             onCreate={createQuickJob}
             onFormChange={({ name, values }) => {
               if (name === "title" || name === "company") {
-                dispatchNewJobOnboarding({ type: "field-changed", name, value: values[name] });
+                dispatchNewJobWelcomeTour({ type: "field-changed", name, value: values[name] });
               }
             }}
           />
-          <Button intent="primary" size="md" onClick={newJob.open} data-onboarding-step="new-job-button">
+          <Button intent="primary" size="md" onClick={newJob.open} data-welcome-tour-step="new-job-button">
             <PlusIcon size={16} weight="bold" className={cn("mr-2")} />
             New job
           </Button>

@@ -3,7 +3,7 @@
 import type { TooltipRenderProps } from "react-joyride";
 import { cn } from "@job-tracker/ui";
 
-export function OnboardingTooltip({
+export function WelcomeTourTooltip({
   backProps,
   index,
   primaryProps,
@@ -24,7 +24,7 @@ export function OnboardingTooltip({
         "w-[min(23rem,calc(100vw-2rem))] rounded-lg border border-border-subtle bg-bg-surface p-5 shadow-lg",
       )}
       {...tooltipProps}
-      aria-label="Onboarding"
+      aria-label="Welcome tour"
     >
       <div className={cn("mb-4 flex items-center justify-between gap-3")}>
         <div className={cn("flex items-center gap-2 text-xs font-medium text-text-secondary")}>
