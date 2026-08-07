@@ -3,8 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 import {
   WELCOME_TOUR_JOB_DRAFT_ID,
   WELCOME_TOUR_JOB_DRAFT_STORAGE_KEY,
+  getWelcomeTourJobDraft,
   saveWelcomeTourJobDraft,
   toSyntheticJob,
+  updateWelcomeTourJobDraft,
 } from "./welcomeTourJobDraft";
 
 describe("saveWelcomeTourJobDraft", () => {
@@ -52,5 +54,17 @@ describe("toSyntheticJob", () => {
       urls: [],
       tags: [],
     });
+  });
+});
+
+describe("updateWelcomeTourJobDraft", () => {
+  it("updates the local description used by the tutorial job", async () => {
+    await saveWelcomeTourJobDraft({ title: "Frontend Engineer", company: "Acme" });
+
+    await expect(
+      updateWelcomeTourJobDraft(WELCOME_TOUR_JOB_DRAFT_ID, { description: '{"type":"doc","content":[]}' }),
+    ).resolves.toBe(true);
+
+    expect(getWelcomeTourJobDraft()?.description).toBe('{"type":"doc","content":[]}');
   });
 });

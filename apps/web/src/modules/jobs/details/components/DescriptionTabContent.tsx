@@ -1,7 +1,7 @@
-import { cn } from "@job-tracker/ui";
 import { tipTapToPlainText } from "@job-tracker/tiptap";
+import { cn } from "@job-tracker/ui";
 
-import { useUpdateJobMutation } from "@/gql/hooks";
+import { useUpdateJob } from "@/modules/jobs/details/hooks/useUpdateJob";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 
 import { DescriptionEditor } from "./DescriptionEditor";
@@ -9,7 +9,7 @@ import { DescriptionEditor } from "./DescriptionEditor";
 type DescriptionTabContentProps = { job: JobDetailsValues; onError: () => void };
 
 export function DescriptionTabContent({ job, onError }: DescriptionTabContentProps) {
-  const [updateJob] = useUpdateJobMutation();
+  const [updateJob] = useUpdateJob();
 
   async function saveDescription(nextDescription: string) {
     const description = tipTapToPlainText(nextDescription).trim().length > 0 ? nextDescription : null;

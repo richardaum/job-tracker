@@ -4,13 +4,12 @@ import { type CreateJobInput, useCreateJobMutation } from "@/gql/hooks";
 
 import { quickJobRefetchQueries } from "@/modules/jobs/shared/hooks/quickJobRefetchQueries";
 import { useCreateLocalJob } from "@/modules/jobs/shared/hooks/useCreateLocalJob";
-
-type PersistenceMode = "database" | "local";
+import type { JobPersistenceMode } from "@/modules/jobs/shared/types/jobPersistenceMode";
 
 interface UseCreateQuickJobOptions {
   onCreated: (jobId: string) => void;
   onError: () => void;
-  persistenceMode?: PersistenceMode;
+  persistenceMode?: JobPersistenceMode;
 }
 
 export function useCreateQuickJob({ onCreated, onError, persistenceMode = "database" }: UseCreateQuickJobOptions) {
@@ -20,7 +19,7 @@ export function useCreateQuickJob({ onCreated, onError, persistenceMode = "datab
   });
   const { createLocalJob, isCreatingLocalJob } = useCreateLocalJob();
 
-  const persistJob: Record<PersistenceMode, (input: CreateJobInput) => Promise<string | null | undefined>> = {
+  const persistJob: Record<JobPersistenceMode, (input: CreateJobInput) => Promise<string | null | undefined>> = {
     local: async (input) => {
       return await createLocalJob(input);
     },

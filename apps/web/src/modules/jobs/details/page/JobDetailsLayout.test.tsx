@@ -64,6 +64,7 @@ vi.mock("@apollo/client/react", () => ({
     },
   }),
   useLazyQuery: () => [lazyQueryFn, { data: undefined, loading: false, error: undefined }],
+  useMutation: () => [vi.fn(), { loading: false }],
 }));
 
 vi.mock("@/modules/work-preferences/components/PreferencesDialog", () => ({ PreferencesDialog: () => null }));

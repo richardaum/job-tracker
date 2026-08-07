@@ -24,9 +24,10 @@ import { OverviewTab } from "@/modules/jobs/details/components/OverviewTab";
 import { SourceTab } from "@/modules/jobs/details/components/SourceTab";
 import { JobFillStatusProvider } from "@/modules/jobs/details/hooks/JobFillStatusProvider";
 import { JobDetailsProvider } from "@/modules/jobs/details/hooks/JobDetailsProvider";
+import { JobDatabaseApiProvider, JobLocalApiProvider } from "@/modules/jobs/details/hooks/JobApiProvider";
+import { useJobDetails } from "@/modules/jobs/details/hooks/useJobDetails";
 import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchStatusProvider";
 import { useJobDetailsRouteState } from "@/modules/jobs/details/hooks/useJobDetailsRouteState";
-import { useJobDetailsViewModel } from "@/modules/jobs/details/hooks/useJobDetailsViewModel";
 import { useJobPageTitle } from "@/modules/jobs/details/hooks/useJobPageTitle";
 import { JobDetailsSubTabs } from "@/modules/jobs/details/job-details-header.slots";
 import { JobDetailsView } from "@/modules/jobs/details/page/JobDetailsView";
@@ -34,7 +35,6 @@ import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.
 import { useRouter } from "next/navigation";
 
 import { WelcomeTourJobDetails } from "@/modules/welcome-tour/WelcomeTourJobDetails";
-import { useWelcomeTourJobDetailsViewModel } from "@/modules/welcome-tour/useWelcomeTourJobDetailsViewModel";
 import { WELCOME_TOUR_JOB_DRAFT_ID } from "@/modules/welcome-tour/welcomeTourJobDraft";
 
 interface JobDetailsLayoutProps {
@@ -182,21 +182,41 @@ function JobDetailsMainContent({
   );
 }
 
+type JobDetailsLayoutContentProps = { id: string; children: ReactNode; isWelcomeTourDraft: boolean };
+
 export default function JobDetailsLayout({ params, children }: JobDetailsLayoutProps) {
   const { id } = use(params);
+  const isWelcomeTourDraft = id === WELCOME_TOUR_JOB_DRAFT_ID;
+
+  if (isWelcomeTourDraft) {
+    return (
+      <JobLocalApiProvider>
+        <JobDetailsLayoutContent id={id} isWelcomeTourDraft>
+          {children}
+        </JobDetailsLayoutContent>
+      </JobLocalApiProvider>
+    );
+  }
+
+  return (
+    <JobDatabaseApiProvider>
+      <JobDetailsLayoutContent id={id} isWelcomeTourDraft={false}>
+        {children}
+      </JobDetailsLayoutContent>
+    </JobDatabaseApiProvider>
+  );
+}
+
+function JobDetailsLayoutContent({ id, children, isWelcomeTourDraft }: JobDetailsLayoutContentProps) {
   const router = useRouter();
   const isDesktop = useBreakpoint("(min-width: 1024px)");
-  const isWelcomeTourDraft = id === WELCOME_TOUR_JOB_DRAFT_ID;
+  const viewModel = useJobDetails(id);
 
   const { activeTab, sidePanelFromQuery, fullWidth, toggleFullWidth, setSidePanel, needsRedirect } =
     useJobDetailsRouteState(id, isDesktop);
 
   const [actionsOpen, setActionsOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
-  const liveViewModel = useJobDetailsViewModel(id, { skip: isWelcomeTourDraft });
-  const draftViewModel = useWelcomeTourJobDetailsViewModel(isWelcomeTourDraft);
-  const viewModel = isWelcomeTourDraft ? draftViewModel : liveViewModel;
 
   useJobPageTitle(viewModel.job, activeTab);
 

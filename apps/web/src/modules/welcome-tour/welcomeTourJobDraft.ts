@@ -1,6 +1,7 @@
 import { tryRun } from "@job-tracker/try-run";
 
 import { ApplicationStage } from "@/gql/hooks";
+import type { UpdateJobInput } from "@/gql/hooks";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 
 export const WELCOME_TOUR_JOB_DRAFT_STORAGE_KEY = "job-tracker:welcome-tour-job-draft:v1";
@@ -14,6 +15,7 @@ export interface WelcomeTourJobDraftInput {
 export interface WelcomeTourJobDraft extends WelcomeTourJobDraftInput {
   id: string;
   createdAt: string;
+  description?: string | null;
 }
 
 /**
@@ -54,6 +56,27 @@ export function getWelcomeTourJobDraft(): WelcomeTourJobDraft | null {
   }
 }
 
+/** Updates the local tutorial draft with the same input shape used by job editors. */
+export async function updateWelcomeTourJobDraft(id: string, input: UpdateJobInput): Promise<boolean> {
+  if (id !== WELCOME_TOUR_JOB_DRAFT_ID) return false;
+
+  const draft = getWelcomeTourJobDraft();
+  if (!draft) return false;
+
+  const [error] = await tryRun(
+    Promise.resolve().then(() => {
+      const nextDraft: WelcomeTourJobDraft = {
+        ...draft,
+        title: input.title ?? draft.title,
+        description: input.description === undefined ? draft.description : input.description,
+      };
+      localStorage.setItem(WELCOME_TOUR_JOB_DRAFT_STORAGE_KEY, JSON.stringify(nextDraft));
+    }),
+  );
+
+  return !error;
+}
+
 /**
  * Shapes a persisted tutorial draft as the job selection used by the details UI.
  */
@@ -63,7 +86,7 @@ export function toSyntheticJob(draft: WelcomeTourJobDraft): JobDetailsValues {
     id: draft.id,
     title: draft.title,
     companyId: null,
-    description: createWelcomeTourJobDescription(draft),
+    description: draft.description ?? createWelcomeTourJobDescription(draft),
     urls: [],
     source: null,
     tags: [],
