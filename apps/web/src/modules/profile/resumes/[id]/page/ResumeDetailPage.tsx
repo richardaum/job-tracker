@@ -187,7 +187,7 @@ export default function ResumeDetailPage({ params }: PageProps) {
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
       <DetailPageHeader
-        reserveClassName={cn("pe-52 sm:pe-60")}
+        trailingOffsetClassName={cn("pe-52 sm:pe-60")}
         stackClassName="gap-3"
         trailing={
           resume ? (

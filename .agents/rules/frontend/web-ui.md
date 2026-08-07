@@ -140,7 +140,7 @@ Detail and tabbed-area pages expose actions in the **header action cluster** (to
 **How:**
 
 - Top-end cluster: **`[Actions dropdown] [HeaderActions.Slot]`** — dropdown before portaled primary buttons (`JobDetailsLayout`).
-- **`DetailPageHeader`:** use `trailing` for the cluster; default `reserveClassName` keeps title clear of pinned actions. Increase `reserveClassName` when both dropdown and a wide primary button show (e.g. `pr-36 sm:pr-64` on title row in job details).
+- **`DetailPageHeader`:** use `trailing` for the cluster; default `trailingOffsetClassName` keeps title clear of pinned actions. Increase `trailingOffsetClassName` when both dropdown and a wide primary button show (e.g. `pr-36 sm:pr-64` on title row in job details).
 - Alternative for shells without `DetailPageHeader`: absolute top-end wrapper with `flex shrink-0 flex-wrap items-center justify-end gap-2` (same ordering).
 
 #### Slots from nested tab routes

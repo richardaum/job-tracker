@@ -11,7 +11,7 @@ export interface DetailPageHeaderProps {
   trailing?: ReactNode | undefined;
   stackClassName?: string;
   className?: string;
-  reserveClassName?: string;
+  trailingOffsetClassName?: string;
 }
 
 function DetailPageHeader({
@@ -19,7 +19,7 @@ function DetailPageHeader({
   trailing,
   stackClassName = DEFAULT_STACK,
   className,
-  reserveClassName = DEFAULT_RESERVE,
+  trailingOffsetClassName = DEFAULT_RESERVE,
 }: DetailPageHeaderProps) {
   const hasTrailing = trailing != null;
 
@@ -30,7 +30,7 @@ function DetailPageHeader({
           <div className={cn("pointer-events-auto flex shrink-0 items-start justify-end gap-2")}>{trailing}</div>
         </div>
       ) : null}
-      <div className={cn("flex flex-col", stackClassName, hasTrailing ? reserveClassName : undefined)}>{children}</div>
+      <div className={cn("flex flex-col", stackClassName, hasTrailing ? trailingOffsetClassName : undefined)}>{children}</div>
     </div>
   );
 }
