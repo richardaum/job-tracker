@@ -18,6 +18,7 @@ interface JobValues {
 }
 
 export type JobQuickEditField = "title" | "company";
+type JobQuickEditInteractiveStep = JobQuickEditField | "create";
 
 export interface JobQuickEditDialogHandle {
   focusField: (field: JobQuickEditField) => void;
@@ -47,7 +48,7 @@ interface JobQuickEditDialogFormProps {
   onFormChange?: (change: JobQuickEditFormChange) => void;
   disableSubmitOnEnter: boolean;
   disableCompanyOptions: boolean;
-  interactiveField?: JobQuickEditField;
+  interactiveField?: JobQuickEditInteractiveStep;
   dialogRef?: Ref<JobQuickEditDialogHandle>;
   onClose: () => void;
 }
@@ -126,7 +127,7 @@ function JobQuickEditDialogForm({
     <>
       <form id={formId} onSubmit={handleFormSubmit} onKeyDown={handleFormKeyDown} noValidate>
         <Stack gap="sm">
-          <div inert={interactiveField === "company"}>
+          <div inert={interactiveField === "company" || interactiveField === "create"}>
             <FormField label="Job title" htmlFor="job-title" required error={errors.title?.message}>
               <Input
                 id="job-title"
@@ -144,7 +145,7 @@ function JobQuickEditDialogForm({
             </FormField>
           </div>
 
-          <div inert={interactiveField === "title"}>
+          <div inert={interactiveField === "title" || interactiveField === "create"}>
             <FormField label="Company" htmlFor="job-company" required error={errors.company?.message}>
               <Controller
                 control={control}
@@ -172,16 +173,25 @@ function JobQuickEditDialogForm({
         </Stack>
       </form>
 
-      <div inert={interactiveField !== undefined}>
-        <Stack direction="row" gap="xs" justify="end" className={cn("mt-4")}>
+      <Stack direction="row" gap="xs" justify="end" className={cn("mt-4")}>
+        <div inert={interactiveField !== undefined}>
           <Button intent="secondary" size="md" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
-          <Button type="submit" form={formId} intent="primary" size="md" state={loading ? "loading" : "default"}>
+        </div>
+        <div inert={interactiveField !== undefined && interactiveField !== "create"}>
+          <Button
+            type="submit"
+            form={formId}
+            intent="primary"
+            size="md"
+            state={loading ? "loading" : "default"}
+            data-onboarding-step="create-job-button"
+          >
             {isEdit ? "Save changes" : "Create"}
           </Button>
-        </Stack>
-      </div>
+        </div>
+      </Stack>
     </>
   );
 }
@@ -195,7 +205,7 @@ export interface JobQuickEditDialogProps {
   dismissible?: boolean;
   disableSubmitOnEnter?: boolean;
   disableCompanyOptions?: boolean;
-  interactiveField?: JobQuickEditField;
+  interactiveField?: JobQuickEditInteractiveStep;
   onCreate?: (input: JobQuickEditInput) => Promise<boolean>;
   onUpdate?: (jobId: string, input: JobQuickEditInput) => Promise<boolean>;
   onFormChange?: (change: JobQuickEditFormChange) => void;

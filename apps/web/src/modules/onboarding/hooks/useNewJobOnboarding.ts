@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 
-export type NewJobOnboardingStep = "title" | "company" | null;
+export type NewJobOnboardingStep = "title" | "company" | "create" | null;
 
 interface NewJobOnboardingState {
   activeStep: NewJobOnboardingStep;

@@ -11,7 +11,7 @@ export interface OnboardingProps {
   onOpenNewJob?: () => void;
   onCloseNewJob?: () => void;
   onFocusJobField?: (field: "title" | "company") => void;
-  onJobFormStepChange?: (step: "title" | "company" | null) => void;
+  onJobFormStepChange?: (step: "title" | "company" | "create" | null) => void;
   isJobTitleFilled?: boolean;
   isJobCompanyFilled?: boolean;
 }
@@ -129,7 +129,7 @@ function getOnboardingSteps(
   tourLabel: ReactNode,
   onOpenNewJob?: () => void,
   onCloseNewJob?: () => void,
-  onJobFormStepChange?: (step: "title" | "company" | null) => void,
+  onJobFormStepChange?: (step: "title" | "company" | "create" | null) => void,
   isJobTitleFilled = false,
   isJobCompanyFilled = false,
 ): Step[] {
@@ -137,7 +137,12 @@ function getOnboardingSteps(
     {
       target: "body",
       placement: "center",
-      content: "Welcome to Job Tracker! This onboarding will guide you through the main features of the application.",
+      content: (
+        <p>
+          Welcome to Job Tracker! This onboarding will guide you through the main features of the application. <br />
+          Don't worry about using real data—everything you enter is just for this tutorial.
+        </p>
+      ),
     },
     {
       target: '[data-onboarding-step="new-job-button"]',
@@ -171,6 +176,17 @@ function getOnboardingSteps(
       },
       after: () => onJobFormStepChange?.(null),
     },
+    {
+      target: '[data-onboarding-step="create-job-button"]',
+      placement: "top",
+      content: "Everything looks good. Click Create to add this job to your tracker.",
+      disableFocusTrap: true,
+      targetWaitTimeout: 2_000,
+      before: async () => {
+        onJobFormStepChange?.("create");
+      },
+      after: () => onJobFormStepChange?.(null),
+    },
   ];
 
   return steps.map((step) => ({ ...step, title: tourLabel }));
@@ -178,7 +194,7 @@ function getOnboardingSteps(
 
 function handleOnboardingEvent(
   event: EventData,
-  onJobFormStepChange?: (step: "title" | "company" | null) => void,
+  onJobFormStepChange?: (step: "title" | "company" | "create" | null) => void,
   onFocusJobField?: (field: "title" | "company") => void,
 ) {
   if (event.type === EVENTS.TOOLTIP && event.index === 2) onFocusJobField?.("title");

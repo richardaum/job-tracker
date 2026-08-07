@@ -96,6 +96,7 @@ export default function JobsPage() {
   }
 
   const { createQuickJob, isCreatingQuickJob } = useCreateQuickJob({
+    persistenceMode: newJobOnboarding.activeStep === "create" ? "local" : "database",
     onCreated: (jobId) => {
       showToast("Job created.", "success");
       router.push(`/jobs/${jobId}`);
@@ -106,7 +107,6 @@ export default function JobsPage() {
     onUpdated: () => showToast("Job updated.", "success"),
     onError: () => showToast("Something went wrong. Please try again.", "error"),
   });
-
   return (
     <div className={cn("flex h-full flex-col")}>
       <Onboarding

@@ -1,0 +1,42 @@
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { useCreateQuickJob } from "./useCreateQuickJob";
+
+const createJobMutationMock = vi.fn();
+const createLocalJobMock = vi.fn();
+
+vi.mock("@/gql/hooks", () => ({
+  JobsDocument: {},
+  QuickFilterCountsDocument: {},
+  useCreateJobMutation: () => [createJobMutationMock, { loading: false }],
+}));
+
+vi.mock("@/modules/jobs/shared/hooks/useCreateLocalJob", () => ({
+  useCreateLocalJob: () => ({ createLocalJob: createLocalJobMock, isCreatingLocalJob: false }),
+}));
+
+describe("useCreateQuickJob", () => {
+  const onCreated = vi.fn();
+  const onError = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("stores a tutorial job without calling the create-job mutation", async () => {
+    createLocalJobMock.mockResolvedValue("onboarding-job");
+    const { result } = renderHook(() => useCreateQuickJob({ onCreated, onError, persistenceMode: "local" }));
+
+    let didCreate = false;
+    await act(async () => {
+      didCreate = await result.current.createQuickJob({ title: "Frontend Engineer", company: "Acme" });
+    });
+
+    expect(didCreate).toBe(true);
+    expect(createLocalJobMock).toHaveBeenCalledWith({ title: "Frontend Engineer", company: "Acme" });
+    expect(createJobMutationMock).not.toHaveBeenCalled();
+    expect(onCreated).toHaveBeenCalledWith("onboarding-job");
+    expect(onError).not.toHaveBeenCalled();
+  });
+});
