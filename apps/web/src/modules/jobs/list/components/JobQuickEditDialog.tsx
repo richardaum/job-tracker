@@ -3,7 +3,7 @@
 import { Button, cn, Combobox, Dialog, FormField, Input, Stack, useDialog } from "@job-tracker/ui";
 import { type DialogControl } from "@job-tracker/ui";
 import { Controller, useForm } from "react-hook-form";
-import { useEffect, useImperativeHandle, useRef } from "react";
+import { useCallback, useEffect, useImperativeHandle, useRef } from "react";
 import type { KeyboardEvent, ReactElement, Ref, SubmitEvent } from "react";
 
 import { useCompaniesQuery } from "@/gql/hooks";
@@ -22,6 +22,7 @@ type JobQuickEditInteractiveStep = JobQuickEditField | "create";
 
 export interface JobQuickEditDialogHandle {
   focusField: (field: JobQuickEditField) => void;
+  submit: () => void;
 }
 
 export interface JobQuickEditFormValues {
@@ -95,6 +96,16 @@ function JobQuickEditDialogForm({
     validate: (value) => Boolean(value.trim()) || "Title is required.",
   });
 
+  const handleValidSubmit = useCallback(
+    async (form: JobQuickEditFormValues) => {
+      const input = { title: form.title.trim(), company: form.company.trim() };
+
+      const didSubmit = job ? await onUpdate?.(job.id, input) : await onCreate?.(input);
+      if (didSubmit) onClose();
+    },
+    [job, onUpdate, onCreate, onClose],
+  );
+
   useImperativeHandle(
     dialogRef,
     () => ({
@@ -102,19 +113,13 @@ function JobQuickEditDialogForm({
         if (field === "title") titleInputRef.current?.focus();
         if (field === "company") companyInputRef.current?.focus();
       },
+      submit: () => void handleSubmit(handleValidSubmit)(),
     }),
-    [],
+    [handleSubmit, handleValidSubmit],
   );
 
-  async function submit(form: JobQuickEditFormValues) {
-    const input = { title: form.title.trim(), company: form.company.trim() };
-
-    const didSubmit = job ? await onUpdate?.(job.id, input) : await onCreate?.(input);
-    if (didSubmit) onClose();
-  }
-
   function handleFormSubmit(event: SubmitEvent<HTMLFormElement>) {
-    void handleSubmit(submit)(event);
+    void handleSubmit(handleValidSubmit)(event);
   }
 
   function handleFormKeyDown(event: KeyboardEvent<HTMLFormElement>) {

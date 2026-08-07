@@ -17,8 +17,9 @@ import { useJobsListViewModel } from "@/modules/jobs/list/hooks/useJobsListViewM
 import { useCreateQuickJob } from "@/modules/jobs/shared/hooks/useCreateQuickJob";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { useUpdateQuickJob } from "@/modules/jobs/shared/hooks/useUpdateQuickJob";
-import { Onboarding } from "@/modules/onboarding/Onboarding";
 import { useNewJobOnboarding } from "@/modules/onboarding/hooks/useNewJobOnboarding";
+import { NEW_JOB_ONBOARDING_TOUR_LABEL } from "@/modules/onboarding/onboardingSteps";
+import { OnboardingJobsListTour } from "@/modules/onboarding/OnboardingJobsListTour";
 
 function stripSearchKeys(currentSearch: string, keysToRemove: Array<string>): string {
   const params = new URLSearchParams(currentSearch);
@@ -109,8 +110,8 @@ export default function JobsPage() {
   });
   return (
     <div className={cn("flex h-full flex-col")}>
-      <Onboarding
-        tourLabel={"Create your first job"}
+      <OnboardingJobsListTour
+        tourLabel={NEW_JOB_ONBOARDING_TOUR_LABEL}
         onOpenNewJob={() => {
           if (!newJob.isOpen) {
             dispatchNewJobOnboarding({ type: "form-opened" });
@@ -120,6 +121,7 @@ export default function JobsPage() {
         onCloseNewJob={newJob.close}
         onFocusJobField={(field) => newJobDialogRef.current?.focusField(field)}
         onJobFormStepChange={(step) => dispatchNewJobOnboarding({ type: "step-changed", step })}
+        onSubmitNewJob={() => newJobDialogRef.current?.submit()}
         isJobTitleFilled={newJobOnboarding.titleFilled}
         isJobCompanyFilled={newJobOnboarding.companyFilled}
       />

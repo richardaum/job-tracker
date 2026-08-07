@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Onboarding } from "./Onboarding";
+import { OnboardingJobsListTour } from "./OnboardingJobsListTour";
 
 const useFeatureFlagEnabledMock = vi.fn();
 const joyridePropsMock = vi.fn();
@@ -17,7 +17,7 @@ vi.mock("react-joyride", () => ({
   },
 }));
 
-describe("Onboarding", () => {
+describe("OnboardingJobsListTour", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -25,7 +25,7 @@ describe("Onboarding", () => {
   it("does not render before the feature flag resolves to enabled", () => {
     useFeatureFlagEnabledMock.mockReturnValue(undefined);
 
-    render(<Onboarding />);
+    render(<OnboardingJobsListTour />);
 
     expect(screen.queryByTestId("onboarding-tour")).not.toBeInTheDocument();
   });
@@ -33,7 +33,7 @@ describe("Onboarding", () => {
   it("renders when the onboarding feature flag is enabled", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
-    render(<Onboarding />);
+    render(<OnboardingJobsListTour />);
 
     expect(useFeatureFlagEnabledMock).toHaveBeenCalledWith("onboarding-enabled");
     expect(screen.getByTestId("onboarding-tour")).toBeInTheDocument();
@@ -42,7 +42,7 @@ describe("Onboarding", () => {
   it("includes a final step for the Create button", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
-    render(<Onboarding />);
+    render(<OnboardingJobsListTour />);
 
     expect(joyridePropsMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -59,7 +59,7 @@ describe("Onboarding", () => {
   it("explains that the tutorial does not require real data", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
-    render(<Onboarding />);
+    render(<OnboardingJobsListTour />);
 
     expect(joyridePropsMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -73,6 +73,23 @@ describe("Onboarding", () => {
                 ]),
               }),
             }),
+          }),
+        ]),
+      }),
+    );
+  });
+
+  it("numbers the create-job step as 5 of the full 6-step onboarding sequence", () => {
+    useFeatureFlagEnabledMock.mockReturnValue(true);
+
+    render(<OnboardingJobsListTour />);
+
+    expect(joyridePropsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        steps: expect.arrayContaining([
+          expect.objectContaining({
+            target: '[data-onboarding-step="create-job-button"]',
+            data: expect.objectContaining({ stepNumber: 5, totalSteps: 6 }),
           }),
         ]),
       }),
