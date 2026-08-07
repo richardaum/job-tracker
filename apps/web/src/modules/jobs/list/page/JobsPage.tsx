@@ -13,6 +13,8 @@ import { JobQuickEditDialog, type JobQuickEditDialogHandle } from "@/modules/job
 import { JobsCompanyFilterBanner } from "@/modules/jobs/list/components/JobsCompanyFilterBanner";
 import { JobsImportRunFilterBanner } from "@/modules/jobs/list/components/JobsImportRunFilterBanner";
 import { QuickFilters } from "@/modules/jobs/list/components/QuickFilters";
+import { useJobsListData } from "@/modules/jobs/list/hooks/useJobsListData";
+import { useJobsListFilters } from "@/modules/jobs/list/hooks/useJobsListFilters";
 import { useJobsListViewModel } from "@/modules/jobs/list/hooks/useJobsListViewModel";
 import { useCreateQuickJob } from "@/modules/jobs/shared/hooks/useCreateQuickJob";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
@@ -84,7 +86,9 @@ export default function JobsPage() {
     router.push((qs ? `${pathname}?${qs}` : pathname) as Route);
   }
 
-  const { jobs, companyFilter, error, runIdFilter, showInitialLoading } = useJobsListViewModel();
+  const filters = useJobsListFilters();
+  const jobsData = useJobsListData(filters);
+  const { jobs, companyFilter, error, runIdFilter, showInitialLoading } = useJobsListViewModel(filters, jobsData);
 
   const { enqueueToast } = useToastQueue();
 
@@ -104,10 +108,12 @@ export default function JobsPage() {
     },
     onError: () => showToast("Something went wrong. Please try again.", "error"),
   });
+
   const { updateQuickJob, isUpdatingQuickJob } = useUpdateQuickJob({
     onUpdated: () => showToast("Job updated.", "success"),
     onError: () => showToast("Something went wrong. Please try again.", "error"),
   });
+
   return (
     <div className={cn("flex h-full flex-col")}>
       <WelcomeTourJobsList
