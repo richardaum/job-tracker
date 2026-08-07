@@ -76,8 +76,9 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
   },
   "job-description-editor": {
     target: '[data-welcome-tour-step="job-description-editor"]',
-    placement: "top",
-    content: "Add the job description here, along with role context, the tech stack, or interview notes.",
+    placement: "right",
+    content:
+      "You can copy and paste a job description here, or manually add information about the role. I added a sample description for you.",
   },
 };
 

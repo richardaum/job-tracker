@@ -6,10 +6,9 @@ import { DescriptionTabContent } from "@/modules/jobs/details/components/Descrip
 import { useJobDetailsContext } from "@/modules/jobs/details/hooks/useJobDetailsContext";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { WelcomeTourJobDescription } from "@/modules/welcome-tour/WelcomeTourJobDescription";
-import { WELCOME_TOUR_JOB_DRAFT_ID } from "@/modules/welcome-tour/welcomeTourJobDraft";
 
 type JobDescriptionPageProps = { jobId: string };
-export function JobDescriptionPage({ jobId }: JobDescriptionPageProps) {
+export function JobDescriptionPage({ jobId: _jobId }: JobDescriptionPageProps) {
   const { enqueueToast } = useToastQueue();
   const { job } = useJobDetailsContext();
 
@@ -24,7 +23,7 @@ export function JobDescriptionPage({ jobId }: JobDescriptionPageProps) {
         onSuccess={() => enqueueToast({ title: "Description saved.", intent: "success" })}
         onError={() => enqueueToast({ title: "Failed to save description.", intent: "error" })}
       />
-      {jobId === WELCOME_TOUR_JOB_DRAFT_ID ? <WelcomeTourJobDescription /> : null}
+      <WelcomeTourJobDescription />
     </div>
   );
 }

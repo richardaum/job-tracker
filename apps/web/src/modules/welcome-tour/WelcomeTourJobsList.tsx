@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { EventData } from "react-joyride";
 import { ACTIONS, EVENTS, Joyride } from "react-joyride";
 import { useFeatureFlagEnabled } from "posthog-js/react";
+import { useEffect } from "react";
 
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
 import {
@@ -11,6 +12,7 @@ import {
   WELCOME_TOUR_FEATURE_FLAG,
   pickWelcomeTourSteps,
 } from "@/modules/welcome-tour/welcomeTourSteps";
+import { useWelcomeTourSession } from "@/modules/welcome-tour/useWelcomeTourSession";
 
 export interface WelcomeTourJobsListProps {
   tourLabel?: ReactNode;
@@ -34,8 +36,13 @@ export function WelcomeTourJobsList({
   isJobCompanyFilled = false,
 }: WelcomeTourJobsListProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
+  const { activeWelcomeTour, startWelcomeTour } = useWelcomeTourSession();
 
-  if (welcomeTourEnabled !== true) return null;
+  useEffect(() => {
+    if (welcomeTourEnabled === true) startWelcomeTour();
+  }, [startWelcomeTour, welcomeTourEnabled]);
+
+  if (welcomeTourEnabled !== true || !activeWelcomeTour) return null;
 
   const steps = pickWelcomeTourSteps(
     ["welcome", "new-job-button", "job-title-input", "job-company-input", "create-job-button"],

@@ -9,6 +9,7 @@ import {
   WELCOME_TOUR_FEATURE_FLAG,
   pickWelcomeTourSteps,
 } from "@/modules/welcome-tour/welcomeTourSteps";
+import { useWelcomeTourSession } from "@/modules/welcome-tour/useWelcomeTourSession";
 
 /**
  * Continues the welcome tour on the Description route. It is deliberately a
@@ -16,8 +17,9 @@ import {
  */
 export function WelcomeTourJobDescription() {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
+  const { activeWelcomeTour } = useWelcomeTourSession();
 
-  if (welcomeTourEnabled !== true) return null;
+  if (welcomeTourEnabled !== true || !activeWelcomeTour) return null;
 
   return (
     <Joyride

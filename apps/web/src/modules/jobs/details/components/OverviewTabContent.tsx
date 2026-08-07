@@ -196,10 +196,7 @@ export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError 
         />
       </div>
 
-      <div
-        className={cn("max-w-full")}
-        data-welcome-tour-step={job.id === "welcome-tour-job" ? "job-company" : undefined}
-      >
+      <div className={cn("max-w-full")} data-welcome-tour-step="job-company">
         <FieldWithLabelAction
           label="Company"
           content={

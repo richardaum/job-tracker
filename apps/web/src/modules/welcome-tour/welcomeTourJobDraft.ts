@@ -63,7 +63,7 @@ export function toSyntheticJob(draft: WelcomeTourJobDraft): JobDetailsValues {
     id: draft.id,
     title: draft.title,
     companyId: null,
-    description: null,
+    description: createWelcomeTourJobDescription(draft),
     urls: [],
     source: null,
     tags: [],
@@ -81,4 +81,16 @@ export function toSyntheticJob(draft: WelcomeTourJobDraft): JobDetailsValues {
     fillMetadata: null,
     match: null,
   };
+}
+
+function createWelcomeTourJobDescription(draft: WelcomeTourJobDraft): string {
+  return `${draft.company} is looking for a ${draft.title} to join the team.
+
+About the role
+- Collaborate with cross-functional partners to deliver high-quality work.
+- Help improve the product experience through thoughtful execution and feedback.
+
+What we're looking for
+- Experience relevant to the role and a collaborative mindset.
+- Clear communication and a willingness to learn.`;
 }

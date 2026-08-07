@@ -69,6 +69,8 @@ vi.mock("../components/JobTrackingPanel", () => ({ JobTrackingPanel: () => <div>
 
 vi.mock("@/modules/jobs/details/components/SalaryEditDialog", () => ({ SalaryEditDialog: () => null }));
 
+vi.mock("@/modules/welcome-tour/WelcomeTourJobsList", () => ({ WelcomeTourJobsList: () => null }));
+
 describe("JobsPage", () => {
   beforeEach(() => {
     navigationMocks.searchParams = "";

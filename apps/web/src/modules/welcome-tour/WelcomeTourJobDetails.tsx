@@ -11,13 +11,15 @@ import {
   WELCOME_TOUR_FEATURE_FLAG,
   pickWelcomeTourSteps,
 } from "@/modules/welcome-tour/welcomeTourSteps";
+import { useWelcomeTourSession } from "@/modules/welcome-tour/useWelcomeTourSession";
 
 export function WelcomeTourJobDetails() {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
   const pathname = usePathname();
   const router = useRouter();
+  const { activeWelcomeTour } = useWelcomeTourSession();
 
-  if (welcomeTourEnabled !== true || pathname.endsWith("/description")) return null;
+  if (welcomeTourEnabled !== true || !activeWelcomeTour || pathname.endsWith("/description")) return null;
 
   const steps = pickWelcomeTourSteps(["job-detail-title", "job-status", "job-company"], NEW_JOB_WELCOME_TOUR_LABEL, {
     "job-company": {

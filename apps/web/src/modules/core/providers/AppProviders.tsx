@@ -7,6 +7,7 @@ import { createApolloClient } from "@/lib/make-apollo-client";
 import { PasteListenerProvider } from "@/modules/core/providers/PasteListenerProvider";
 import { PostHogProvider } from "@/modules/core/providers/PostHogProvider";
 import { ToastQueueProvider } from "@/modules/jobs/shared/hooks/ToastQueueProvider";
+import { WelcomeTourSessionProvider } from "@/modules/welcome-tour/WelcomeTourSessionProvider";
 import { AiBlockedDialog } from "@/components/ai-blocked-dialog/AiBlockedDialog";
 
 type AppProvidersProps = { children: ReactNode };
@@ -14,12 +15,14 @@ export function AppProviders({ children }: AppProvidersProps) {
   return (
     <PostHogProvider>
       <ApolloNextAppProvider makeClient={createApolloClient}>
-        <ToastQueueProvider>
-          <PasteListenerProvider>
-            {children}
-            <AiBlockedDialog />
-          </PasteListenerProvider>
-        </ToastQueueProvider>
+        <WelcomeTourSessionProvider>
+          <ToastQueueProvider>
+            <PasteListenerProvider>
+              {children}
+              <AiBlockedDialog />
+            </PasteListenerProvider>
+          </ToastQueueProvider>
+        </WelcomeTourSessionProvider>
       </ApolloNextAppProvider>
     </PostHogProvider>
   );

@@ -48,6 +48,7 @@ describe("toSyntheticJob", () => {
       currentStageAt: draft.createdAt,
       createdAt: draft.createdAt,
       company: { id: "welcome-tour-company", name: "Acme" },
+      description: expect.stringContaining("Acme is looking for a Frontend Engineer"),
       urls: [],
       tags: [],
     });

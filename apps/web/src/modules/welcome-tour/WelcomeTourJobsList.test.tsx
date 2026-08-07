@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { WelcomeTourJobsList } from "./WelcomeTourJobsList";
+import { WelcomeTourSessionProvider } from "./WelcomeTourSessionProvider";
 
 const useFeatureFlagEnabledMock = vi.fn();
 const joyridePropsMock = vi.fn();
@@ -20,12 +21,13 @@ vi.mock("react-joyride", () => ({
 describe("WelcomeTourJobsList", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.sessionStorage.clear();
   });
 
   it("does not render before the feature flag resolves to enabled", () => {
     useFeatureFlagEnabledMock.mockReturnValue(undefined);
 
-    render(<WelcomeTourJobsList />);
+    renderWelcomeTour();
 
     expect(screen.queryByTestId("welcome-tour")).not.toBeInTheDocument();
   });
@@ -33,7 +35,7 @@ describe("WelcomeTourJobsList", () => {
   it("renders when the welcome tour feature flag is enabled", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
-    render(<WelcomeTourJobsList />);
+    renderWelcomeTour();
 
     expect(useFeatureFlagEnabledMock).toHaveBeenCalledWith("welcome-tour-enabled");
     expect(screen.getByTestId("welcome-tour")).toBeInTheDocument();
@@ -42,7 +44,7 @@ describe("WelcomeTourJobsList", () => {
   it("includes a final step for the Create button", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
-    render(<WelcomeTourJobsList />);
+    renderWelcomeTour();
 
     expect(joyridePropsMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -59,7 +61,7 @@ describe("WelcomeTourJobsList", () => {
   it("explains that the tutorial does not require real data", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
-    render(<WelcomeTourJobsList />);
+    renderWelcomeTour();
 
     expect(joyridePropsMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -82,7 +84,7 @@ describe("WelcomeTourJobsList", () => {
   it("numbers the create-job step as 5 of the full 9-step welcome tour sequence", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
-    render(<WelcomeTourJobsList />);
+    renderWelcomeTour();
 
     expect(joyridePropsMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -96,3 +98,11 @@ describe("WelcomeTourJobsList", () => {
     );
   });
 });
+
+function renderWelcomeTour() {
+  return render(
+    <WelcomeTourSessionProvider>
+      <WelcomeTourJobsList />
+    </WelcomeTourSessionProvider>,
+  );
+}
