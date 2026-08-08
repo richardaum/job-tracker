@@ -4,13 +4,13 @@ import { ACTIONS, Joyride } from "react-joyride";
 import { useFeatureFlagEnabled } from "posthog-js/react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
 import {
   WELCOME_TOUR_LABEL,
   WELCOME_TOUR_FEATURE_FLAG,
   pickWelcomeTourSteps,
+  type WelcomeTourStepId,
 } from "@/modules/welcome-tour/welcomeTourSteps";
 import { useTour } from "@/modules/welcome-tour/useTour";
 
@@ -19,27 +19,26 @@ type WelcomeTourJobDetailsProps = { descriptionHref: Route };
 export function WelcomeTourJobDetails({ descriptionHref }: WelcomeTourJobDetailsProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
   const router = useRouter();
-  const { activeTour, setActiveStepId } = useTour();
-
-  useEffect(() => () => setActiveStepId(null), [setActiveStepId]);
+  const { activeTour, activeStepId, setActiveStepId } = useTour();
 
   if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour") return null;
 
-  const steps = pickWelcomeTourSteps(
-    ["job-detail-title", "job-status", "job-company", "job-field-actions", "job-description-tab"],
-    WELCOME_TOUR_LABEL,
-    {
-      "job-field-actions": {
-        before: async () => setActiveStepId("job-field-actions"),
-        after: () => setActiveStepId(null),
-      },
-      "job-description-tab": {
-        after: ({ action }) => {
-          if (action === ACTIONS.NEXT) router.push(descriptionHref);
-        },
+  const stepIds: WelcomeTourStepId[] =
+    activeStepId === "update-status-button"
+      ? ["update-status-button"]
+      : ["job-detail-title", "job-status", "job-company", "job-field-actions", "job-description-tab"];
+  const steps = pickWelcomeTourSteps(stepIds, WELCOME_TOUR_LABEL, {
+    "job-field-actions": {
+      before: async () => setActiveStepId("job-field-actions"),
+      after: () => setActiveStepId(null),
+    },
+    "job-description-tab": {
+      after: ({ action }) => {
+        if (action === ACTIONS.NEXT) router.push(descriptionHref);
       },
     },
-  );
+    "update-status-button": { after: () => setActiveStepId(null) },
+  });
 
   return (
     <Joyride

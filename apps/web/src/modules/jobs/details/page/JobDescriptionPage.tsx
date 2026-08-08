@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@job-tracker/ui";
+import type { Route } from "next";
 
 import { DescriptionTabContent } from "@/modules/jobs/details/components/DescriptionTabContent";
 import { useJobDetailsContext } from "@/modules/jobs/details/hooks/useJobDetailsContext";
@@ -8,7 +9,7 @@ import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { WelcomeTourJobDescription } from "@/modules/welcome-tour/WelcomeTourJobDescription";
 
 type JobDescriptionPageProps = { jobId: string };
-export function JobDescriptionPage({ jobId: _jobId }: JobDescriptionPageProps) {
+export function JobDescriptionPage({ jobId }: JobDescriptionPageProps) {
   const { enqueueToast } = useToastQueue();
   const { job } = useJobDetailsContext();
 
@@ -22,7 +23,7 @@ export function JobDescriptionPage({ jobId: _jobId }: JobDescriptionPageProps) {
         job={job}
         onError={() => enqueueToast({ title: "Failed to save description.", intent: "error" })}
       />
-      <WelcomeTourJobDescription />
+      <WelcomeTourJobDescription overviewHref={`/jobs/${jobId}` as Route} />
     </div>
   );
 }

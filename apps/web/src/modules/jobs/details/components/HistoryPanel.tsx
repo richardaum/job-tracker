@@ -24,9 +24,9 @@ import {
   ApplicationStage,
   JobStageEventsDocument,
   useDeleteJobStageEventMutation,
-  useJobStageEventsQuery,
   useUpdateJobStageEventMutation,
 } from "@/gql/hooks";
+import { useJobHistoryViewModel } from "@/modules/jobs/details/hooks/useJobHistoryViewModel";
 import { formatDateTime } from "@/modules/jobs/details/utils/job-details.shared";
 import {
   buildScheduledAtWithBrowserTimezone,
@@ -59,6 +59,7 @@ const quickScheduleOptions = [
 type HistoryPanelProps = { jobId: string };
 
 export function HistoryPanel({ jobId }: HistoryPanelProps) {
+  const { stageEvents, currentStage, readOnly } = useJobHistoryViewModel(jobId);
   const { enqueueToast } = useToastQueue();
   const handleSuccess = useCallback(
     (message: string) => enqueueToast({ title: message, intent: "success" }),
@@ -74,7 +75,6 @@ export function HistoryPanel({ jobId }: HistoryPanelProps) {
   const [scheduledEnabled, setScheduledEnabled] = useState(false);
   const [scheduledAtDraft, setScheduledAtDraft] = useState("");
   const [reasonDraft, setReasonDraft] = useState("");
-  const { data: eventsData } = useJobStageEventsQuery({ variables: { jobId }, fetchPolicy: "cache-and-network" });
   const [updateStageEvent, { loading: updatingStageEvent }] = useUpdateJobStageEventMutation({
     refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
   });
@@ -82,8 +82,6 @@ export function HistoryPanel({ jobId }: HistoryPanelProps) {
     refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
   });
 
-  const stageEvents = eventsData?.jobStageEvents ?? [];
-  const currentStage = stageEvents[0]?.toStage ?? ApplicationStage.New;
   const editingEvent = stageEvents.find((event) => event.id === editingEventId);
   const isMutatingStageEvent = updatingStageEvent || deletingStageEvent;
   const canSaveEdit = Boolean(editingEvent && selectedStage && !isMutatingStageEvent);
@@ -175,47 +173,49 @@ export function HistoryPanel({ jobId }: HistoryPanelProps) {
               reason: event.reason ?? null,
               dateLabel: event.scheduledAt ? formatDateTime(event.scheduledAt) : formatDateTime(event.createdAt),
             }))}
-            renderItemAction={(item) => (
-              <div className={cn("flex items-center")}>
-                {item.reason ? (
-                  <IconButton
-                    intent="ghost"
-                    size="sm"
-                    label="History reason"
-                    tooltip={item.reason}
-                    icon={<ChatCircleTextIcon size={14} weight="regular" />}
-                    className={cn("size-6  text-text-muted")}
-                  />
-                ) : null}
-                <IconButton
-                  intent="ghost"
-                  size="sm"
-                  label="Edit history item"
-                  tooltip="Edit history item"
-                  icon={<PencilSimpleIcon size={14} weight="regular" />}
-                  className={cn("size-6  text-text-muted")}
-                  onClick={() => openEditDialog(item.id)}
-                  disabled={isMutatingStageEvent}
-                />
-                <ConfirmDialog
-                  title="Delete history event?"
-                  description="This action cannot be undone."
-                  confirmLabel="Delete"
-                  onConfirm={() => handleDeleteEvent(item.id)}
-                  trigger={
+            renderItemAction={(item) =>
+              !readOnly ? (
+                <div className={cn("flex items-center")}>
+                  {item.reason ? (
                     <IconButton
                       intent="ghost"
                       size="sm"
-                      label="Delete history item"
-                      tooltip="Delete history item"
-                      icon={<TrashIcon size={14} weight="regular" />}
+                      label="History reason"
+                      tooltip={item.reason}
+                      icon={<ChatCircleTextIcon size={14} weight="regular" />}
                       className={cn("size-6  text-text-muted")}
-                      disabled={isMutatingStageEvent}
                     />
-                  }
-                />
-              </div>
-            )}
+                  ) : null}
+                  <IconButton
+                    intent="ghost"
+                    size="sm"
+                    label="Edit history item"
+                    tooltip="Edit history item"
+                    icon={<PencilSimpleIcon size={14} weight="regular" />}
+                    className={cn("size-6  text-text-muted")}
+                    onClick={() => openEditDialog(item.id)}
+                    disabled={isMutatingStageEvent}
+                  />
+                  <ConfirmDialog
+                    title="Delete history event?"
+                    description="This action cannot be undone."
+                    confirmLabel="Delete"
+                    onConfirm={() => handleDeleteEvent(item.id)}
+                    trigger={
+                      <IconButton
+                        intent="ghost"
+                        size="sm"
+                        label="Delete history item"
+                        tooltip="Delete history item"
+                        icon={<TrashIcon size={14} weight="regular" />}
+                        className={cn("size-6  text-text-muted")}
+                        disabled={isMutatingStageEvent}
+                      />
+                    }
+                  />
+                </div>
+              ) : null
+            }
           />
         )}
       </div>

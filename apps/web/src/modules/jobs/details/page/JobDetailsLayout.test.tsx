@@ -25,6 +25,7 @@ const gqlMocks = vi.hoisted(() => ({
 }));
 
 const replaceMock = vi.hoisted(() => vi.fn());
+const updateStatusDialogMock = vi.hoisted(() => vi.fn());
 const useSelectedLayoutSegmentMock = vi.hoisted(() => vi.fn<() => string | null>(() => null));
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -116,7 +117,12 @@ vi.mock("@/modules/jobs/details/components/ActivitySidePanelTabs", () => ({
   ActivitySidePanelTabs: () => <div data-testid="activity-mock" />,
 }));
 
-vi.mock("@/modules/jobs/details/components/UpdateStatusDialog", () => ({ UpdateStatusDialog: () => null }));
+vi.mock("@/modules/jobs/details/components/UpdateStatusDialog", () => ({
+  UpdateStatusDialog: (props: unknown) => {
+    updateStatusDialogMock(props);
+    return null;
+  },
+}));
 
 vi.mock("@/modules/jobs/list/components/DeleteJobDialog", () => ({
   DeleteJobDialog: ({ trigger }: { trigger: ReactNode }) => <div>{trigger}</div>,
@@ -187,6 +193,10 @@ describe("JobDetailsLayout", () => {
     );
 
     expect(screen.getByRole("button", { name: "Update Status" })).toBeDefined();
+
+    await user.click(screen.getByRole("button", { name: "Update Status" }));
+
+    expect(updateStatusDialogMock).toHaveBeenLastCalledWith(expect.objectContaining({ open: true }));
 
     const actions = screen.getByRole("button", { name: "Actions" });
     await user.click(actions);

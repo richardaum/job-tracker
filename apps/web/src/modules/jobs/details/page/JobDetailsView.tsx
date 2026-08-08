@@ -66,7 +66,12 @@ export function JobDetailsView(props: JobDetailsViewProps) {
         trailing={
           job ? (
             <>
-              <Button intent="primary" size="md" onClick={() => onActionsOpenChange(true)}>
+              <Button
+                intent="primary"
+                size="md"
+                onClick={() => onActionsOpenChange(true)}
+                data-welcome-tour-step="update-status-button"
+              >
                 Update Status
               </Button>
               <JobActionsMenu
@@ -106,14 +111,16 @@ export function JobDetailsView(props: JobDetailsViewProps) {
             </span>
           ) : null}
         </div>
+        {job ? (
+          <UpdateStatusDialog
+            jobId={job.id}
+            currentStage={currentStage}
+            open={actionsOpen}
+            onOpenChange={onActionsOpenChange}
+          />
+        ) : null}
         {job && !readOnly ? (
           <>
-            <UpdateStatusDialog
-              jobId={job.id}
-              currentStage={currentStage}
-              open={actionsOpen}
-              onOpenChange={onActionsOpenChange}
-            />
             <DeleteJobDialog
               trigger={<span aria-hidden style={{ display: "none" }} />}
               jobId={job.id}

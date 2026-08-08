@@ -1,6 +1,6 @@
 import { tryRun } from "@job-tracker/try-run";
 
-import { ApplicationStage } from "@/gql/hooks";
+import { ApplicationStage, type CreateJobStageEventInput } from "@/gql/hooks";
 import type { UpdateJobInput } from "@/gql/hooks";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 
@@ -16,6 +16,33 @@ export interface WelcomeTourJobDraft extends WelcomeTourJobDraftInput {
   id: string;
   createdAt: string;
   description?: string | null;
+  stageEvents?: WelcomeTourJobStageEvent[];
+}
+
+export interface WelcomeTourJobStageEvent {
+  id: string;
+  fromStage: ApplicationStage | null;
+  toStage: ApplicationStage;
+  reason: string | null;
+  scheduledAt: string | null;
+  createdAt: string;
+}
+
+const draftListeners = new Set<() => void>();
+let draftRevision = 0;
+
+function notifyDraftListeners() {
+  draftRevision += 1;
+  draftListeners.forEach((listener) => listener());
+}
+
+export function subscribeToWelcomeTourJobDraft(listener: () => void) {
+  draftListeners.add(listener);
+  return () => draftListeners.delete(listener);
+}
+
+export function getWelcomeTourJobDraftRevision() {
+  return draftRevision;
 }
 
 /**
@@ -33,6 +60,7 @@ export async function saveWelcomeTourJobDraft(input: WelcomeTourJobDraftInput): 
         createdAt: new Date().toISOString(),
       };
       localStorage.setItem(WELCOME_TOUR_JOB_DRAFT_STORAGE_KEY, JSON.stringify(draft));
+      notifyDraftListeners();
     }),
   );
 
@@ -71,6 +99,34 @@ export async function updateWelcomeTourJobDraft(id: string, input: UpdateJobInpu
         description: input.description === undefined ? draft.description : input.description,
       };
       localStorage.setItem(WELCOME_TOUR_JOB_DRAFT_STORAGE_KEY, JSON.stringify(nextDraft));
+      notifyDraftListeners();
+    }),
+  );
+
+  return !error;
+}
+
+/** Adds a tutorial-only stage event and notifies the local details view. */
+export async function createWelcomeTourJobStageEvent(input: CreateJobStageEventInput): Promise<boolean> {
+  if (input.jobId !== WELCOME_TOUR_JOB_DRAFT_ID) return false;
+
+  const draft = getWelcomeTourJobDraft();
+  if (!draft) return false;
+
+  const [error] = await tryRun(
+    Promise.resolve().then(() => {
+      const createdAt = new Date().toISOString();
+      const stageEvent: WelcomeTourJobStageEvent = {
+        id: `welcome-tour-stage-event-${Date.now()}`,
+        fromStage: draft.stageEvents?.[0]?.toStage ?? ApplicationStage.New,
+        toStage: input.toStage,
+        reason: input.reason ?? null,
+        scheduledAt: input.scheduledAt ?? null,
+        createdAt,
+      };
+      const nextDraft: WelcomeTourJobDraft = { ...draft, stageEvents: [stageEvent, ...(draft.stageEvents ?? [])] };
+      localStorage.setItem(WELCOME_TOUR_JOB_DRAFT_STORAGE_KEY, JSON.stringify(nextDraft));
+      notifyDraftListeners();
     }),
   );
 
@@ -81,6 +137,8 @@ export async function updateWelcomeTourJobDraft(id: string, input: UpdateJobInpu
  * Shapes a persisted tutorial draft as the job selection used by the details UI.
  */
 export function toSyntheticJob(draft: WelcomeTourJobDraft): JobDetailsValues {
+  const currentStageEvent = draft.stageEvents?.[0];
+
   return {
     __typename: "JobType",
     id: draft.id,
@@ -95,9 +153,9 @@ export function toSyntheticJob(draft: WelcomeTourJobDraft): JobDetailsValues {
     sourceRunId: null,
     summary: null,
     htmlContent: null,
-    currentStage: ApplicationStage.New,
-    currentStageReason: null,
-    currentStageAt: draft.createdAt,
+    currentStage: currentStageEvent?.toStage ?? ApplicationStage.New,
+    currentStageReason: currentStageEvent?.reason ?? null,
+    currentStageAt: currentStageEvent?.scheduledAt ?? currentStageEvent?.createdAt ?? draft.createdAt,
     createdAt: draft.createdAt,
     company: { __typename: "CompanyType", id: "welcome-tour-company", name: draft.company, description: null },
     summaryMetadata: null,

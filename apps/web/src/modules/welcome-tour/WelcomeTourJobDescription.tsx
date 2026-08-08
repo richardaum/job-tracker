@@ -1,7 +1,9 @@
 "use client";
 
-import { Joyride } from "react-joyride";
+import { ACTIONS, Joyride } from "react-joyride";
 import { useFeatureFlagEnabled } from "posthog-js/react";
+import type { Route } from "next";
+import { useRouter } from "next/navigation";
 
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
 import {
@@ -15,9 +17,12 @@ import { useTour } from "@/modules/welcome-tour/useTour";
  * Continues the welcome tour on the Description route. It is deliberately a
  * separate Joyride instance because navigation unmounts the route content.
  */
-export function WelcomeTourJobDescription() {
+type WelcomeTourJobDescriptionProps = { overviewHref: Route };
+
+export function WelcomeTourJobDescription({ overviewHref }: WelcomeTourJobDescriptionProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
-  const { activeTour } = useTour();
+  const router = useRouter();
+  const { activeTour, setActiveStepId } = useTour();
 
   if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour") return null;
 
@@ -25,7 +30,16 @@ export function WelcomeTourJobDescription() {
     <Joyride
       run
       continuous
-      steps={pickWelcomeTourSteps(["job-description-editor"], WELCOME_TOUR_LABEL)}
+      steps={pickWelcomeTourSteps(["job-description-editor"], WELCOME_TOUR_LABEL, {
+        "job-description-editor": {
+          after: ({ action }) => {
+            if (action !== ACTIONS.NEXT) return;
+
+            setActiveStepId("update-status-button");
+            router.push(overviewHref);
+          },
+        },
+      })}
       locale={{ last: "Got it" }}
       options={{
         buttons: ["primary"],

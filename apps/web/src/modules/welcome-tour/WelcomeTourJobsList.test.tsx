@@ -96,7 +96,7 @@ describe("WelcomeTourJobsList", () => {
     );
   });
 
-  it("numbers the create-job step as 5 of the full 11-step welcome tour sequence", () => {
+  it("numbers the create-job step as 5 of the full 12-step welcome tour sequence", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
     renderWelcomeTour();
@@ -106,7 +106,7 @@ describe("WelcomeTourJobsList", () => {
         steps: expect.arrayContaining([
           expect.objectContaining({
             target: '[data-welcome-tour-step="create-job-button"]',
-            data: expect.objectContaining({ stepNumber: 5, totalSteps: 11 }),
+            data: expect.objectContaining({ stepNumber: 5, totalSteps: 12 }),
           }),
         ]),
       }),

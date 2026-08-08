@@ -7,12 +7,8 @@ import type { ReactElement } from "react";
 
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 
-import {
-  ApplicationStage,
-  JobStageEventsDocument,
-  StageEventSource,
-  useCreateJobStageEventMutation,
-} from "@/gql/hooks";
+import { ApplicationStage, StageEventSource } from "@/gql/hooks";
+import { useCreateJobStageEvent } from "@/modules/jobs/details/hooks/useCreateJobStageEvent";
 import { formatStage } from "@/modules/jobs/shared/components/status-badge.utils";
 import {
   buildScheduledAtWithBrowserTimezone,
@@ -58,9 +54,7 @@ export function UpdateStatusDialog({ jobId, currentStage, trigger, open, onOpenC
   const [scheduledAtDraft, setScheduledAtDraft] = useState("");
   const [reasonDraft, setReasonDraft] = useState("");
 
-  const [createStageEvent, { loading: stageSaving }] = useCreateJobStageEventMutation({
-    refetchQueries: [{ query: JobStageEventsDocument, variables: { jobId } }],
-  });
+  const [createStageEvent, { loading: stageSaving }] = useCreateJobStageEvent();
   const saving = stageSaving;
   const canSave = Boolean(selectedStage) && !saving;
   const scheduledAtValue = scheduledAtDraft.trim();
@@ -86,15 +80,11 @@ export function UpdateStatusDialog({ jobId, currentStage, trigger, open, onOpenC
 
     const [error] = await tryRun(
       createStageEvent({
-        variables: {
-          input: {
-            jobId,
-            toStage: selectedStage,
-            scheduledAt: scheduledEnabled ? buildScheduledAtWithBrowserTimezone(scheduledAtValue) : null,
-            source: StageEventSource.Manual,
-            reason: reasonDraft.trim() || null,
-          },
-        },
+        jobId,
+        toStage: selectedStage,
+        scheduledAt: scheduledEnabled ? buildScheduledAtWithBrowserTimezone(scheduledAtValue) : null,
+        source: StageEventSource.Manual,
+        reason: reasonDraft.trim() || null,
       }),
     );
     if (error) {

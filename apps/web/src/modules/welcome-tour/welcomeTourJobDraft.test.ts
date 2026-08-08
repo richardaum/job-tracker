@@ -1,12 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { ApplicationStage } from "@/gql/hooks";
+
 import {
-  WELCOME_TOUR_JOB_DRAFT_ID,
-  WELCOME_TOUR_JOB_DRAFT_STORAGE_KEY,
+  createWelcomeTourJobStageEvent,
   getWelcomeTourJobDraft,
   saveWelcomeTourJobDraft,
   toSyntheticJob,
   updateWelcomeTourJobDraft,
+  WELCOME_TOUR_JOB_DRAFT_ID,
+  WELCOME_TOUR_JOB_DRAFT_STORAGE_KEY,
 } from "./welcomeTourJobDraft";
 
 describe("saveWelcomeTourJobDraft", () => {
@@ -66,5 +69,26 @@ describe("updateWelcomeTourJobDraft", () => {
     ).resolves.toBe(true);
 
     expect(getWelcomeTourJobDraft()?.description).toBe('{"type":"doc","content":[]}');
+  });
+});
+
+describe("createWelcomeTourJobStageEvent", () => {
+  it("persists the local status event and exposes it through the synthetic job", async () => {
+    await saveWelcomeTourJobDraft({ title: "Frontend Engineer", company: "Acme" });
+
+    await expect(
+      createWelcomeTourJobStageEvent({
+        jobId: WELCOME_TOUR_JOB_DRAFT_ID,
+        toStage: ApplicationStage.Applied,
+        reason: "Submitted application",
+      }),
+    ).resolves.toBe(true);
+
+    const draft = getWelcomeTourJobDraft();
+    expect(draft?.stageEvents).toHaveLength(1);
+    if (!draft) throw new Error("Expected the welcome tour job draft to exist.");
+    const job = toSyntheticJob(draft);
+    expect(job.currentStage).toBe(ApplicationStage.Applied);
+    expect(job.currentStageReason).toBe("Submitted application");
   });
 });
