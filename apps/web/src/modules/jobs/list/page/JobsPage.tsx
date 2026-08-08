@@ -5,7 +5,7 @@ import { SearchInput } from "@job-tracker/ui";
 import { PlusIcon } from "@phosphor-icons/react";
 import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { JobCard } from "@/modules/jobs/list/components/JobCard";
@@ -94,6 +94,7 @@ export default function JobsPage() {
 
   const newJob = useDialog();
   const newJobDialogRef = useRef<JobQuickEditDialogHandle>(null);
+  const [newJobDialogElement, setNewJobDialogElement] = useState<HTMLDivElement | null>(null);
   const [newJobWelcomeTour, dispatchNewJobWelcomeTour] = useNewJobWelcomeTour();
 
   function showToast(message: string, intent: "success" | "error") {
@@ -132,6 +133,7 @@ export default function JobsPage() {
             disableSubmitOnEnter={newJobWelcomeTour.activeStep !== null}
             disableCompanyOptions={newJobWelcomeTour.activeStep !== null}
             interactiveField={newJobWelcomeTour.activeStep ?? undefined}
+            onContentElementChange={setNewJobDialogElement}
             onCreate={createQuickJob}
             onFormChange={({ name, values }) => {
               if (name === "title" || name === "company") {
@@ -176,6 +178,7 @@ export default function JobsPage() {
       </div>
 
       <WelcomeTourJobsList
+        portalElement={newJobDialogElement}
         tourLabel={WELCOME_TOUR_LABEL}
         onOpenNewJob={() => {
           if (!newJob.isOpen) {

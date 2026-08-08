@@ -16,6 +16,7 @@ import { useTour } from "@/modules/welcome-tour/useTour";
 
 export interface WelcomeTourJobsListProps {
   tourLabel?: ReactNode;
+  portalElement?: HTMLElement | null;
   onOpenNewJob?: () => void;
   onCloseNewJob?: () => void;
   onFocusJobField?: (field: "title" | "company") => void;
@@ -27,6 +28,7 @@ export interface WelcomeTourJobsListProps {
 
 export function WelcomeTourJobsList({
   tourLabel = WELCOME_TOUR_LABEL,
+  portalElement,
   onOpenNewJob,
   onCloseNewJob,
   onFocusJobField,
@@ -79,6 +81,7 @@ export function WelcomeTourJobsList({
       run
       continuous
       steps={steps}
+      portalElement={portalElement ?? undefined}
       onEvent={(event) => handleWelcomeTourEvent(event, onJobFormStepChange, onFocusJobField)}
       options={{
         buttons: ["back", "primary", "skip"],
@@ -90,7 +93,10 @@ export function WelcomeTourJobsList({
         spotlightRadius: 10,
       }}
       floatingOptions={{ hideArrow: true }}
-      styles={{ floater: { pointerEvents: "auto", zIndex: 1000 } }}
+      styles={{
+        floater: { pointerEvents: "auto", zIndex: 1000 },
+        overlay: { position: portalElement ? "fixed" : "absolute" },
+      }}
       tooltipComponent={WelcomeTourTooltip}
     />
   );

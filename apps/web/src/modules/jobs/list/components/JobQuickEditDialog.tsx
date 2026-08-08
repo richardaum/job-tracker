@@ -142,6 +142,7 @@ function JobQuickEditDialogForm({
                 state={errors.title ? "error" : "default"}
                 disabled={loading}
                 {...titleInputProps}
+                tabIndex={interactiveField !== undefined && interactiveField !== "title" ? -1 : undefined}
                 ref={(element) => {
                   titleInputRef.current = element;
                   registerTitleRef(element);
@@ -165,7 +166,10 @@ function JobQuickEditDialogForm({
                     onInputElementChange={(element) => {
                       companyInputRef.current = element;
                     }}
-                    inputProps={{ "data-welcome-tour-step": "job-company-input" }}
+                    inputProps={{
+                      "data-welcome-tour-step": "job-company-input",
+                      tabIndex: interactiveField !== undefined && interactiveField !== "company" ? -1 : undefined,
+                    }}
                     options={disableCompanyOptions ? [] : companyOptions}
                     placeholder="e.g. Acme Corp"
                     state={errors.company ? "error" : "default"}
@@ -180,7 +184,13 @@ function JobQuickEditDialogForm({
 
       <Stack direction="row" gap="xs" justify="end" className={cn("mt-4")}>
         <div inert={interactiveField !== undefined}>
-          <Button intent="secondary" size="md" onClick={onClose} disabled={loading}>
+          <Button
+            intent="secondary"
+            size="md"
+            onClick={onClose}
+            disabled={loading}
+            tabIndex={interactiveField === undefined ? undefined : -1}
+          >
             Cancel
           </Button>
         </div>
@@ -191,6 +201,7 @@ function JobQuickEditDialogForm({
             intent="primary"
             size="md"
             state={loading ? "loading" : "default"}
+            tabIndex={interactiveField !== undefined && interactiveField !== "create" ? -1 : undefined}
             data-welcome-tour-step="create-job-button"
           >
             {isEdit ? "Save changes" : "Create"}
@@ -211,6 +222,7 @@ export interface JobQuickEditDialogProps {
   disableSubmitOnEnter?: boolean;
   disableCompanyOptions?: boolean;
   interactiveField?: JobQuickEditInteractiveStep;
+  onContentElementChange?: (element: HTMLDivElement | null) => void;
   onCreate?: (input: JobQuickEditInput) => Promise<boolean>;
   onUpdate?: (jobId: string, input: JobQuickEditInput) => Promise<boolean>;
   onFormChange?: (change: JobQuickEditFormChange) => void;
@@ -226,6 +238,7 @@ export function JobQuickEditDialog({
   disableSubmitOnEnter = false,
   disableCompanyOptions = false,
   interactiveField,
+  onContentElementChange,
   onCreate,
   onUpdate,
   onFormChange,
@@ -241,7 +254,9 @@ export function JobQuickEditDialog({
       description={isEdit ? "Update the title and company for this job." : "Add a new job with a title and company."}
       open={control.isOpen}
       onOpenChange={control.onOpenChange}
+      onContentElementChange={onContentElementChange}
       dismissible={dismissible}
+      contentClassName={cn("inset-0 m-auto h-fit translate-none")}
     >
       {control.isOpen ? (
         <JobQuickEditDialogForm

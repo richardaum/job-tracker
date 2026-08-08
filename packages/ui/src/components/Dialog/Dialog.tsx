@@ -18,6 +18,7 @@ export interface DialogProps {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  onContentElementChange?: (element: HTMLDivElement | null) => void;
   dismissible?: boolean;
   contentClassName?: string;
   childrenClassName?: string;
@@ -44,6 +45,7 @@ export function Dialog({
   open,
   defaultOpen,
   onOpenChange,
+  onContentElementChange,
   dismissible = true,
   contentClassName,
   childrenClassName,
@@ -57,6 +59,7 @@ export function Dialog({
       <RadixDialog.Portal>
         <RadixDialog.Overlay className={cn("fixed inset-0 z-40 bg-(--semantic-color-overlay-backdrop)")} />
         <RadixDialog.Content
+          ref={onContentElementChange}
           className={cn(
             "fixed left-1/2 top-1/2 z-50 flex max-h-[85vh] w-[calc(100vw-(var(--primitive-space-6)*2))] -translate-1/2 flex-col rounded-lg border border-border-subtle bg-bg-surface p-6 shadow-md focus:outline-none",
             sizeClasses[size],
