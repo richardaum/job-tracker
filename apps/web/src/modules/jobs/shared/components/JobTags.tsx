@@ -1,9 +1,15 @@
 import { Badge, cn, IconButton, Tooltip } from "@job-tracker/ui";
 import { XIcon } from "@phosphor-icons/react";
 
-type JobTagsProps = { tags: string[]; maxTagChips?: number; onRemoveTag?: (tag: string) => void; className?: string };
+type JobTagsProps = {
+  tags: string[];
+  maxTagChips?: number;
+  onRemoveTag?: (tag: string) => void;
+  className?: string;
+  disabled?: boolean;
+};
 
-export function JobTags({ tags, maxTagChips, onRemoveTag, className }: JobTagsProps) {
+export function JobTags({ tags, maxTagChips, onRemoveTag, className, disabled = false }: JobTagsProps) {
   const shown = maxTagChips === undefined ? tags : tags.slice(0, maxTagChips);
   const rest = Math.max(0, tags.length - shown.length);
   const hidden = maxTagChips !== undefined ? tags.slice(maxTagChips) : [];
@@ -20,6 +26,7 @@ export function JobTags({ tags, maxTagChips, onRemoveTag, className }: JobTagsPr
               label="Remove tag"
               tooltip="Remove tag"
               onClick={() => onRemoveTag(t)}
+              disabled={disabled}
               className={cn("size-4 shrink-0 rounded shadow-none hover:bg-black/15")}
             />
           ) : null}

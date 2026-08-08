@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Step } from "react-joyride";
 
 export const WELCOME_TOUR_FEATURE_FLAG = "welcome-tour-enabled";
-export const NEW_JOB_WELCOME_TOUR_LABEL = "Create your first job";
+export const WELCOME_TOUR_LABEL = "Create your first job";
 
 export type WelcomeTourStepId =
   | "welcome"
@@ -13,6 +13,8 @@ export type WelcomeTourStepId =
   | "job-detail-title"
   | "job-status"
   | "job-company"
+  | "job-field-actions"
+  | "job-description-tab"
   | "job-description-editor";
 
 type WelcomeTourStepContent = Omit<Step, "title" | "data" | "before" | "after">;
@@ -74,6 +76,16 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
     placement: "bottom",
     content: "This is the company linked to this job. You can view its details or switch it whenever needed.",
   },
+  "job-field-actions": {
+    target: '[data-welcome-tour-step="job-field-actions"]',
+    placement: "bottom",
+    content: "Hover over a field to reveal its available actions. Actions are disabled during this tour.",
+  },
+  "job-description-tab": {
+    target: '[data-welcome-tour-step="job-description-tab"]',
+    placement: "bottom",
+    content: "Open the Description tab whenever you want to add or review details about this role.",
+  },
   "job-description-editor": {
     target: '[data-welcome-tour-step="job-description-editor"]',
     placement: "right",
@@ -91,6 +103,8 @@ const WELCOME_TOUR_STEP_ORDER: WelcomeTourStepId[] = [
   "job-detail-title",
   "job-status",
   "job-company",
+  "job-field-actions",
+  "job-description-tab",
   "job-description-editor",
 ];
 

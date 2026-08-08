@@ -13,9 +13,10 @@ interface SummaryFieldProps {
     | null
     | undefined;
   onGenerateSummary: () => void;
+  disabled?: boolean;
 }
 
-export function SummaryField({ summary, summaryMetadata, onGenerateSummary }: SummaryFieldProps) {
+export function SummaryField({ summary, summaryMetadata, onGenerateSummary, disabled = false }: SummaryFieldProps) {
   const isProcessing = summaryMetadata?.status === AsyncMetadataStatus.Processing;
   const isFailed = summaryMetadata?.status === AsyncMetadataStatus.Failed;
 
@@ -29,7 +30,7 @@ export function SummaryField({ summary, summaryMetadata, onGenerateSummary }: Su
         <FieldWithLabelAction.IconActionButton
           label="Regenerate summary"
           icon={<ArrowsClockwiseIcon size={14} weight="regular" className={cn(isProcessing && "animate-spin")} />}
-          disabled={isProcessing}
+          disabled={disabled || isProcessing}
           onClick={onGenerateSummary}
         />
       </div>

@@ -1,4 +1,4 @@
-import { useJobApiMode } from "@/modules/jobs/details/hooks/JobApiContext";
+import { useJobDataSource } from "@/modules/jobs/shared/hooks/useJobDataSource";
 import {
   type UseJobDetailsViewModelOptions,
   useJobDetailsViewModel,
@@ -7,8 +7,7 @@ import { useWelcomeTourJobDetailsViewModel } from "@/modules/welcome-tour/useWel
 
 /** Selects the database or welcome-tour job details source without changing hook order. */
 export function useJobDetails(jobId: string, options?: UseJobDetailsViewModelOptions) {
-  const mode = useJobApiMode();
-  const isLocal = mode === "local";
+  const isLocal = useJobDataSource() === "local";
   const database = useJobDetailsViewModel(jobId, { ...options, skip: isLocal || options?.skip });
   const local = useWelcomeTourJobDetailsViewModel(isLocal);
 

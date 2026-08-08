@@ -8,11 +8,11 @@ import { useEffect } from "react";
 
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
 import {
-  NEW_JOB_WELCOME_TOUR_LABEL,
+  WELCOME_TOUR_LABEL,
   WELCOME_TOUR_FEATURE_FLAG,
   pickWelcomeTourSteps,
 } from "@/modules/welcome-tour/welcomeTourSteps";
-import { useWelcomeTourSession } from "@/modules/welcome-tour/useWelcomeTourSession";
+import { useTour } from "@/modules/welcome-tour/useTour";
 
 export interface WelcomeTourJobsListProps {
   tourLabel?: ReactNode;
@@ -26,7 +26,7 @@ export interface WelcomeTourJobsListProps {
 }
 
 export function WelcomeTourJobsList({
-  tourLabel = NEW_JOB_WELCOME_TOUR_LABEL,
+  tourLabel = WELCOME_TOUR_LABEL,
   onOpenNewJob,
   onCloseNewJob,
   onFocusJobField,
@@ -36,13 +36,13 @@ export function WelcomeTourJobsList({
   isJobCompanyFilled = false,
 }: WelcomeTourJobsListProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
-  const { activeWelcomeTour, startWelcomeTour } = useWelcomeTourSession();
+  const { activeTour, startTour } = useTour();
 
   useEffect(() => {
-    if (welcomeTourEnabled === true) startWelcomeTour();
-  }, [startWelcomeTour, welcomeTourEnabled]);
+    if (welcomeTourEnabled === true) startTour("welcome-tour");
+  }, [startTour, welcomeTourEnabled]);
 
-  if (welcomeTourEnabled !== true || !activeWelcomeTour) return null;
+  if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour") return null;
 
   const steps = pickWelcomeTourSteps(
     ["welcome", "new-job-button", "job-title-input", "job-company-input", "create-job-button"],

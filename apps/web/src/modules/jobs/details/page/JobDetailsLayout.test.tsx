@@ -96,6 +96,10 @@ vi.mock("@/modules/jobs/details/hooks/useJobDetailsViewModel", () => ({
   useJobDetailsViewModel: (id: string, options?: unknown) => useJobDetailsViewModelMock(id, options),
 }));
 
+vi.mock("@/modules/jobs/shared/hooks/useJobDataSource", () => ({ useJobDataSource: () => "database" }));
+
+vi.mock("@/modules/welcome-tour/useTour", () => ({ useTour: () => ({ activeTour: null, startTour: vi.fn() }) }));
+
 vi.mock("@/modules/jobs/details/page/JobOverviewPage", () => ({
   JobOverviewPage: () => <div data-testid="overview-tab-mock" />,
 }));
@@ -173,7 +177,7 @@ describe("JobDetailsLayout", () => {
     });
   });
 
-  it("does not offer Match analysis in the Actions dropdown", async () => {
+  it("shows Update Status as a primary header action", async () => {
     const user = userEvent.setup();
 
     render(
@@ -182,12 +186,14 @@ describe("JobDetailsLayout", () => {
       </JobDetailsLayout>,
     );
 
+    expect(screen.getByRole("button", { name: "Update Status" })).toBeDefined();
+
     const actions = screen.getByRole("button", { name: "Actions" });
     await user.click(actions);
 
     expect(screen.queryByRole("menuitem", { name: "Match analysis" })).toBeNull();
     expect(screen.getByRole("menuitem", { name: "Fill job fields automatically" })).toBeDefined();
-    expect(screen.getByRole("menuitem", { name: "Update status" })).toBeDefined();
+    expect(screen.queryByRole("menuitem", { name: "Update status" })).toBeNull();
     expect(screen.getByRole("menuitem", { name: "Remove" })).toBeDefined();
   });
 
@@ -301,13 +307,14 @@ describe("JobDetailsLayout", () => {
       </JobDetailsLayout>,
     );
 
-    expect(await screen.findByRole("button", { name: /^regenerate$/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^(generate|regenerate)$/i })).not.toBeInTheDocument();
 
     expect(await screen.findByRole("tab", { name: "All" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Fits" })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Actions" }));
 
+    expect(screen.getByRole("menuitem", { name: /regenerate match/i })).toBeInTheDocument();
     expect(screen.getByRole("menuitem", { name: /view resume/i })).toBeInTheDocument();
     expect(screen.getByRole("menuitem", { name: /view preferences/i })).toBeInTheDocument();
   });

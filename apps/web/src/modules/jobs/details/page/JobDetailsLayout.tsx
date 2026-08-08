@@ -24,7 +24,6 @@ import { OverviewTab } from "@/modules/jobs/details/components/OverviewTab";
 import { SourceTab } from "@/modules/jobs/details/components/SourceTab";
 import { JobFillStatusProvider } from "@/modules/jobs/details/hooks/JobFillStatusProvider";
 import { JobDetailsProvider } from "@/modules/jobs/details/hooks/JobDetailsProvider";
-import { JobDatabaseApiProvider, JobLocalApiProvider } from "@/modules/jobs/details/hooks/JobApiProvider";
 import { useJobDetails } from "@/modules/jobs/details/hooks/useJobDetails";
 import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchStatusProvider";
 import { useJobDetailsRouteState } from "@/modules/jobs/details/hooks/useJobDetailsRouteState";
@@ -32,10 +31,8 @@ import { useJobPageTitle } from "@/modules/jobs/details/hooks/useJobPageTitle";
 import { JobDetailsSubTabs } from "@/modules/jobs/details/job-details-header.slots";
 import { JobDetailsView } from "@/modules/jobs/details/page/JobDetailsView";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
+import { useJobDataSource } from "@/modules/jobs/shared/hooks/useJobDataSource";
 import { useRouter } from "next/navigation";
-
-import { WelcomeTourJobDetails } from "@/modules/welcome-tour/WelcomeTourJobDetails";
-import { WELCOME_TOUR_JOB_DRAFT_ID } from "@/modules/welcome-tour/welcomeTourJobDraft";
 
 interface JobDetailsLayoutProps {
   params: Promise<{ id: string }>;
@@ -182,32 +179,9 @@ function JobDetailsMainContent({
   );
 }
 
-type JobDetailsLayoutContentProps = { id: string; children: ReactNode; isWelcomeTourDraft: boolean };
-
 export default function JobDetailsLayout({ params, children }: JobDetailsLayoutProps) {
   const { id } = use(params);
-  const isWelcomeTourDraft = id === WELCOME_TOUR_JOB_DRAFT_ID;
-
-  if (isWelcomeTourDraft) {
-    return (
-      <JobLocalApiProvider>
-        <JobDetailsLayoutContent id={id} isWelcomeTourDraft>
-          {children}
-        </JobDetailsLayoutContent>
-      </JobLocalApiProvider>
-    );
-  }
-
-  return (
-    <JobDatabaseApiProvider>
-      <JobDetailsLayoutContent id={id} isWelcomeTourDraft={false}>
-        {children}
-      </JobDetailsLayoutContent>
-    </JobDatabaseApiProvider>
-  );
-}
-
-function JobDetailsLayoutContent({ id, children, isWelcomeTourDraft }: JobDetailsLayoutContentProps) {
+  const isLocalJob = useJobDataSource() === "local";
   const router = useRouter();
   const isDesktop = useBreakpoint("(min-width: 1024px)");
   const viewModel = useJobDetails(id);
@@ -224,8 +198,8 @@ function JobDetailsLayoutContent({ id, children, isWelcomeTourDraft }: JobDetail
 
   return (
     <SlotsProvider>
-      <JobFillStatusProvider jobId={id} enabled={!isWelcomeTourDraft}>
-        <JobMatchStatusProvider jobId={id} enabled={!isWelcomeTourDraft}>
+      <JobFillStatusProvider jobId={id} enabled={!isLocalJob}>
+        <JobMatchStatusProvider jobId={id} enabled={!isLocalJob}>
           <JobDetailsProvider job={viewModel.job} sourcePrimaryText={viewModel.sourcePrimaryText}>
             <JobDetailsView
               id={id}
@@ -249,7 +223,7 @@ function JobDetailsLayoutContent({ id, children, isWelcomeTourDraft }: JobDetail
                   {children}
                 </JobDetailsMainContent>
               }
-              readOnly={isWelcomeTourDraft}
+              readOnly={isLocalJob}
               isDesktop={isDesktop}
               fullWidth={fullWidth}
               toggleFullWidth={toggleFullWidth}
@@ -261,7 +235,6 @@ function JobDetailsLayoutContent({ id, children, isWelcomeTourDraft }: JobDetail
             >
               {children}
             </JobDetailsView>
-            {isWelcomeTourDraft ? <WelcomeTourJobDetails /> : null}
           </JobDetailsProvider>
         </JobMatchStatusProvider>
       </JobFillStatusProvider>

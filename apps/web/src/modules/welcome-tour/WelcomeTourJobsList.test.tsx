@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { WelcomeTourJobsList } from "./WelcomeTourJobsList";
-import { WelcomeTourSessionProvider } from "./WelcomeTourSessionProvider";
+import { TourProvider } from "./TourProvider";
 
 const useFeatureFlagEnabledMock = vi.fn();
 const joyridePropsMock = vi.fn();
@@ -81,7 +81,7 @@ describe("WelcomeTourJobsList", () => {
     );
   });
 
-  it("numbers the create-job step as 5 of the full 9-step welcome tour sequence", () => {
+  it("numbers the create-job step as 5 of the full 11-step welcome tour sequence", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
     renderWelcomeTour();
@@ -91,7 +91,7 @@ describe("WelcomeTourJobsList", () => {
         steps: expect.arrayContaining([
           expect.objectContaining({
             target: '[data-welcome-tour-step="create-job-button"]',
-            data: expect.objectContaining({ stepNumber: 5, totalSteps: 9 }),
+            data: expect.objectContaining({ stepNumber: 5, totalSteps: 11 }),
           }),
         ]),
       }),
@@ -101,8 +101,8 @@ describe("WelcomeTourJobsList", () => {
 
 function renderWelcomeTour() {
   return render(
-    <WelcomeTourSessionProvider>
+    <TourProvider>
       <WelcomeTourJobsList />
-    </WelcomeTourSessionProvider>,
+    </TourProvider>,
   );
 }

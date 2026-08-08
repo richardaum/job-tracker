@@ -41,11 +41,20 @@ import { UrlFieldEditDialog } from "./UrlFieldEditDialog";
 type OverviewTabContentProps = {
   job: JobDetailsValues;
   sourcePrimaryText: string | null | undefined;
+  readOnly?: boolean;
+  forceVisibleAction?: string;
   onSuccess?: (message?: string) => void;
   onError?: (message?: string) => void;
 };
 
-export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError }: OverviewTabContentProps) {
+export function OverviewTabContent({
+  job,
+  sourcePrimaryText,
+  readOnly = false,
+  forceVisibleAction,
+  onSuccess,
+  onError,
+}: OverviewTabContentProps) {
   const router = useRouter();
   const titleDialog = useDialog();
   const urlDialog = useDialog();
@@ -173,6 +182,7 @@ export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError 
         summary={job.summary}
         summaryMetadata={job.summaryMetadata}
         onGenerateSummary={handleGenerateSummary}
+        disabled={readOnly}
       />
 
       <div className={cn("max-w-full")}>
@@ -184,6 +194,9 @@ export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError 
               label="Edit job title"
               icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={titleDialog.open}
+              disabled={readOnly}
+              className={forceVisibleAction === "title" ? "disabled:opacity-100" : undefined}
+              data-welcome-tour-step={readOnly ? "job-field-actions" : undefined}
             />
           }
         />
@@ -215,6 +228,7 @@ export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError 
                   <FieldWithLabelAction.IconActionButton
                     label="Company actions"
                     icon={<DotsThreeOutlineVerticalIcon size={14} weight="regular" />}
+                    disabled={readOnly}
                   />
                 }
               >
@@ -252,6 +266,7 @@ export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError 
               label="Edit job URL"
               icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={urlDialog.open}
+              disabled={readOnly}
             />
           }
         />
@@ -275,6 +290,7 @@ export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError 
               label="Edit source"
               icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={sourceDialog.open}
+              disabled={readOnly}
             />
           }
         />
@@ -298,6 +314,7 @@ export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError 
               label="Edit location"
               icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={locationDialog.open}
+              disabled={readOnly}
             />
           }
         />
@@ -328,6 +345,7 @@ export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError 
               label="Edit work region"
               icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={workRegionDialog.open}
+              disabled={readOnly}
             />
           }
         />
@@ -358,6 +376,7 @@ export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError 
               label="Edit salary"
               icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={salaryDialog.open}
+              disabled={readOnly}
             />
           }
         />
@@ -371,7 +390,7 @@ export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError 
           label="Tags"
           content={
             tags.length > 0 ? (
-              <JobTags tags={tags} onRemoveTag={handleRemoveTag} />
+              <JobTags tags={tags} onRemoveTag={handleRemoveTag} disabled={readOnly} />
             ) : (
               <Text size="sm" color="secondary">
                 No tags
@@ -383,6 +402,7 @@ export function OverviewTabContent({ job, sourcePrimaryText, onSuccess, onError 
               label="Edit tags"
               icon={<PencilSimpleIcon size={14} weight="regular" />}
               onClick={tagsDialog.open}
+              disabled={readOnly}
             />
           }
         />

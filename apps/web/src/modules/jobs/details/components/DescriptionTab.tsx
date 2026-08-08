@@ -9,7 +9,7 @@ type DescriptionTabProps = { jobId: string; sidePanel?: string | null };
 export function DescriptionTab({ jobId, sidePanel }: DescriptionTabProps) {
   const href = jobDetailsHref(`/jobs/${jobId}/description`, { sidePanel });
   return (
-    <DetailsTabTrigger tab="description" href={href}>
+    <DetailsTabTrigger tab="description" href={href} data-welcome-tour-step="job-description-tab">
       Description
     </DetailsTabTrigger>
   );

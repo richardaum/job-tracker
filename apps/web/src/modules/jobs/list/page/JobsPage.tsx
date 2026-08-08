@@ -20,7 +20,7 @@ import { useCreateQuickJob } from "@/modules/jobs/shared/hooks/useCreateQuickJob
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { useUpdateQuickJob } from "@/modules/jobs/shared/hooks/useUpdateQuickJob";
 import { useNewJobWelcomeTour } from "@/modules/welcome-tour/useNewJobWelcomeTour";
-import { NEW_JOB_WELCOME_TOUR_LABEL } from "@/modules/welcome-tour/welcomeTourSteps";
+import { WELCOME_TOUR_LABEL } from "@/modules/welcome-tour/welcomeTourSteps";
 import { WelcomeTourJobsList } from "@/modules/welcome-tour/WelcomeTourJobsList";
 
 function stripSearchKeys(currentSearch: string, keysToRemove: Array<string>): string {
@@ -101,7 +101,6 @@ export default function JobsPage() {
   }
 
   const { createQuickJob, isCreatingQuickJob } = useCreateQuickJob({
-    persistenceMode: newJobWelcomeTour.activeStep === "create" ? "local" : "database",
     onCreated: (jobId) => {
       showToast("Job created.", "success");
       router.push(`/jobs/${jobId}`);
@@ -116,22 +115,6 @@ export default function JobsPage() {
 
   return (
     <div className={cn("flex h-full flex-col")}>
-      <WelcomeTourJobsList
-        tourLabel={NEW_JOB_WELCOME_TOUR_LABEL}
-        onOpenNewJob={() => {
-          if (!newJob.isOpen) {
-            dispatchNewJobWelcomeTour({ type: "form-opened" });
-          }
-          newJob.open();
-        }}
-        onCloseNewJob={newJob.close}
-        onFocusJobField={(field) => newJobDialogRef.current?.focusField(field)}
-        onJobFormStepChange={(step) => dispatchNewJobWelcomeTour({ type: "step-changed", step })}
-        onSubmitNewJob={() => newJobDialogRef.current?.submit()}
-        isJobTitleFilled={newJobWelcomeTour.titleFilled}
-        isJobCompanyFilled={newJobWelcomeTour.companyFilled}
-      />
-
       {/* Action bar */}
       <div
         className={cn(
@@ -191,6 +174,22 @@ export default function JobsPage() {
           </Stack>
         )}
       </div>
+
+      <WelcomeTourJobsList
+        tourLabel={WELCOME_TOUR_LABEL}
+        onOpenNewJob={() => {
+          if (!newJob.isOpen) {
+            dispatchNewJobWelcomeTour({ type: "form-opened" });
+          }
+          newJob.open();
+        }}
+        onCloseNewJob={newJob.close}
+        onFocusJobField={(field) => newJobDialogRef.current?.focusField(field)}
+        onJobFormStepChange={(step) => dispatchNewJobWelcomeTour({ type: "step-changed", step })}
+        onSubmitNewJob={() => newJobDialogRef.current?.submit()}
+        isJobTitleFilled={newJobWelcomeTour.titleFilled}
+        isJobCompanyFilled={newJobWelcomeTour.companyFilled}
+      />
     </div>
   );
 }

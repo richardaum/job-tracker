@@ -5,11 +5,11 @@ import { useFeatureFlagEnabled } from "posthog-js/react";
 
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
 import {
-  NEW_JOB_WELCOME_TOUR_LABEL,
+  WELCOME_TOUR_LABEL,
   WELCOME_TOUR_FEATURE_FLAG,
   pickWelcomeTourSteps,
 } from "@/modules/welcome-tour/welcomeTourSteps";
-import { useWelcomeTourSession } from "@/modules/welcome-tour/useWelcomeTourSession";
+import { useTour } from "@/modules/welcome-tour/useTour";
 
 /**
  * Continues the welcome tour on the Description route. It is deliberately a
@@ -17,15 +17,15 @@ import { useWelcomeTourSession } from "@/modules/welcome-tour/useWelcomeTourSess
  */
 export function WelcomeTourJobDescription() {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
-  const { activeWelcomeTour } = useWelcomeTourSession();
+  const { activeTour } = useTour();
 
-  if (welcomeTourEnabled !== true || !activeWelcomeTour) return null;
+  if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour") return null;
 
   return (
     <Joyride
       run
       continuous
-      steps={pickWelcomeTourSteps(["job-description-editor"], NEW_JOB_WELCOME_TOUR_LABEL)}
+      steps={pickWelcomeTourSteps(["job-description-editor"], WELCOME_TOUR_LABEL)}
       locale={{ last: "Got it" }}
       options={{
         buttons: ["primary"],

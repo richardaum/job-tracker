@@ -3,31 +3,43 @@
 import { ACTIONS, Joyride } from "react-joyride";
 import { useFeatureFlagEnabled } from "posthog-js/react";
 import type { Route } from "next";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
 import {
-  NEW_JOB_WELCOME_TOUR_LABEL,
+  WELCOME_TOUR_LABEL,
   WELCOME_TOUR_FEATURE_FLAG,
   pickWelcomeTourSteps,
 } from "@/modules/welcome-tour/welcomeTourSteps";
-import { useWelcomeTourSession } from "@/modules/welcome-tour/useWelcomeTourSession";
+import { useTour } from "@/modules/welcome-tour/useTour";
 
-export function WelcomeTourJobDetails() {
+type WelcomeTourJobDetailsProps = { descriptionHref: Route };
+
+export function WelcomeTourJobDetails({ descriptionHref }: WelcomeTourJobDetailsProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
-  const pathname = usePathname();
   const router = useRouter();
-  const { activeWelcomeTour } = useWelcomeTourSession();
+  const { activeTour, setActiveStepId } = useTour();
 
-  if (welcomeTourEnabled !== true || !activeWelcomeTour || pathname.endsWith("/description")) return null;
+  useEffect(() => () => setActiveStepId(null), [setActiveStepId]);
 
-  const steps = pickWelcomeTourSteps(["job-detail-title", "job-status", "job-company"], NEW_JOB_WELCOME_TOUR_LABEL, {
-    "job-company": {
-      after: ({ action }) => {
-        if (action === ACTIONS.NEXT) router.push(`${pathname}/description` as Route);
+  if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour") return null;
+
+  const steps = pickWelcomeTourSteps(
+    ["job-detail-title", "job-status", "job-company", "job-field-actions", "job-description-tab"],
+    WELCOME_TOUR_LABEL,
+    {
+      "job-field-actions": {
+        before: async () => setActiveStepId("job-field-actions"),
+        after: () => setActiveStepId(null),
+      },
+      "job-description-tab": {
+        after: ({ action }) => {
+          if (action === ACTIONS.NEXT) router.push(descriptionHref);
+        },
       },
     },
-  });
+  );
 
   return (
     <Joyride

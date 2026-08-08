@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { type UpdateJobInput, useUpdateJobMutation } from "@/gql/hooks";
-import { useJobApiMode } from "@/modules/jobs/details/hooks/JobApiContext";
+import { useJobDataSource } from "@/modules/jobs/shared/hooks/useJobDataSource";
 import { updateWelcomeTourJobDraft } from "@/modules/welcome-tour/welcomeTourJobDraft";
 
 type UpdateJobVariables = { id: string; input: UpdateJobInput };
@@ -9,12 +9,12 @@ type UpdateJob = (options: { variables: UpdateJobVariables }) => Promise<void>;
 
 /** Selects database or local-draft job updates without changing hook order. */
 export function useUpdateJob(): [UpdateJob, { loading: boolean }] {
-  const mode = useJobApiMode();
+  const dataSource = useJobDataSource();
   const [updateDatabase, { loading: databaseLoading }] = useUpdateJobMutation();
   const [localLoading, setLocalLoading] = useState(false);
 
   async function updateJob({ variables }: { variables: UpdateJobVariables }) {
-    if (mode === "database") {
+    if (dataSource === "database") {
       await updateDatabase({ variables });
       return;
     }
@@ -30,5 +30,5 @@ export function useUpdateJob(): [UpdateJob, { loading: boolean }] {
     }
   }
 
-  return [updateJob, { loading: mode === "database" ? databaseLoading : localLoading }];
+  return [updateJob, { loading: dataSource === "database" ? databaseLoading : localLoading }];
 }
