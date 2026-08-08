@@ -16,7 +16,9 @@ export type WelcomeTourStepId =
   | "job-field-actions"
   | "job-description-tab"
   | "job-description-editor"
-  | "update-status-button";
+  | "update-status-button"
+  | "update-status-applied"
+  | "update-status-interview";
 
 type WelcomeTourStepContent = Omit<Step, "title" | "data" | "before" | "after"> & { advanceOnEnter?: boolean };
 
@@ -97,7 +99,18 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
   "update-status-button": {
     target: '[data-welcome-tour-step="update-status-button"]',
     placement: "bottom",
-    content: "Use Update Status to keep this application’s progress up to date.",
+    content: "Now, let's update the status of this job.",
+  },
+  "update-status-applied": {
+    target: '[data-welcome-tour-step="update-status-applied"]',
+    placement: "bottom",
+    content: "Select Applied to record that you submitted your application.",
+    targetWaitTimeout: 2_000,
+  },
+  "update-status-interview": {
+    target: '[data-welcome-tour-step="update-status-interview"]',
+    placement: "bottom",
+    content: "Enable Custom date and choose +3d to indicate that your interview is scheduled for three days from now.",
   },
 };
 
@@ -114,6 +127,8 @@ const WELCOME_TOUR_STEP_ORDER: WelcomeTourStepId[] = [
   "job-description-tab",
   "job-description-editor",
   "update-status-button",
+  "update-status-applied",
+  "update-status-interview",
 ];
 
 const WELCOME_TOUR_STEP_NUMBER = new Map(WELCOME_TOUR_STEP_ORDER.map((id, index) => [id, index + 1]));

@@ -1,45 +1,35 @@
 "use client";
 
-import { ACTIONS, Joyride } from "react-joyride";
 import { useFeatureFlagEnabled } from "posthog-js/react";
-import type { Route } from "next";
-import { useRouter } from "next/navigation";
 
+import { JoyrideSegmentedTour } from "@/modules/tour/JoyrideSegmentedTour";
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
 import {
   WELCOME_TOUR_LABEL,
   WELCOME_TOUR_FEATURE_FLAG,
   pickWelcomeTourSteps,
 } from "@/modules/welcome-tour/welcomeTourSteps";
-import { useTour } from "@/modules/welcome-tour/useTour";
+import { useTour } from "@/modules/tour/useTour";
 
 /**
  * Continues the welcome tour on the Description route. It is deliberately a
  * separate Joyride instance because navigation unmounts the route content.
  */
-type WelcomeTourJobDescriptionProps = { overviewHref: Route };
+type WelcomeTourJobDescriptionProps = { onOverviewOpen: () => void };
 
-export function WelcomeTourJobDescription({ overviewHref }: WelcomeTourJobDescriptionProps) {
+export function WelcomeTourJobDescription({ onOverviewOpen }: WelcomeTourJobDescriptionProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
-  const router = useRouter();
-  const { activeTour, setActiveStepId } = useTour();
+  const { activeTour } = useTour();
 
-  if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour") return null;
+  if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour" || activeTour.phase !== "job-description")
+    return null;
 
   return (
-    <Joyride
+    <JoyrideSegmentedTour
       run
       continuous
-      steps={pickWelcomeTourSteps(["job-description-editor"], WELCOME_TOUR_LABEL, {
-        "job-description-editor": {
-          after: ({ action }) => {
-            if (action !== ACTIONS.NEXT) return;
-
-            setActiveStepId("update-status-button");
-            router.push(overviewHref);
-          },
-        },
-      })}
+      steps={pickWelcomeTourSteps(["job-description-editor"], WELCOME_TOUR_LABEL)}
+      onSegmentComplete={onOverviewOpen}
       locale={{ last: "Got it" }}
       options={{
         buttons: ["primary"],

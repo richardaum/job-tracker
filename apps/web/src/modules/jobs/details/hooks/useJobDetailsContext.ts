@@ -7,6 +7,7 @@ import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.
 export interface JobDetailsContextValue {
   job: JobDetailsValues | undefined;
   sourcePrimaryText: string | null;
+  openStatusDialog: () => void;
 }
 
 export const JobDetailsContext = createContext<JobDetailsContextValue | null>(null);

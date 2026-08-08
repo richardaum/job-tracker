@@ -2,8 +2,8 @@ import { renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 
-import { TourContext } from "@/modules/welcome-tour/tour.context";
-import { TOUR_DEFINITIONS } from "@/modules/welcome-tour/welcomeTourDefinitions";
+import { TourContext } from "@/modules/tour/tour.context";
+import { WELCOME_TOUR_REGISTRY } from "@/modules/welcome-tour/welcomeTourDefinitions";
 
 import { useJobDataSource } from "./useJobDataSource";
 
@@ -11,10 +11,10 @@ function Wrapper({ children, activeTour }: { children: ReactNode; activeTour: "w
   return (
     <TourContext.Provider
       value={{
-        activeTour: activeTour ? TOUR_DEFINITIONS[activeTour] : null,
-        activeStepId: null,
+        activeTour: activeTour ? { ...WELCOME_TOUR_REGISTRY[activeTour], phase: "job-creation" } : null,
         startTour: () => undefined,
-        setActiveStepId: () => undefined,
+        completeCurrentSegment: () => undefined,
+        completeTour: () => undefined,
       }}
     >
       {children}

@@ -1,9 +1,9 @@
-import type { JobPersistenceMode } from "@/modules/jobs/shared/types/jobPersistenceMode";
+import type { TourRegistry } from "@/modules/tour/tour.types";
 
-export type TourId = "welcome-tour";
-
-export type TourDefinition = { id: TourId; dataSources?: { job?: JobPersistenceMode } };
-
-export const TOUR_DEFINITIONS: Record<TourId, TourDefinition> = {
-  "welcome-tour": { id: "welcome-tour", dataSources: { job: "local" } },
-};
+export const WELCOME_TOUR_REGISTRY = {
+  "welcome-tour": {
+    id: "welcome-tour",
+    phases: ["job-creation", "job-details", "job-description", "update-status"],
+    dataSources: { job: "local" },
+  },
+} as const satisfies TourRegistry;

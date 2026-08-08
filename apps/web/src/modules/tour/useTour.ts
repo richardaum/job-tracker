@@ -2,7 +2,7 @@
 
 import { useContext } from "react";
 
-import { TourContext } from "@/modules/welcome-tour/tour.context";
+import { TourContext } from "@/modules/tour/tour.context";
 
 export function useTour() {
   const context = useContext(TourContext);

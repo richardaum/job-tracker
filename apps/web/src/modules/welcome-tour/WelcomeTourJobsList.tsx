@@ -2,17 +2,18 @@
 
 import type { ReactNode } from "react";
 import type { EventData } from "react-joyride";
-import { ACTIONS, EVENTS, Joyride } from "react-joyride";
+import { ACTIONS, EVENTS } from "react-joyride";
 import { useFeatureFlagEnabled } from "posthog-js/react";
 import { useEffect } from "react";
 
+import { JoyrideSegmentedTour } from "@/modules/tour/JoyrideSegmentedTour";
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
 import {
   WELCOME_TOUR_LABEL,
   WELCOME_TOUR_FEATURE_FLAG,
   pickWelcomeTourSteps,
 } from "@/modules/welcome-tour/welcomeTourSteps";
-import { useTour } from "@/modules/welcome-tour/useTour";
+import { useTour } from "@/modules/tour/useTour";
 
 export interface WelcomeTourJobsListProps {
   tourLabel?: ReactNode;
@@ -44,7 +45,8 @@ export function WelcomeTourJobsList({
     if (welcomeTourEnabled === true) startTour("welcome-tour");
   }, [startTour, welcomeTourEnabled]);
 
-  if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour") return null;
+  if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour" || activeTour.phase !== "job-creation")
+    return null;
 
   const steps = pickWelcomeTourSteps(
     ["welcome", "new-job-button", "job-title-input", "job-company-input", "create-job-button"],
@@ -68,20 +70,18 @@ export function WelcomeTourJobsList({
       },
       "create-job-button": {
         before: async () => onJobFormStepChange?.("create"),
-        after: ({ action }) => {
-          onJobFormStepChange?.(null);
-          if (action === ACTIONS.NEXT) onSubmitNewJob?.();
-        },
+        after: () => onJobFormStepChange?.(null),
       },
     },
   );
 
   return (
-    <Joyride
+    <JoyrideSegmentedTour
       run
       continuous
       steps={steps}
       portalElement={portalElement ?? undefined}
+      onSegmentComplete={onSubmitNewJob}
       onEvent={(event) => handleWelcomeTourEvent(event, onJobFormStepChange, onFocusJobField)}
       options={{
         buttons: ["back", "primary", "skip"],

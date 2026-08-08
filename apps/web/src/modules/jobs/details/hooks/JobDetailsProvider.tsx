@@ -7,6 +7,10 @@ import { JobDetailsContext, type JobDetailsContextValue } from "@/modules/jobs/d
 type JobDetailsProviderProps = JobDetailsContextValue & { children: ReactNode };
 
 /** Shares layout-resolved job data with detail tab routes. */
-export function JobDetailsProvider({ job, sourcePrimaryText, children }: JobDetailsProviderProps) {
-  return <JobDetailsContext.Provider value={{ job, sourcePrimaryText }}>{children}</JobDetailsContext.Provider>;
+export function JobDetailsProvider({ job, sourcePrimaryText, openStatusDialog, children }: JobDetailsProviderProps) {
+  return (
+    <JobDetailsContext.Provider value={{ job, sourcePrimaryText, openStatusDialog }}>
+      {children}
+    </JobDetailsContext.Provider>
+  );
 }

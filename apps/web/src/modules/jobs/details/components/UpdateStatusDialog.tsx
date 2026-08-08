@@ -104,63 +104,67 @@ export function UpdateStatusDialog({ jobId, currentStage, trigger, open, onOpenC
       trigger={trigger ?? <span aria-hidden style={{ display: "none" }} />}
     >
       <Stack gap="sm">
-        <FormField label="Status" htmlFor={`history-status-${jobId}`}>
-          <Select
-            value={selectedStage}
-            onValueChange={(value) => setSelectedStage(value as ApplicationStage)}
-            options={selectOptions}
-            placeholder={`Current: ${formatStage(currentStage)}`}
-            size="sm"
-          />
-        </FormField>
-        <label className={cn("flex cursor-pointer items-center gap-2")}>
-          <Checkbox
-            id={`history-schedule-check-${jobId}`}
-            checked={scheduledEnabled}
-            onCheckedChange={(checked) => {
-              setScheduledEnabled(checked);
-              if (checked) {
-                setScheduledAtDraft(getDateTimeInputValueFromNow());
-              }
-            }}
-            disabled={saving}
-          />
-          <span className={cn("text-sm text-text-default")}>Custom date</span>
-        </label>
-        {scheduledEnabled && (
-          <Stack gap="xs">
-            <Input
-              id={`history-scheduled-at-${jobId}`}
-              type="datetime-local"
+        <div data-welcome-tour-step="update-status-applied">
+          <FormField label="Status" htmlFor={`history-status-${jobId}`}>
+            <Select
+              value={selectedStage}
+              onValueChange={(value) => setSelectedStage(value as ApplicationStage)}
+              options={selectOptions}
+              placeholder={`Current: ${formatStage(currentStage)}`}
               size="sm"
-              value={scheduledAtDraft}
-              onChange={(event) => setScheduledAtDraft(event.target.value)}
+            />
+          </FormField>
+        </div>
+        <div data-welcome-tour-step="update-status-interview">
+          <label className={cn("flex cursor-pointer items-center gap-2")}>
+            <Checkbox
+              id={`history-schedule-check-${jobId}`}
+              checked={scheduledEnabled}
+              onCheckedChange={(checked) => {
+                setScheduledEnabled(checked);
+                if (checked) {
+                  setScheduledAtDraft(getDateTimeInputValueFromNow());
+                }
+              }}
               disabled={saving}
             />
-            <div className={cn("flex flex-wrap gap-1")}>
-              {quickScheduleOptions.map((option) => {
-                const optionValue = getDateTimeInputValueFromNow(option.offsetDays);
-                return (
-                  <Button
-                    key={option.label}
-                    type="button"
-                    size="md"
-                    intent="outlined"
-                    className={cn(
-                      "h-7 px-2 text-xs",
-                      getDateOnlyFromDateTimeInput(scheduledAtDraft) === getDateOnlyFromDateTimeInput(optionValue) &&
-                        "border-border-brand bg-bg-brand-subtle text-text-brand hover:bg-bg-brand-subtle",
-                    )}
-                    onClick={() => setScheduledAtDraft(optionValue)}
-                    disabled={saving}
-                  >
-                    {option.label}
-                  </Button>
-                );
-              })}
-            </div>
-          </Stack>
-        )}
+            <span className={cn("text-sm text-text-default")}>Custom date</span>
+          </label>
+          {scheduledEnabled && (
+            <Stack gap="xs">
+              <Input
+                id={`history-scheduled-at-${jobId}`}
+                type="datetime-local"
+                size="sm"
+                value={scheduledAtDraft}
+                onChange={(event) => setScheduledAtDraft(event.target.value)}
+                disabled={saving}
+              />
+              <div className={cn("flex flex-wrap gap-1")}>
+                {quickScheduleOptions.map((option) => {
+                  const optionValue = getDateTimeInputValueFromNow(option.offsetDays);
+                  return (
+                    <Button
+                      key={option.label}
+                      type="button"
+                      size="md"
+                      intent="outlined"
+                      className={cn(
+                        "h-7 px-2 text-xs",
+                        getDateOnlyFromDateTimeInput(scheduledAtDraft) === getDateOnlyFromDateTimeInput(optionValue) &&
+                          "border-border-brand bg-bg-brand-subtle text-text-brand hover:bg-bg-brand-subtle",
+                      )}
+                      onClick={() => setScheduledAtDraft(optionValue)}
+                      disabled={saving}
+                    >
+                      {option.label}
+                    </Button>
+                  );
+                })}
+              </div>
+            </Stack>
+          )}
+        </div>
         <FormField label="Reason (optional)" htmlFor={`history-reason-${jobId}`}>
           <Input
             id={`history-reason-${jobId}`}

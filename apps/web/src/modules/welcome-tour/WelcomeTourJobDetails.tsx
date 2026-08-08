@@ -1,10 +1,9 @@
 "use client";
 
-import { ACTIONS, Joyride } from "react-joyride";
+import { ACTIONS } from "react-joyride";
 import { useFeatureFlagEnabled } from "posthog-js/react";
-import type { Route } from "next";
-import { useRouter } from "next/navigation";
 
+import { JoyrideSegmentedTour } from "@/modules/tour/JoyrideSegmentedTour";
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
 import {
   WELCOME_TOUR_LABEL,
@@ -12,39 +11,51 @@ import {
   pickWelcomeTourSteps,
   type WelcomeTourStepId,
 } from "@/modules/welcome-tour/welcomeTourSteps";
-import { useTour } from "@/modules/welcome-tour/useTour";
+import { useTour } from "@/modules/tour/useTour";
 
-type WelcomeTourJobDetailsProps = { descriptionHref: Route };
+type WelcomeTourJobDetailsProps = {
+  onFieldActionsVisibilityChange: (visible: boolean) => void;
+  onDescriptionOpen: () => void;
+  onUpdateStatus: () => void;
+};
 
-export function WelcomeTourJobDetails({ descriptionHref }: WelcomeTourJobDetailsProps) {
+export function WelcomeTourJobDetails({
+  onFieldActionsVisibilityChange,
+  onDescriptionOpen,
+  onUpdateStatus,
+}: WelcomeTourJobDetailsProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
-  const router = useRouter();
-  const { activeTour, activeStepId, setActiveStepId } = useTour();
+  const { activeTour } = useTour();
 
-  if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour") return null;
+  if (
+    welcomeTourEnabled !== true ||
+    activeTour?.id !== "welcome-tour" ||
+    (activeTour.phase !== "job-details" && activeTour.phase !== "update-status")
+  )
+    return null;
 
   const stepIds: WelcomeTourStepId[] =
-    activeStepId === "update-status-button"
-      ? ["update-status-button"]
+    activeTour.phase === "update-status"
+      ? ["update-status-button", "update-status-applied", "update-status-interview"]
       : ["job-detail-title", "job-status", "job-company", "job-field-actions", "job-description-tab"];
   const steps = pickWelcomeTourSteps(stepIds, WELCOME_TOUR_LABEL, {
     "job-field-actions": {
-      before: async () => setActiveStepId("job-field-actions"),
-      after: () => setActiveStepId(null),
+      before: async () => onFieldActionsVisibilityChange(true),
+      after: () => onFieldActionsVisibilityChange(false),
     },
-    "job-description-tab": {
+    "update-status-button": {
       after: ({ action }) => {
-        if (action === ACTIONS.NEXT) router.push(descriptionHref);
+        if (action === ACTIONS.NEXT) onUpdateStatus();
       },
     },
-    "update-status-button": { after: () => setActiveStepId(null) },
   });
 
   return (
-    <Joyride
+    <JoyrideSegmentedTour
       run
       continuous
       steps={steps}
+      onSegmentComplete={activeTour.phase === "job-details" ? onDescriptionOpen : undefined}
       locale={{ last: "Got it" }}
       options={{
         buttons: ["primary"],

@@ -200,7 +200,11 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
     <SlotsProvider>
       <JobFillStatusProvider jobId={id} enabled={!isLocalJob}>
         <JobMatchStatusProvider jobId={id} enabled={!isLocalJob}>
-          <JobDetailsProvider job={viewModel.job} sourcePrimaryText={viewModel.sourcePrimaryText}>
+          <JobDetailsProvider
+            job={viewModel.job}
+            sourcePrimaryText={viewModel.sourcePrimaryText}
+            openStatusDialog={() => setActionsOpen(true)}
+          >
             <JobDetailsView
               id={id}
               job={viewModel.job}
