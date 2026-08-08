@@ -93,16 +93,11 @@ export function JobDetailsView(props: JobDetailsViewProps) {
           <BackToLink href="/jobs">Back to jobs</BackToLink>
         </div>
         <div className={cn("flex items-center gap-3")}>
-          <Heading
-            as="h1"
-            size="2xl"
-            className={cn("min-w-0")}
-            data-welcome-tour-step={readOnly ? "job-detail-title" : undefined}
-          >
+          <Heading as="h1" size="2xl" className={cn("min-w-0")} data-welcome-tour-step="job-detail-title">
             <span>{displayTitle !== null ? displayTitle : "Job details"}</span>
           </Heading>
           {job ? (
-            <span data-welcome-tour-step={readOnly ? "job-status" : undefined}>
+            <span data-welcome-tour-step="job-status">
               <StatusBadge
                 stage={currentStage}
                 reason={currentStageReason}

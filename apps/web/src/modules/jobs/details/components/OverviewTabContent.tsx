@@ -196,7 +196,7 @@ export function OverviewTabContent({
               onClick={titleDialog.open}
               disabled={readOnly}
               className={forceVisibleAction === "title" ? "disabled:opacity-100" : undefined}
-              data-welcome-tour-step={readOnly ? "job-field-actions" : undefined}
+              data-welcome-tour-step="job-field-actions"
             />
           }
         />

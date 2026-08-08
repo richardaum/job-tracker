@@ -71,6 +71,8 @@ vi.mock("@/modules/jobs/details/components/SalaryEditDialog", () => ({ SalaryEdi
 
 vi.mock("@/modules/welcome-tour/WelcomeTourJobsList", () => ({ WelcomeTourJobsList: () => null }));
 
+vi.mock("@/modules/jobs/shared/hooks/useJobDataSource", () => ({ useJobDataSource: () => "database" }));
+
 describe("JobsPage", () => {
   beforeEach(() => {
     navigationMocks.searchParams = "";
