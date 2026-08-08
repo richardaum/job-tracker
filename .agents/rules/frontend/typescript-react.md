@@ -23,6 +23,20 @@ Avoid files that only forward symbols (`export { x } from './x'`, barrel files).
 
 Prefer a top-level `type` or `interface` over inline anonymous shapes in parameters, props, and return types when the object is non-trivial or reused. Primitives, simple utilities (`Record<string, string>`), and one-off literals can stay inline.
 
+## Prop naming
+
+Name component props after the behavior they control or report, not the caller's reason for using that behavior. This keeps component APIs reusable and decoupled from a specific product flow.
+
+```tsx
+// ✗ BAD — describes why this caller wants the dialog closed
+<Dialog shouldCloseAfterApplication={isSubmitted} />
+
+// ✓ GOOD — describes the dialog behavior
+<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+```
+
+For callbacks, use the same rule: prefer an outcome such as `onOpenChange`, `onDismiss`, or `onValueChange` over a flow-specific intent such as `onApplicationSubmitted` when the component only needs to react to the outcome.
+
 ## Nova convention
 
 Module-level regular functions belong in the lower part of the file: below imports, top-level types, constants, and the primary exported surface (components, hooks, classes, etc.).
