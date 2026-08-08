@@ -2,7 +2,8 @@
 
 import { tryRun } from "@job-tracker/try-run";
 import type { ReactNode } from "react";
-import { useCallback, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 
 import { TourContext } from "@/modules/welcome-tour/tour.context";
 import { TOUR_DEFINITIONS, type TourId } from "@/modules/welcome-tour/welcomeTourDefinitions";
@@ -13,6 +14,7 @@ type TourProviderProps = { children: ReactNode };
 
 /** Shares the active tour and its capabilities across route-specific tour UI. */
 export function TourProvider({ children }: TourProviderProps) {
+  const pathname = usePathname();
   const [activeTourId, setActiveTourId] = useState(readTourSession);
   const [activeStepId, setActiveStepId] = useState<string | null>(null);
 
@@ -26,6 +28,13 @@ export function TourProvider({ children }: TourProviderProps) {
   }, []);
 
   const activeTour = activeTourId ? TOUR_DEFINITIONS[activeTourId] : null;
+
+  useEffect(() => {
+    if (activeStepId !== "job-field-actions" || isJobOverviewPath(pathname)) return;
+
+    startTransition(() => setActiveStepId(null));
+  }, [activeStepId, pathname]);
+
   const value = useMemo(
     () => ({ activeTour, activeStepId, startTour, setActiveStepId }),
     [activeTour, activeStepId, startTour],
@@ -53,4 +62,8 @@ function persistTourSession(tourId: TourId) {
   tryRun(() => {
     window.sessionStorage.setItem(TOUR_SESSION_STORAGE_KEY, JSON.stringify({ active: true, tourId }));
   });
+}
+
+function isJobOverviewPath(pathname: string) {
+  return /^\/jobs\/[^/]+$/.test(pathname);
 }
