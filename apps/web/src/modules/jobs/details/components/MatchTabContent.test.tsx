@@ -6,11 +6,7 @@ import type { ReactElement, ReactNode } from "react";
 
 import { AsyncMetadataStatus, MatchSource, MatchVerdict } from "@/gql/hooks";
 import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchStatusProvider";
-import {
-  JobActionsMenuItems,
-  JobDetailsSubTabs,
-  JobHeaderActions,
-} from "@/modules/jobs/details/job-details-header.slots";
+import { JobActionsMenuItems, JobDetailsSubTabs } from "@/modules/jobs/details/job-details-header.slots";
 import { getMatchStatusChangedHandler } from "@/modules/jobs/details/testing/match-sub-test-utils";
 import { setupReactiveMatchTabGraphqlMocks } from "@/modules/jobs/details/testing/match-sub-test-utils";
 import {
@@ -116,7 +112,6 @@ function renderMatchTab(ui: ReactElement, options?: { withHeaderActions?: boolea
               <JobActionsMenuItems.Slot />
             </DropdownMenu>
           ) : null}
-          <JobHeaderActions.Slot />
           <JobDetailsSubTabs.Slot />
           {children}
         </SlotsProvider>
@@ -224,10 +219,9 @@ describe("MatchTabContent", () => {
     renderMatchTab(<MatchTabContent jobId="job-1" />);
 
     expect(screen.getByText(/failed to load match analysis/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^generate$/i })).toBeInTheDocument();
   });
 
-  it("hides header Generate during initial loading without cached match", () => {
+  it("does not render a Generate or Regenerate button outside Match content", () => {
     setupApolloMocks({ loading: true, jobMatch: undefined });
     const { rerender } = renderMatchTab(<MatchTabContent jobId="job-1" />);
 
@@ -237,7 +231,21 @@ describe("MatchTabContent", () => {
     setupApolloMocks({ loading: false, jobMatch: completedJobMatch(items) });
     rerender(<MatchTabContent jobId="job-1" />);
 
-    expect(screen.getByRole("button", { name: /^regenerate$/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^(generate|regenerate)$/i })).not.toBeInTheDocument();
+  });
+
+  it("opens the match wizard from the Actions menu", async () => {
+    const user = userEvent.setup();
+    setupApolloMocks({ jobMatch: undefined });
+    renderMatchTab(<MatchTabContent jobId="job-1" />, { withHeaderActions: true });
+
+    await user.click(screen.getByRole("button", { name: /^actions$/i }));
+    await user.click(screen.getByRole("menuitem", { name: /^generate match$/i }));
+
+    expect(await screen.findByRole("dialog", { name: "match-wizard-dialog" })).toHaveAttribute(
+      "data-has-existing-match",
+      "false",
+    );
   });
 
   it("opens preferences dialog from Actions menu View preferences", async () => {
@@ -295,8 +303,6 @@ describe("MatchTabContent", () => {
 
     setupApolloMocks({ jobMatch: completedJobMatch(items) });
     renderMatchTab(<MatchTabContent jobId="job-1" />);
-
-    screen.getByRole("button", { name: /^regenerate$/i });
 
     /** MatchClassification (detailed variant) renders rounded score % */
     expect(screen.getByText(/76%/i)).toBeInTheDocument();
@@ -376,18 +382,17 @@ describe("MatchTabContent", () => {
     expect(await screen.findByText(/no gaps found/i)).toBeInTheDocument();
   });
 
-  it("Regenerate exposes wizard hasExistingMatch when match is rendered", async () => {
+  it("opens the match wizard as a regeneration from the Actions menu", async () => {
     const user = userEvent.setup();
-    const items = [mockMatchItem({ verdict: MatchVerdict.Fit })];
-    setupApolloMocks({ jobMatch: completedJobMatch(items) });
-    renderMatchTab(<MatchTabContent jobId="job-1" />);
+    setupApolloMocks({ jobMatch: completedJobMatch([mockMatchItem({ verdict: MatchVerdict.Fit })]) });
+    renderMatchTab(<MatchTabContent jobId="job-1" />, { withHeaderActions: true });
 
-    await user.click(screen.getByRole("button", { name: /^regenerate$/i }));
-    await waitFor(() =>
-      expect(screen.getByRole("dialog", { name: "match-wizard-dialog" })).toHaveAttribute(
-        "data-has-existing-match",
-        "true",
-      ),
+    await user.click(screen.getByRole("button", { name: /^actions$/i }));
+    await user.click(screen.getByRole("menuitem", { name: /^regenerate match$/i }));
+
+    expect(await screen.findByRole("dialog", { name: "match-wizard-dialog" })).toHaveAttribute(
+      "data-has-existing-match",
+      "true",
     );
   });
 

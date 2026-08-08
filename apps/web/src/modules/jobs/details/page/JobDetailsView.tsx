@@ -1,6 +1,6 @@
 "use client";
 
-import { cn, Heading } from "@job-tracker/ui";
+import { Button, cn, Heading } from "@job-tracker/ui";
 import type { ReactNode } from "react";
 
 import { BackToLink } from "@/components/back-to-link";
@@ -66,11 +66,13 @@ export function JobDetailsView(props: JobDetailsViewProps) {
         trailing={
           job ? (
             <>
+              <Button intent="primary" size="md" onClick={() => onActionsOpenChange(true)}>
+                Update Status
+              </Button>
               <JobActionsMenu
                 job={job}
                 fillButtonState={fillButtonState}
                 triggerFillAutomatically={triggerFillAutomatically}
-                onUpdateStatus={() => onActionsOpenChange(true)}
                 onDelete={() => onDeleteDialogOpenChange(true)}
                 fullWidth={fullWidth}
                 onToggleFullWidth={isDesktop ? toggleFullWidth : undefined}

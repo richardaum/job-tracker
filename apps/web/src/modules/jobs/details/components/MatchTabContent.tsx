@@ -11,21 +11,16 @@ import {
   TabsList,
   TabsTrigger,
   Text,
-  Tooltip,
 } from "@job-tracker/ui";
-import { BriefcaseIcon, FilesIcon } from "@phosphor-icons/react";
+import { BriefcaseIcon, FilesIcon, SparkleIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 
 import { EmptyState } from "@/components/empty-state";
 import { MatchVerdict } from "@/gql/hooks";
 import { useMatchTabViewModel } from "@/modules/jobs/details/hooks/useMatchTabViewModel";
-import {
-  JobActionsMenuItems,
-  JobDetailsSubTabs,
-  JobHeaderActions,
-} from "@/modules/jobs/details/job-details-header.slots";
+import { JobActionsMenuItems, JobDetailsSubTabs } from "@/modules/jobs/details/job-details-header.slots";
 import { MatchClassification } from "@/modules/jobs/shared/components/MatchClassification";
 import { MatchItemCard } from "@/modules/match-analyses/details/components/MatchItemCard";
 import { MatchWizardDialog } from "@/modules/match-analyses/details/components/MatchWizardDialog";
@@ -48,52 +43,33 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
     return "Nothing to display yet.";
   }
 
-  const showGenerateInHeader = !vm.matchLoading || vm.matchAnalysis != null || vm.matchError != null;
-
-  const generateTooltip = vm.hasRenderableMatchRecord
-    ? "Run the match analysis again with your resume and preferences."
-    : "Compare this job to a resume to see fits, gaps, and unclear areas.";
-
-  const generateButton = useMemo(
-    () =>
-      showGenerateInHeader ? (
-        <Tooltip content={generateTooltip} side="bottom" align="end">
-          <Button
-            intent="primary"
-            size="md"
-            onClick={() => vm.setWizardOpen(true)}
-            state={vm.isProcessing || vm.generating ? "loading" : "default"}
-          >
-            {vm.hasRenderableMatchRecord ? "Regenerate" : "Generate"}
-          </Button>
-        </Tooltip>
-      ) : null,
-    [showGenerateInHeader, generateTooltip, vm],
-  );
-
   const matchResumeId = vm.matchAnalysis?.resumeId ?? null;
 
-  const matchActionsMenuItems = useMemo(
-    () => (
-      <>
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>Match</DropdownMenuLabel>
-          {matchResumeId ? (
-            <DropdownMenuItem
-              onSelect={() => router.push(`/profile/resumes/${matchResumeId}`)}
-              icon={<FilesIcon size={14} weight="regular" />}
-            >
-              View resume
-            </DropdownMenuItem>
-          ) : null}
-          <DropdownMenuItem onSelect={() => setPrefsOpen(true)} icon={<BriefcaseIcon size={14} weight="regular" />}>
-            View preferences
+  const matchActionsMenuItems = (
+    <>
+      <DropdownMenuGroup>
+        <DropdownMenuLabel>Match</DropdownMenuLabel>
+        <DropdownMenuItem
+          disabled={vm.matchLoading || vm.isProcessing || vm.generating}
+          onSelect={() => vm.setWizardOpen(true)}
+          icon={<SparkleIcon size={14} weight="regular" />}
+        >
+          {vm.hasRenderableMatchRecord ? "Regenerate match" : "Generate match"}
+        </DropdownMenuItem>
+        {matchResumeId ? (
+          <DropdownMenuItem
+            onSelect={() => router.push(`/profile/resumes/${matchResumeId}`)}
+            icon={<FilesIcon size={14} weight="regular" />}
+          >
+            View resume
           </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-      </>
-    ),
-    [matchResumeId, router],
+        ) : null}
+        <DropdownMenuItem onSelect={() => setPrefsOpen(true)} icon={<BriefcaseIcon size={14} weight="regular" />}>
+          View preferences
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+    </>
   );
 
   let body: ReactNode = null;
@@ -205,7 +181,6 @@ export function MatchTabContent({ jobId }: MatchTabContentProps) {
   return (
     <div className={cn("flex min-h-0 flex-col gap-4")}>
       {matchFilterTabs}
-      {generateButton ? <JobHeaderActions>{generateButton}</JobHeaderActions> : null}
       <JobActionsMenuItems>{matchActionsMenuItems}</JobActionsMenuItems>
       <div className={cn("@container w-full min-w-0 flex min-h-0 flex-1 flex-col gap-4")}>{body}</div>
 

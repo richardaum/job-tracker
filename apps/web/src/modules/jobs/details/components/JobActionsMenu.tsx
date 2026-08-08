@@ -2,7 +2,6 @@
 
 import { Button, cn, DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@job-tracker/ui";
 import {
-  ArrowSquareRightIcon,
   ArrowsOutIcon,
   CaretDownIcon,
   CheckIcon,
@@ -22,7 +21,6 @@ interface JobActionsMenuProps {
   job: JobDetailsValues;
   fillButtonState: "default" | "loading";
   triggerFillAutomatically: () => Promise<{ error: Error | null }>;
-  onUpdateStatus: () => void;
   onDelete: () => void;
   fullWidth?: boolean;
   onToggleFullWidth?: () => void;
@@ -33,7 +31,6 @@ export function JobActionsMenu({
   job,
   fillButtonState,
   triggerFillAutomatically,
-  onUpdateStatus,
   onDelete,
   fullWidth,
   onToggleFullWidth,
@@ -87,12 +84,6 @@ export function JobActionsMenu({
             icon={<SparkleIcon size={14} weight="regular" />}
           >
             Fill job fields automatically
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => onUpdateStatus()}
-            icon={<ArrowSquareRightIcon size={14} weight="regular" />}
-          >
-            Update status
           </DropdownMenuItem>
         </>
       ) : null}
