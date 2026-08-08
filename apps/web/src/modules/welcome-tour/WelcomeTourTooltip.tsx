@@ -2,9 +2,11 @@
 
 import type { TooltipRenderProps } from "react-joyride";
 import { cn } from "@job-tracker/ui";
+import { useEffect } from "react";
 
 export function WelcomeTourTooltip({
   backProps,
+  controls,
   index,
   primaryProps,
   size,
@@ -13,10 +15,36 @@ export function WelcomeTourTooltip({
   tooltipProps,
 }: TooltipRenderProps) {
   const isPrimaryDisabled = step.data?.disablePrimary === true;
+  const advancesOnEnter = step.data?.advanceOnEnter === true;
   const stepNumber = step.data?.stepNumber ?? index + 1;
   const totalSteps = step.data?.totalSteps ?? size;
   const isGlobalLastStep = stepNumber === totalSteps;
   const primaryLabel = isGlobalLastStep ? primaryProps.title : "Next";
+
+  useEffect(() => {
+    if (!advancesOnEnter || isPrimaryDisabled) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (
+        event.key !== "Enter" ||
+        event.isComposing ||
+        event.repeat ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      controls.next("keyboard");
+    }
+
+    document.addEventListener("keydown", handleKeyDown, true);
+
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [advancesOnEnter, controls, isPrimaryDisabled]);
 
   return (
     <section

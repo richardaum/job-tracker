@@ -112,6 +112,27 @@ describe("WelcomeTourJobsList", () => {
       }),
     );
   });
+
+  it("marks guided form inputs as advancing on Enter", () => {
+    useFeatureFlagEnabledMock.mockReturnValue(true);
+
+    renderWelcomeTour();
+
+    expect(joyridePropsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        steps: expect.arrayContaining([
+          expect.objectContaining({
+            target: '[data-welcome-tour-step="job-title-input"]',
+            data: expect.objectContaining({ advanceOnEnter: true }),
+          }),
+          expect.objectContaining({
+            target: '[data-welcome-tour-step="job-company-input"]',
+            data: expect.objectContaining({ advanceOnEnter: true }),
+          }),
+        ]),
+      }),
+    );
+  });
 });
 
 function renderWelcomeTour() {

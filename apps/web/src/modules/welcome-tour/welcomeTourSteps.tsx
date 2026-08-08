@@ -17,7 +17,7 @@ export type WelcomeTourStepId =
   | "job-description-tab"
   | "job-description-editor";
 
-type WelcomeTourStepContent = Omit<Step, "title" | "data" | "before" | "after">;
+type WelcomeTourStepContent = Omit<Step, "title" | "data" | "before" | "after"> & { advanceOnEnter?: boolean };
 
 /**
  * Global source of truth for welcome tour step content and order. Steps may be
@@ -45,6 +45,7 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
     target: '[data-welcome-tour-step="job-title-input"]',
     placement: "bottom",
     content: "Start by giving this application a title.",
+    advanceOnEnter: true,
     disableFocusTrap: true,
     targetWaitTimeout: 2_000,
   },
@@ -52,13 +53,13 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
     target: '[data-welcome-tour-step="job-company-input"]',
     placement: "bottom",
     content: "Next, choose the company for this application.",
+    advanceOnEnter: true,
     disableFocusTrap: true,
   },
   "create-job-button": {
     target: '[data-welcome-tour-step="create-job-button"]',
     placement: "top",
     content: "Everything looks good. Click Create to add this job to your tracker.",
-    disableFocusTrap: true,
     targetWaitTimeout: 2_000,
   },
   "job-detail-title": {
@@ -129,9 +130,10 @@ export function pickWelcomeTourSteps(
 ): Step[] {
   return ids.map((id) => {
     const override = overrides[id];
+    const { advanceOnEnter, ...step } = WELCOME_TOUR_STEPS[id];
 
     return {
-      ...WELCOME_TOUR_STEPS[id],
+      ...step,
       title,
       before: override?.before,
       after: override?.after,
@@ -139,6 +141,7 @@ export function pickWelcomeTourSteps(
         stepNumber: WELCOME_TOUR_STEP_NUMBER.get(id),
         totalSteps: WELCOME_TOUR_STEP_ORDER.length,
         disablePrimary: override?.disablePrimary,
+        advanceOnEnter,
       },
     };
   });
