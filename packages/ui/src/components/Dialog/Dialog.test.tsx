@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { Dialog } from "./Dialog";
 
@@ -40,5 +40,19 @@ describe("Dialog", () => {
 
     expect(screen.getByText("Dialog content")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /close dialog/i })).not.toBeInTheDocument();
+  });
+
+  it("reports the content element lifecycle", () => {
+    const onContentElementChange = vi.fn();
+    const view = render(
+      <Dialog defaultOpen title="Dialog title" onContentElementChange={onContentElementChange}>
+        <p>Dialog content</p>
+      </Dialog>,
+    );
+
+    expect(onContentElementChange).toHaveBeenCalledWith(screen.getByRole("dialog"));
+
+    view.unmount();
+    expect(onContentElementChange).toHaveBeenLastCalledWith(null);
   });
 });

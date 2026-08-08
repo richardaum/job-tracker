@@ -58,6 +58,21 @@ describe("WelcomeTourJobsList", () => {
     );
   });
 
+  it("renders the tour in the supplied portal with a viewport overlay", () => {
+    useFeatureFlagEnabledMock.mockReturnValue(true);
+    const portalElement = document.createElement("div");
+
+    render(
+      <TourProvider>
+        <WelcomeTourJobsList portalElement={portalElement} />
+      </TourProvider>,
+    );
+
+    expect(joyridePropsMock).toHaveBeenCalledWith(
+      expect.objectContaining({ portalElement, styles: expect.objectContaining({ overlay: { position: "fixed" } }) }),
+    );
+  });
+
   it("explains that the tutorial does not require real data", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
