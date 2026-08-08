@@ -59,6 +59,7 @@ export function PortalSlot(name = "portal") {
   /** Portals children into the nearest matching Slot mount point. */
   const Fill = function Fill({ children }: PropsWithChildren) {
     const registry = usePortalSlotsRegistry();
+    // Slot mounts are held in an external registry, so this subscription rerenders the fill when its portal target appears or changes.
     const slot = useSyncExternalStore(
       registry.subscribe,
       () => registry.get(id),

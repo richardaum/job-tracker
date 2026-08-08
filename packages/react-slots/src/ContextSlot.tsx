@@ -23,6 +23,7 @@ export function ContextSlot(name: string) {
 
   const Slot = function Slot() {
     const registry = useContextSlotsRegistry();
+    // Slot content is stored outside React component state, so this subscription keeps the rendered content aligned with registry updates.
     const content = useSyncExternalStore(
       registry.subscribe,
       () => registry.get(id) ?? null,
