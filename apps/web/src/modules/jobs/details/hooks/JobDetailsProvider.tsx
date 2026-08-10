@@ -7,9 +7,44 @@ import { JobDetailsContext, type JobDetailsContextValue } from "@/modules/jobs/d
 type JobDetailsProviderProps = JobDetailsContextValue & { children: ReactNode };
 
 /** Shares layout-resolved job data with detail tab routes. */
-export function JobDetailsProvider({ job, sourcePrimaryText, openStatusDialog, children }: JobDetailsProviderProps) {
+export function JobDetailsProvider({
+  job,
+  sourcePrimaryText,
+  openStatusDialog,
+  closeStatusDialog,
+  selectedStatusStage,
+  onSelectedStatusStageChange,
+  requestStatusDialogSave,
+  statusDialogRestrictInteractionTo,
+  onStatusDialogRestrictInteractionToChange,
+  requestStatusDialogFocusField,
+  statusDialogElement,
+  statusDialogFreezeSuccessToast,
+  onStatusDialogFreezeSuccessToastChange,
+  requestStatusDialogCloseToast,
+  statusDialogScheduledEnabled,
+  children,
+}: JobDetailsProviderProps) {
   return (
-    <JobDetailsContext.Provider value={{ job, sourcePrimaryText, openStatusDialog }}>
+    <JobDetailsContext.Provider
+      value={{
+        job,
+        sourcePrimaryText,
+        openStatusDialog,
+        closeStatusDialog,
+        selectedStatusStage,
+        onSelectedStatusStageChange,
+        requestStatusDialogSave,
+        statusDialogRestrictInteractionTo,
+        onStatusDialogRestrictInteractionToChange,
+        requestStatusDialogFocusField,
+        statusDialogElement,
+        statusDialogFreezeSuccessToast,
+        onStatusDialogFreezeSuccessToastChange,
+        requestStatusDialogCloseToast,
+        statusDialogScheduledEnabled,
+      }}
+    >
       {children}
     </JobDetailsContext.Provider>
   );

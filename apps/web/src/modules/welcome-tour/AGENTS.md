@@ -1,19 +1,41 @@
 # Welcome Tour
 
-This module implements the welcome-tour-specific cross-route flow with separate `react-joyride` instances. `welcomeTourSteps.tsx` is the single source of truth for step content, ordering, and global numbering. Generic tour state, session persistence, and Joyride orchestration live in the sibling `modules/tour/` module.
+Route-local `react-joyride` instances for the cross-route welcome tour. `welcomeTourSteps.tsx` is the single source of truth for step content, order, and global numbering. Generic tour state, session persistence, and Joyride orchestration live in the sibling `modules/tour/` module.
 
-## State and actions
+## Core rules
 
-- Let Joyride manage movement between steps in the current instance.
-- Route-local tour components receive callbacks for external effects; they must not receive route URLs or own navigation.
-- `JoyrideSegmentedTour` completes the current segment automatically on `TOUR_END`. Components must not set phases, dispatch transition events, or manipulate step identifiers directly.
-- Trigger UI effects through explicit callbacks passed to the tour component. For example, `WelcomeTourJobDetails` receives `onUpdateStatus` and calls it from the `update-status-button` step's `after` callback.
-- When a callback should run only after advancing, guard it with `action === ACTIONS.NEXT`. This preserves Back navigation and prevents a final-step callback from ending the tour on Back.
-- Do not complete a tour explicitly from a named step. `JoyrideSegmentedTour` detects when a route-local segment ends on the global final step and calls `completeTour` automatically.
+- Let Joyride manage movement between steps in the current instance; don't set phases, dispatch transitions, or touch step identifiers directly — `JoyrideSegmentedTour` completes the current segment automatically on `TOUR_END`.
+- Route-local tour components (`WelcomeTourJobsList`, `WelcomeTourJobDetails`) take callbacks for external effects only — no route URLs, no owned navigation.
+- Guard a callback that should only fire on advance with `action === ACTIONS.NEXT` (preserves Back, avoids ending the tour early on Back).
 
-## Adding a guided interaction
+## Adding a guided step
 
 1. Add the step ID, content, and order in `welcomeTourSteps.tsx`.
-2. Add a stable `data-welcome-tour-step` target to the UI component being highlighted.
-3. Pass an explicit callback through the owning component hierarchy if the tour must open, close, or otherwise control another UI component.
-4. Update tests that assert the global step count or tour sequence.
+2. Add a stable `data-welcome-tour-step` target on the UI being highlighted.
+3. Thread a callback through the owning component hierarchy if the tour needs to open/close/control something.
+4. Update tests asserting global step count or sequence.
+5. If the target lives inside a `Dialog` → see **Dialog-scoped steps** below.
+
+## Dialog-scoped steps
+
+A step targeting a field/button inside a Radix `Dialog` stacks four independent problems, because Joyride's tooltip is portaled to `document.body` (via `react-floater`) while the dialog runs its own focus trap and rendering context. Reference implementations: `JobQuickEditDialog` (`apps/web/src/modules/jobs/list/components/JobQuickEditDialog.tsx`), `UpdateStatusDialog` (`apps/web/src/modules/jobs/details/components/UpdateStatusDialog.tsx`).
+
+| #   | Problem                                                                                                                                                                                                                                                                                                                                                    | Technique                                                                                                                                                                                                                                                                                                                                                                                                |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Joyride's own focus trap keeps Tab inside the tooltip; a real field is unreachable by keyboard.                                                                                                                                                                                                                                                            | `disableFocusTrap: true` on the step. Pair with `advanceOnEnter: true` (Enter advances via `WelcomeTourTooltip`'s keydown listener) so the user doesn't need to tab back to Next.                                                                                                                                                                                                                        |
+| 2   | Radix's `FocusScope`/`hideOthers()` doesn't stop Tab from landing on unrelated page elements — it only guards focus already inside its scope, and `aria-hidden` doesn't remove elements from Tab order.                                                                                                                                                    | Dialog takes a `restrictInteractionTo` prop; every other section wraps in `<div inert={restrictInteractionTo !== undefined}>`. Native `inert` removes those subtrees from Tab order and pointer events entirely. Applies to click-only targets too (e.g. `create-job-button`), not just typed fields.                                                                                                    |
+| 3   | Initial focus still needs to land on the target without relying on Tab order.                                                                                                                                                                                                                                                                              | Dialog exposes `focusField` via `useImperativeHandle`, called from the tour's `onEvent` on `EVENTS.TOOLTIP` (not `before`, which can fire mid-animation — see `targetWaitTimeout`).                                                                                                                                                                                                                      |
+| 4   | Once `focusField` moves focus inside the dialog and everything else is `inert`, Tab has nothing to reach Skip/Back/Next (portalized outside the dialog's scope). This is a trade-off, not a bug — don't defeat it with `modal={false}` (reopens #2).                                                                                                       | Same fix as #1: `advanceOnEnter: true`, gated by the step's `disablePrimary` so Enter only advances once the field is valid.                                                                                                                                                                                                                                                                             |
+| 5   | Tooltip/overlay isn't a descendant of the dialog, so the `inert` isolation from #2 doesn't cover it — it floats outside the boundary it's guiding.                                                                                                                                                                                                         | `Joyride`'s `portalElement` prop (forwarded via `JoyrideSegmentedTour`), set to the dialog's content node (captured via `onContentElementChange` → `Dialog`'s `ref` in `packages/ui/src/components/Dialog/Dialog.tsx`, lifted to state in the owning page). Also switch `styles.overlay.position` to `"fixed"` when `portalElement` is set (vs `"absolute"`), so the backdrop still covers the viewport. |
+| 6   | `Dialog`'s default centering (`fixed left-1/2 top-1/2 -translate-1/2`) puts a `transform` on the content element. A `transform` on an ancestor creates a new containing block for `position: fixed` descendants — so a `portalElement`'d overlay (#5) resolves `fixed` against the dialog's box instead of the viewport, and visually collapses inside it. | Pass `contentClassName={cn("inset-0 m-auto h-fit translate-none")}` to `Dialog`. `translate-none` cancels the inherited transform (tailwind-merge dedupes translate utilities); `inset-0 m-auto` centers via margin instead. Required on any dialog that uses `portalElement`.                                                                                                                           |
+
+Techniques are independent and stack — a step needing real keyboard input into a dialog field uses all six.
+
+### Checklist
+
+1. Stable `data-welcome-tour-step` on the target inside the dialog.
+2. Step: `disableFocusTrap: true` + `advanceOnEnter: true` if typing is required (#1).
+3. Dialog: `restrictInteractionTo` prop + `inert={restrictInteractionTo !== undefined}` wrappers (#2).
+4. Dialog: `focusField` imperative handle, called on `EVENTS.TOOLTIP` if typing is required (#3).
+5. Dialog: `contentClassName={cn("inset-0 m-auto h-fit translate-none")}` (#6).
+6. Page: capture `onContentElementChange` in state, pass as `portalElement` to the route-local `WelcomeTour*` component (#5).

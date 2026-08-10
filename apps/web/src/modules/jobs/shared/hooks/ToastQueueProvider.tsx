@@ -13,8 +13,25 @@ export function ToastQueueProvider({ children }: ToastQueueProviderProps) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
   const enqueueToast = useCallback(
-    ({ title, intent = "info", description }: { title: string; intent?: ToastIntent; description?: string }) => {
-      setToasts((current) => [...current, { id: generateUuid(), title, intent, description }]);
+    ({
+      id,
+      title,
+      intent = "info",
+      description,
+      durationMs,
+      "data-welcome-tour-step": welcomeTourStep,
+    }: {
+      id?: string;
+      title: string;
+      intent?: ToastIntent;
+      description?: string;
+      durationMs?: number;
+      "data-welcome-tour-step"?: string;
+    }) => {
+      setToasts((current) => [
+        ...current,
+        { id: id ?? generateUuid(), title, intent, description, durationMs, "data-welcome-tour-step": welcomeTourStep },
+      ]);
     },
     [],
   );

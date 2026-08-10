@@ -132,7 +132,7 @@ export default function JobsPage() {
             dismissible={newJobWelcomeTour.activeStep === null}
             disableSubmitOnEnter={newJobWelcomeTour.activeStep !== null}
             disableCompanyOptions={newJobWelcomeTour.activeStep !== null}
-            interactiveField={newJobWelcomeTour.activeStep ?? undefined}
+            restrictInteractionTo={newJobWelcomeTour.activeStep ?? undefined}
             onContentElementChange={setNewJobDialogElement}
             onCreate={createQuickJob}
             onFormChange={({ name, values }) => {

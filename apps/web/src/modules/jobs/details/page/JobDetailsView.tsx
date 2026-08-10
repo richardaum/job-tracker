@@ -8,7 +8,12 @@ import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHead
 import type { ApplicationStage } from "@/gql/hooks";
 import type { EntityDetailViewStatus } from "@/lib/entity-detail-view-status";
 import { JobActionsMenu } from "@/modules/jobs/details/components/JobActionsMenu";
-import { UpdateStatusDialog } from "@/modules/jobs/details/components/UpdateStatusDialog";
+import {
+  UpdateStatusDialog,
+  type UpdateStatusDialogHandle,
+} from "@/modules/jobs/details/components/UpdateStatusDialog";
+import type { UpdateStatusDialogRestrictedTarget } from "@/modules/jobs/details/components/update-status-dialog-inert";
+import type { RefObject } from "react";
 import { JobHeaderActions } from "@/modules/jobs/details/job-details-header.slots";
 import { jobDetailDisplayTitle } from "@/modules/jobs/details/utils/job-detail-title";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
@@ -22,19 +27,25 @@ export interface JobDetailsViewProps {
   currentStage: ApplicationStage;
   currentStageReason: string | null;
   displayTitle: string | null;
-  fillButtonState: "default" | "loading";
-  triggerFillAutomatically: () => Promise<{ error: Error | null }>;
   mainContent: ReactNode;
   readOnly?: boolean;
-  isDesktop: boolean;
-  fullWidth: boolean;
-  toggleFullWidth: () => void;
-  actionsOpen: boolean;
-  onActionsOpenChange: (open: boolean) => void;
-  deleteDialogOpen: boolean;
-  onDeleteDialogOpenChange: (open: boolean) => void;
-  onDeleted: () => void;
   children: ReactNode;
+  fillAutomatically: { state: "default" | "loading"; trigger: () => Promise<{ error: Error | null }> };
+  layout: { isDesktop: boolean; fullWidth: boolean; onToggleFullWidth: () => void };
+  statusDialog: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    selectedStage: ApplicationStage | undefined;
+    onSelectedStageChange: (stage: ApplicationStage | undefined) => void;
+    dismissible: boolean;
+    restrictInteractionTo: UpdateStatusDialogRestrictedTarget | undefined;
+    freezeSuccessToast: boolean;
+    scheduledEnabled: boolean;
+    onScheduledEnabledChange: (enabled: boolean) => void;
+    ref: RefObject<UpdateStatusDialogHandle | null>;
+    onContentElementChange: (element: HTMLDivElement | null) => void;
+  };
+  deleteDialog: { open: boolean; onOpenChange: (open: boolean) => void; onDeleted: () => void };
 }
 
 /**
@@ -46,19 +57,29 @@ export function JobDetailsView(props: JobDetailsViewProps) {
     currentStage,
     currentStageReason,
     displayTitle,
-    fillButtonState,
-    triggerFillAutomatically,
     mainContent,
     readOnly = false,
-    isDesktop,
-    fullWidth,
-    toggleFullWidth,
-    actionsOpen,
-    onActionsOpenChange,
-    deleteDialogOpen,
-    onDeleteDialogOpenChange,
-    onDeleted,
+    fillAutomatically,
+    layout,
+    statusDialog,
+    deleteDialog,
   } = props;
+  const { state: fillButtonState, trigger: triggerFillAutomatically } = fillAutomatically;
+  const { isDesktop, fullWidth, onToggleFullWidth: toggleFullWidth } = layout;
+  const {
+    open: statusDialogOpen,
+    onOpenChange: onStatusDialogOpenChange,
+    selectedStage: selectedStatusStage,
+    onSelectedStageChange: onSelectedStatusStageChange,
+    dismissible: updateStatusDialogDismissible,
+    restrictInteractionTo: statusDialogRestrictInteractionTo,
+    freezeSuccessToast: statusDialogFreezeSuccessToast,
+    scheduledEnabled: statusDialogScheduledEnabled,
+    onScheduledEnabledChange: onStatusDialogScheduledEnabledChange,
+    ref: statusDialogRef,
+    onContentElementChange: onStatusDialogContentElementChange,
+  } = statusDialog;
+  const { open: deleteDialogOpen, onOpenChange: onDeleteDialogOpenChange, onDeleted } = deleteDialog;
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col")}>
@@ -69,7 +90,7 @@ export function JobDetailsView(props: JobDetailsViewProps) {
               <Button
                 intent="primary"
                 size="md"
-                onClick={() => onActionsOpenChange(true)}
+                onClick={() => onStatusDialogOpenChange(true)}
                 data-welcome-tour-step="update-status-button"
               >
                 Update Status
@@ -110,8 +131,17 @@ export function JobDetailsView(props: JobDetailsViewProps) {
           <UpdateStatusDialog
             jobId={job.id}
             currentStage={currentStage}
-            open={actionsOpen}
-            onOpenChange={onActionsOpenChange}
+            open={statusDialogOpen}
+            onOpenChange={onStatusDialogOpenChange}
+            dismissible={updateStatusDialogDismissible}
+            selectedStage={selectedStatusStage}
+            onSelectedStageChange={onSelectedStatusStageChange}
+            restrictInteractionTo={statusDialogRestrictInteractionTo}
+            freezeSuccessToast={statusDialogFreezeSuccessToast}
+            scheduledEnabled={statusDialogScheduledEnabled}
+            onScheduledEnabledChange={onStatusDialogScheduledEnabledChange}
+            ref={statusDialogRef}
+            onContentElementChange={onStatusDialogContentElementChange}
           />
         ) : null}
         {job && !readOnly ? (

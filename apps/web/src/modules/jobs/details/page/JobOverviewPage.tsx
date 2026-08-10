@@ -5,6 +5,7 @@ import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { ApplicationStage } from "@/gql/hooks";
 import { OverviewTabContent } from "@/modules/jobs/details/components/OverviewTabContent";
 import { useJobDetailsContext } from "@/modules/jobs/details/hooks/useJobDetailsContext";
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
@@ -15,7 +16,20 @@ type JobOverviewPageProps = { jobId: string };
 export function JobOverviewPage({ jobId }: JobOverviewPageProps) {
   const router = useRouter();
   const { enqueueToast } = useToastQueue();
-  const { job, openStatusDialog, sourcePrimaryText } = useJobDetailsContext();
+  const {
+    job,
+    closeStatusDialog,
+    openStatusDialog,
+    sourcePrimaryText,
+    selectedStatusStage,
+    requestStatusDialogSave,
+    onStatusDialogRestrictInteractionToChange,
+    requestStatusDialogFocusField,
+    statusDialogElement,
+    onStatusDialogFreezeSuccessToastChange,
+    requestStatusDialogCloseToast,
+    statusDialogScheduledEnabled,
+  } = useJobDetailsContext();
   const readOnly = useJobDataSource() === "local";
   const [forceVisibleAction, setForceVisibleAction] = useState<string>();
 
@@ -38,9 +52,19 @@ export function JobOverviewPage({ jobId }: JobOverviewPageProps) {
         onError={(message) => showToast(message ?? "", "error")}
       />
       <WelcomeTourJobDetails
+        portalElement={statusDialogElement}
         onFieldActionsVisibilityChange={(visible) => setForceVisibleAction(visible ? "title" : undefined)}
         onDescriptionOpen={() => router.push(`/jobs/${jobId}/description` as Route)}
         onUpdateStatus={openStatusDialog}
+        onUpdateStatusClose={closeStatusDialog}
+        onUpdateStatusSave={requestStatusDialogSave}
+        onStatusDialogRestrictInteractionToChange={onStatusDialogRestrictInteractionToChange}
+        onFocusField={requestStatusDialogFocusField}
+        onStatusDialogFreezeSuccessToastChange={onStatusDialogFreezeSuccessToastChange}
+        onCloseStatusToast={requestStatusDialogCloseToast}
+        isStatusApplied={selectedStatusStage === ApplicationStage.Applied}
+        isScreeningSelected={selectedStatusStage === ApplicationStage.RecruiterScreen}
+        isCustomDateEnabled={statusDialogScheduledEnabled}
       />
     </div>
   );

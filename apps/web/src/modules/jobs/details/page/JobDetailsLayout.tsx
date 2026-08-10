@@ -3,9 +3,10 @@
 import { SlotsProvider } from "@job-tracker/react-slots";
 import { cn, Tabs, TabsList, Text } from "@job-tracker/ui";
 import type { ReactNode } from "react";
-import { use, useState } from "react";
+import { use, useRef, useState } from "react";
 
 import { EntityNotFound } from "@/components/entity-not-found";
+import type { ApplicationStage } from "@/gql/hooks";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import type { EntityDetailViewStatus } from "@/lib/entity-detail-view-status";
 import { ActivitySidePanelTabs } from "@/modules/jobs/details/components/ActivitySidePanelTabs";
@@ -28,8 +29,11 @@ import { useJobDetails } from "@/modules/jobs/details/hooks/useJobDetails";
 import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchStatusProvider";
 import { useJobDetailsRouteState } from "@/modules/jobs/details/hooks/useJobDetailsRouteState";
 import { useJobPageTitle } from "@/modules/jobs/details/hooks/useJobPageTitle";
+import { useTour } from "@/modules/tour/useTour";
 import { JobDetailsSubTabs } from "@/modules/jobs/details/job-details-header.slots";
 import { JobDetailsView } from "@/modules/jobs/details/page/JobDetailsView";
+import type { UpdateStatusDialogHandle } from "@/modules/jobs/details/components/UpdateStatusDialog";
+import type { UpdateStatusDialogRestrictedTarget } from "@/modules/jobs/details/components/update-status-dialog-inert";
 import type { JobDetailsValues } from "@/modules/jobs/details/utils/job-details.shared";
 import { useJobDataSource } from "@/modules/jobs/shared/hooks/useJobDataSource";
 import { useRouter } from "next/navigation";
@@ -189,8 +193,18 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
   const { activeTab, sidePanelFromQuery, fullWidth, toggleFullWidth, setSidePanel, needsRedirect } =
     useJobDetailsRouteState(id, isDesktop);
 
-  const [actionsOpen, setActionsOpen] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedStatusStage, setSelectedStatusStage] = useState<ApplicationStage | undefined>(undefined);
+  const [statusDialogRestrictInteractionTo, setStatusDialogRestrictInteractionTo] = useState<
+    UpdateStatusDialogRestrictedTarget | undefined
+  >(undefined);
+  const [statusDialogFreezeSuccessToast, setStatusDialogFreezeSuccessToast] = useState(false);
+  const [statusDialogScheduledEnabled, setStatusDialogScheduledEnabled] = useState(false);
+  const statusDialogRef = useRef<UpdateStatusDialogHandle>(null);
+  const [statusDialogElement, setStatusDialogElement] = useState<HTMLDivElement | null>(null);
+  const { activeTour } = useTour();
+  const updateStatusDialogDismissible = activeTour?.id !== "welcome-tour";
 
   useJobPageTitle(viewModel.job, activeTab);
 
@@ -203,7 +217,19 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
           <JobDetailsProvider
             job={viewModel.job}
             sourcePrimaryText={viewModel.sourcePrimaryText}
-            openStatusDialog={() => setActionsOpen(true)}
+            openStatusDialog={() => setStatusDialogOpen(true)}
+            closeStatusDialog={() => setStatusDialogOpen(false)}
+            selectedStatusStage={selectedStatusStage}
+            onSelectedStatusStageChange={setSelectedStatusStage}
+            requestStatusDialogSave={() => statusDialogRef.current?.save()}
+            statusDialogRestrictInteractionTo={statusDialogRestrictInteractionTo}
+            onStatusDialogRestrictInteractionToChange={setStatusDialogRestrictInteractionTo}
+            requestStatusDialogFocusField={(field) => statusDialogRef.current?.focusField(field)}
+            statusDialogElement={statusDialogElement}
+            statusDialogFreezeSuccessToast={statusDialogFreezeSuccessToast}
+            onStatusDialogFreezeSuccessToastChange={setStatusDialogFreezeSuccessToast}
+            requestStatusDialogCloseToast={() => statusDialogRef.current?.closeToast()}
+            statusDialogScheduledEnabled={statusDialogScheduledEnabled}
           >
             <JobDetailsView
               id={id}
@@ -212,8 +238,6 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
               currentStage={viewModel.currentStage}
               currentStageReason={viewModel.currentStageReason}
               displayTitle={viewModel.displayTitle}
-              fillButtonState={viewModel.fillButtonState}
-              triggerFillAutomatically={viewModel.triggerFillAutomatically}
               mainContent={
                 <JobDetailsMainContent
                   job={viewModel.job}
@@ -228,14 +252,26 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                 </JobDetailsMainContent>
               }
               readOnly={isLocalJob}
-              isDesktop={isDesktop}
-              fullWidth={fullWidth}
-              toggleFullWidth={toggleFullWidth}
-              actionsOpen={actionsOpen}
-              onActionsOpenChange={setActionsOpen}
-              deleteDialogOpen={deleteDialogOpen}
-              onDeleteDialogOpenChange={setDeleteDialogOpen}
-              onDeleted={() => router.push("/jobs")}
+              fillAutomatically={{ state: viewModel.fillButtonState, trigger: viewModel.triggerFillAutomatically }}
+              layout={{ isDesktop, fullWidth, onToggleFullWidth: toggleFullWidth }}
+              statusDialog={{
+                open: statusDialogOpen,
+                onOpenChange: setStatusDialogOpen,
+                selectedStage: selectedStatusStage,
+                onSelectedStageChange: setSelectedStatusStage,
+                dismissible: updateStatusDialogDismissible,
+                restrictInteractionTo: statusDialogRestrictInteractionTo,
+                freezeSuccessToast: statusDialogFreezeSuccessToast,
+                scheduledEnabled: statusDialogScheduledEnabled,
+                onScheduledEnabledChange: setStatusDialogScheduledEnabled,
+                ref: statusDialogRef,
+                onContentElementChange: setStatusDialogElement,
+              }}
+              deleteDialog={{
+                open: deleteDialogOpen,
+                onOpenChange: setDeleteDialogOpen,
+                onDeleted: () => router.push("/jobs"),
+              }}
             >
               {children}
             </JobDetailsView>

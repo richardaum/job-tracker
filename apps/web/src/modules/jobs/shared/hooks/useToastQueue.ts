@@ -4,9 +4,18 @@ import { useMemo, useState } from "react";
 import { generateUuid } from "@/lib/generate-uuid";
 import { useOptionalToastQueueContext } from "./useToastQueueContext";
 
+export interface EnqueueToastInput {
+  id?: string;
+  title: string;
+  intent?: ToastIntent;
+  description?: string;
+  durationMs?: number;
+  "data-welcome-tour-step"?: string;
+}
+
 interface UseToastQueueReturn {
   toastProps: Pick<ToastProps, "toasts" | "onToastOpenChange">;
-  enqueueToast: (input: { title: string; intent?: ToastIntent; description?: string }) => void;
+  enqueueToast: (input: EnqueueToastInput) => void;
   dismissToast: (id: string, open: boolean) => void;
 }
 
@@ -15,15 +24,17 @@ export function useToastQueue(): UseToastQueueReturn {
   const [localToasts, setLocalToasts] = useState<NonNullable<ToastProps["toasts"]>>([]);
 
   function localEnqueueToast({
+    id,
     title,
     intent = "info",
     description,
-  }: {
-    title: string;
-    intent?: ToastIntent;
-    description?: string;
-  }) {
-    setLocalToasts((current) => [...current, { id: generateUuid(), title, intent, description }]);
+    durationMs,
+    "data-welcome-tour-step": welcomeTourStep,
+  }: EnqueueToastInput) {
+    setLocalToasts((current) => [
+      ...current,
+      { id: id ?? generateUuid(), title, intent, description, durationMs, "data-welcome-tour-step": welcomeTourStep },
+    ]);
   }
 
   function localDismissToast(id: string, open: boolean) {

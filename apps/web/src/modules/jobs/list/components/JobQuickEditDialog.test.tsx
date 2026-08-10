@@ -16,13 +16,13 @@ describe("JobQuickEditDialog", () => {
     ["create", -1, -1, 0],
   ] as const)(
     "keeps only the %s target in the dialog tab order",
-    (interactiveField, titleTabIndex, companyTabIndex, createTabIndex) => {
+    (restrictInteractionTo, titleTabIndex, companyTabIndex, createTabIndex) => {
       render(
         <JobQuickEditDialog
           control={control}
           loading={false}
           dismissible={false}
-          interactiveField={interactiveField}
+          restrictInteractionTo={restrictInteractionTo}
         />,
       );
 

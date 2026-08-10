@@ -18,6 +18,11 @@ export type WelcomeTourStepId =
   | "job-description-editor"
   | "update-status-button"
   | "update-status-applied"
+  | "update-status-save"
+  | "update-status-toast"
+  | "update-status-reopen"
+  | "update-status-screening"
+  | "update-status-custom-date"
   | "update-status-interview";
 
 type WelcomeTourStepContent = Omit<Step, "title" | "data" | "before" | "after"> & { advanceOnEnter?: boolean };
@@ -99,18 +104,54 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
   "update-status-button": {
     target: '[data-welcome-tour-step="update-status-button"]',
     placement: "bottom",
-    content: "Now, let's update the status of this job.",
+    content: "Now, let's update the status of this job. Let's say you submitted your application today.",
   },
   "update-status-applied": {
     target: '[data-welcome-tour-step="update-status-applied"]',
-    placement: "bottom",
+    placement: "right",
     content: "Select Applied to record that you submitted your application.",
+    disableFocusTrap: true,
+    advanceOnEnter: true,
+    targetWaitTimeout: 2_000,
+  },
+  "update-status-save": {
+    target: '[data-welcome-tour-step="update-status-save"]',
+    placement: "top",
+    content: "Click Save to record this update.",
+    disableFocusTrap: false,
+  },
+  "update-status-toast": {
+    target: '[data-welcome-tour-step="update-status-toast"]',
+    placement: "bottom",
+    content: "This confirms your update was saved. It disappears automatically after a few seconds.",
+    targetWaitTimeout: 2_000,
+  },
+  "update-status-reopen": {
+    target: '[data-welcome-tour-step="update-status-button"]',
+    placement: "bottom",
+    content: "Nice! Now let's update the status again—this time to schedule a screening interview.",
+    targetWaitTimeout: 2_000,
+  },
+  "update-status-screening": {
+    target: '[data-welcome-tour-step="update-status-applied"]',
+    placement: "right",
+    content: "Select Recruiter Screen to record that a screening interview is coming up.",
+    disableFocusTrap: true,
+    targetWaitTimeout: 2_000,
+  },
+  "update-status-custom-date": {
+    target: '[data-welcome-tour-step="update-status-custom-date"]',
+    placement: "bottom",
+    content: "Turn on Custom date to schedule a future status update.",
+    disableFocusTrap: true,
     targetWaitTimeout: 2_000,
   },
   "update-status-interview": {
     target: '[data-welcome-tour-step="update-status-interview"]',
     placement: "bottom",
-    content: "Enable Custom date and choose +3d to indicate that your interview is scheduled for three days from now.",
+    content: "Choose +3d to schedule this update for three days from now.",
+    disableFocusTrap: true,
+    targetWaitTimeout: 2_000,
   },
 };
 
@@ -128,6 +169,11 @@ const WELCOME_TOUR_STEP_ORDER: WelcomeTourStepId[] = [
   "job-description-editor",
   "update-status-button",
   "update-status-applied",
+  "update-status-save",
+  "update-status-toast",
+  "update-status-reopen",
+  "update-status-screening",
+  "update-status-custom-date",
   "update-status-interview",
 ];
 

@@ -18,7 +18,7 @@ interface JobValues {
 }
 
 export type JobQuickEditField = "title" | "company";
-type JobQuickEditInteractiveStep = JobQuickEditField | "create";
+type JobQuickEditRestrictedTarget = JobQuickEditField | "create";
 
 export interface JobQuickEditDialogHandle {
   focusField: (field: JobQuickEditField) => void;
@@ -49,7 +49,7 @@ interface JobQuickEditDialogFormProps {
   onFormChange?: (change: JobQuickEditFormChange) => void;
   disableSubmitOnEnter: boolean;
   disableCompanyOptions: boolean;
-  interactiveField?: JobQuickEditInteractiveStep;
+  restrictInteractionTo?: JobQuickEditRestrictedTarget;
   dialogRef?: Ref<JobQuickEditDialogHandle>;
   onClose: () => void;
 }
@@ -63,7 +63,7 @@ function JobQuickEditDialogForm({
   onFormChange,
   disableSubmitOnEnter,
   disableCompanyOptions,
-  interactiveField,
+  restrictInteractionTo,
   dialogRef,
   onClose,
 }: JobQuickEditDialogFormProps) {
@@ -132,7 +132,7 @@ function JobQuickEditDialogForm({
     <>
       <form id={formId} onSubmit={handleFormSubmit} onKeyDown={handleFormKeyDown} noValidate>
         <Stack gap="sm">
-          <div inert={interactiveField === "company" || interactiveField === "create"}>
+          <div inert={restrictInteractionTo === "company" || restrictInteractionTo === "create"}>
             <FormField label="Job title" htmlFor="job-title" required error={errors.title?.message}>
               <Input
                 id="job-title"
@@ -142,7 +142,7 @@ function JobQuickEditDialogForm({
                 state={errors.title ? "error" : "default"}
                 disabled={loading}
                 {...titleInputProps}
-                tabIndex={interactiveField !== undefined && interactiveField !== "title" ? -1 : undefined}
+                tabIndex={restrictInteractionTo !== undefined && restrictInteractionTo !== "title" ? -1 : undefined}
                 ref={(element) => {
                   titleInputRef.current = element;
                   registerTitleRef(element);
@@ -151,7 +151,7 @@ function JobQuickEditDialogForm({
             </FormField>
           </div>
 
-          <div inert={interactiveField === "title" || interactiveField === "create"}>
+          <div inert={restrictInteractionTo === "title" || restrictInteractionTo === "create"}>
             <FormField label="Company" htmlFor="job-company" required error={errors.company?.message}>
               <Controller
                 control={control}
@@ -168,7 +168,8 @@ function JobQuickEditDialogForm({
                     }}
                     inputProps={{
                       "data-welcome-tour-step": "job-company-input",
-                      tabIndex: interactiveField !== undefined && interactiveField !== "company" ? -1 : undefined,
+                      tabIndex:
+                        restrictInteractionTo !== undefined && restrictInteractionTo !== "company" ? -1 : undefined,
                     }}
                     options={disableCompanyOptions ? [] : companyOptions}
                     placeholder="e.g. Acme Corp"
@@ -183,25 +184,25 @@ function JobQuickEditDialogForm({
       </form>
 
       <Stack direction="row" gap="xs" justify="end" className={cn("mt-4")}>
-        <div inert={interactiveField !== undefined}>
+        <div inert={restrictInteractionTo !== undefined}>
           <Button
             intent="secondary"
             size="md"
             onClick={onClose}
             disabled={loading}
-            tabIndex={interactiveField === undefined ? undefined : -1}
+            tabIndex={restrictInteractionTo === undefined ? undefined : -1}
           >
             Cancel
           </Button>
         </div>
-        <div inert={interactiveField !== undefined && interactiveField !== "create"}>
+        <div inert={restrictInteractionTo !== undefined && restrictInteractionTo !== "create"}>
           <Button
             type="submit"
             form={formId}
             intent="primary"
             size="md"
             state={loading ? "loading" : "default"}
-            tabIndex={interactiveField !== undefined && interactiveField !== "create" ? -1 : undefined}
+            tabIndex={restrictInteractionTo !== undefined && restrictInteractionTo !== "create" ? -1 : undefined}
             data-welcome-tour-step="create-job-button"
           >
             {isEdit ? "Save changes" : "Create"}
@@ -221,7 +222,7 @@ export interface JobQuickEditDialogProps {
   dismissible?: boolean;
   disableSubmitOnEnter?: boolean;
   disableCompanyOptions?: boolean;
-  interactiveField?: JobQuickEditInteractiveStep;
+  restrictInteractionTo?: JobQuickEditRestrictedTarget;
   onContentElementChange?: (element: HTMLDivElement | null) => void;
   onCreate?: (input: JobQuickEditInput) => Promise<boolean>;
   onUpdate?: (jobId: string, input: JobQuickEditInput) => Promise<boolean>;
@@ -237,7 +238,7 @@ export function JobQuickEditDialog({
   dismissible,
   disableSubmitOnEnter = false,
   disableCompanyOptions = false,
-  interactiveField,
+  restrictInteractionTo,
   onContentElementChange,
   onCreate,
   onUpdate,
@@ -268,7 +269,7 @@ export function JobQuickEditDialog({
           onFormChange={onFormChange}
           disableSubmitOnEnter={disableSubmitOnEnter}
           disableCompanyOptions={disableCompanyOptions}
-          interactiveField={interactiveField}
+          restrictInteractionTo={restrictInteractionTo}
           dialogRef={ref}
           onClose={() => control.onOpenChange(false)}
         />
