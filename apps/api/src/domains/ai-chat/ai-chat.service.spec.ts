@@ -54,6 +54,28 @@ describe("AiChatService", () => {
     service = new AiChatService(repo, jobsRepo, pubSub);
   });
 
+  it("awaits stale-processing recovery during module initialization", async () => {
+    let resolveRecovery = (_count: number) => {};
+    const recovery = new Promise<number>((resolve) => {
+      resolveRecovery = resolve;
+    });
+    vi.mocked(repo.resetStaleGeneratingStatus).mockReturnValue(recovery);
+
+    const initialization = service.onModuleInit();
+    let initialized = false;
+    void initialization.then(() => {
+      initialized = true;
+    });
+
+    await Promise.resolve();
+    expect(initialized).toBe(false);
+
+    resolveRecovery(0);
+    await initialization;
+
+    expect(repo.resetStaleGeneratingStatus).toHaveBeenCalledTimes(1);
+  });
+
   describe("createConversation", () => {
     it("creates a conversation when job exists", async () => {
       vi.mocked(jobsRepo.findOneByIdAndUserId).mockResolvedValue({ id: "job-1" } as never);

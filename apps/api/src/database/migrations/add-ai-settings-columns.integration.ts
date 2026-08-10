@@ -1,10 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { DataSource } from "typeorm";
+import type { DataSource, QueryRunner } from "typeorm";
 import { DataSource as TypeOrmDataSource } from "typeorm";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { apiEnv } from "@api/env/server";
 import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
+
+type UserSettingsColumn = { data_type: string; is_nullable: "YES" | "NO"; column_default: string | null };
+
+const AI_SETTINGS_COLUMN_NAMES = ["ai_enabled", "openai_api_key_encrypted", "trial_calls_used"];
 
 describe("Migration: AddAiSettingsColumns", () => {
   let ds: DataSource;
@@ -26,17 +30,14 @@ describe("Migration: AddAiSettingsColumns", () => {
   });
 
   it("migration adds ai_enabled column with correct type and default", async () => {
-    // Get the column info after running all migrations
     const queryRunner = ds.createQueryRunner();
     try {
-      const table = await queryRunner.getTable("user_settings");
-      const aiEnabledColumn = table?.columns.find((col) => col.name === "ai_enabled");
+      const aiEnabledColumn = await findUserSettingsColumn(queryRunner, "ai_enabled");
 
       expect(aiEnabledColumn).toBeDefined();
-      expect(aiEnabledColumn?.type).toBe("boolean");
-      expect(aiEnabledColumn?.isNullable).toBe(false);
-      // Default is stored as a string in metadata
-      expect(aiEnabledColumn?.default === true || aiEnabledColumn?.default === "true").toBe(true);
+      expect(aiEnabledColumn?.data_type).toBe("boolean");
+      expect(aiEnabledColumn?.is_nullable).toBe("NO");
+      expect(aiEnabledColumn?.column_default).toMatch(/true/i);
     } finally {
       await queryRunner.release();
     }
@@ -45,12 +46,11 @@ describe("Migration: AddAiSettingsColumns", () => {
   it("migration adds openai_api_key_encrypted column with correct type and nullable", async () => {
     const queryRunner = ds.createQueryRunner();
     try {
-      const table = await queryRunner.getTable("user_settings");
-      const keyColumn = table?.columns.find((col) => col.name === "openai_api_key_encrypted");
+      const keyColumn = await findUserSettingsColumn(queryRunner, "openai_api_key_encrypted");
 
       expect(keyColumn).toBeDefined();
-      expect(keyColumn?.type).toBe("text");
-      expect(keyColumn?.isNullable).toBe(true);
+      expect(keyColumn?.data_type).toBe("text");
+      expect(keyColumn?.is_nullable).toBe("YES");
     } finally {
       await queryRunner.release();
     }
@@ -59,14 +59,12 @@ describe("Migration: AddAiSettingsColumns", () => {
   it("migration adds trial_calls_used column with correct type and default", async () => {
     const queryRunner = ds.createQueryRunner();
     try {
-      const table = await queryRunner.getTable("user_settings");
-      const trialColumn = table?.columns.find((col) => col.name === "trial_calls_used");
+      const trialColumn = await findUserSettingsColumn(queryRunner, "trial_calls_used");
 
       expect(trialColumn).toBeDefined();
-      expect(trialColumn?.type).toBe("integer");
-      expect(trialColumn?.isNullable).toBe(false);
-      // Default is stored as a string in metadata, so check for the numeric value or string representation
-      expect(trialColumn?.default === 0 || trialColumn?.default === "0" || trialColumn?.default === "'0'").toBe(true);
+      expect(trialColumn?.data_type).toBe("integer");
+      expect(trialColumn?.is_nullable).toBe("NO");
+      expect(trialColumn?.column_default).toMatch(/0/);
     } finally {
       await queryRunner.release();
     }
@@ -109,45 +107,36 @@ describe("Migration: AddAiSettingsColumns", () => {
     const queryRunner = ds.createQueryRunner();
 
     try {
-      // Get table before down
-      let table = await queryRunner.getTable("user_settings");
-      let hasAiEnabled = table?.columns.some((col) => col.name === "ai_enabled");
-      let hasKeyColumn = table?.columns.some((col) => col.name === "openai_api_key_encrypted");
-      let hasTrialColumn = table?.columns.some((col) => col.name === "trial_calls_used");
+      for (const columnName of AI_SETTINGS_COLUMN_NAMES) {
+        expect(await findUserSettingsColumn(queryRunner, columnName)).toBeDefined();
+      }
 
-      // Verify columns exist before down
-      expect(hasAiEnabled).toBe(true);
-      expect(hasKeyColumn).toBe(true);
-      expect(hasTrialColumn).toBe(true);
-
-      // Run down migration
       await migration.down(queryRunner);
 
-      // Get table after down
-      table = await queryRunner.getTable("user_settings");
-      hasAiEnabled = table?.columns.some((col) => col.name === "ai_enabled");
-      hasKeyColumn = table?.columns.some((col) => col.name === "openai_api_key_encrypted");
-      hasTrialColumn = table?.columns.some((col) => col.name === "trial_calls_used");
+      for (const columnName of AI_SETTINGS_COLUMN_NAMES) {
+        expect(await findUserSettingsColumn(queryRunner, columnName)).toBeUndefined();
+      }
 
-      // Verify columns are removed
-      expect(hasAiEnabled).toBe(false);
-      expect(hasKeyColumn).toBe(false);
-      expect(hasTrialColumn).toBe(false);
-
-      // Run up migration again
       await migration.up(queryRunner);
 
-      // Verify columns exist again
-      table = await queryRunner.getTable("user_settings");
-      hasAiEnabled = table?.columns.some((col) => col.name === "ai_enabled");
-      hasKeyColumn = table?.columns.some((col) => col.name === "openai_api_key_encrypted");
-      hasTrialColumn = table?.columns.some((col) => col.name === "trial_calls_used");
-
-      expect(hasAiEnabled).toBe(true);
-      expect(hasKeyColumn).toBe(true);
-      expect(hasTrialColumn).toBe(true);
+      for (const columnName of AI_SETTINGS_COLUMN_NAMES) {
+        expect(await findUserSettingsColumn(queryRunner, columnName)).toBeDefined();
+      }
     } finally {
       await queryRunner.release();
     }
   });
 });
+
+async function findUserSettingsColumn(queryRunner: QueryRunner, columnName: string) {
+  const [column]: UserSettingsColumn[] = await queryRunner.query(
+    `SELECT data_type, is_nullable, column_default
+     FROM information_schema.columns
+     WHERE table_schema = current_schema()
+       AND table_name = 'user_settings'
+       AND column_name = $1`,
+    [columnName],
+  );
+
+  return column;
+}

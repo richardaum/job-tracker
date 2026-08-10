@@ -22,8 +22,8 @@ export class AiChatService implements OnModuleInit {
     private readonly pubSub: AiChatPubSub,
   ) {}
 
-  onModuleInit(): void {
-    void this.resetStaleProcessing();
+  async onModuleInit(): Promise<void> {
+    await this.resetStaleProcessing();
   }
 
   private async resetStaleProcessing(): Promise<void> {
