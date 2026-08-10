@@ -2,11 +2,10 @@
 
 import { tryRun } from "@job-tracker/try-run";
 import { Button, Checkbox, cn, Dialog, FormField, Input, Select, Stack, useControlledState } from "@job-tracker/ui";
-import { useCallback, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { useImperativeHandle, useMemo, useRef, useState } from "react";
 import type { ReactElement, Ref } from "react";
 
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
-import { generateUuid } from "@/lib/generate-uuid";
 
 import { ApplicationStage, StageEventSource } from "@/gql/hooks";
 import { useCreateJobStageEvent } from "@/modules/jobs/details/hooks/useCreateJobStageEvent";
@@ -86,20 +85,18 @@ export function UpdateStatusDialog({
 }: UpdateStatusDialogProps) {
   const { enqueueToast, dismissToast } = useToastQueue();
   const lastToastIdRef = useRef<string | null>(null);
-  const handleToast = useCallback(
-    (message: string, intent: "success" | "error", options?: { durationMs?: number; welcomeTourStep?: string }) => {
-      const id = generateUuid();
-      lastToastIdRef.current = id;
-      enqueueToast({
-        id,
-        title: message,
-        intent,
-        durationMs: options?.durationMs,
-        "data-welcome-tour-step": options?.welcomeTourStep,
-      });
-    },
-    [enqueueToast],
-  );
+  function handleToast(
+    message: string,
+    intent: "success" | "error",
+    options?: { lifetime?: "auto" | "manual"; welcomeTourStep?: string },
+  ) {
+    lastToastIdRef.current = enqueueToast({
+      title: message,
+      intent,
+      lifetime: options?.lifetime,
+      attrs: options?.welcomeTourStep ? { "data-welcome-tour-step": options.welcomeTourStep } : undefined,
+    });
+  }
   const [resolvedOpen, setResolvedOpen] = useControlledState(open, false, onOpenChange);
   const [resolvedSelectedStage, handleSelectedStageChange] = useControlledState<ApplicationStage | undefined>(
     selectedStage,
@@ -147,7 +144,7 @@ export function UpdateStatusDialog({
       if (field === "schedule-3d") threeDayScheduleRef.current?.focus();
     },
     closeToast: () => {
-      if (lastToastIdRef.current) dismissToast(lastToastIdRef.current, false);
+      if (lastToastIdRef.current) dismissToast(lastToastIdRef.current);
     },
   }));
 
@@ -173,9 +170,7 @@ export function UpdateStatusDialog({
     handleToast(
       "Status update saved.",
       "success",
-      freezeSuccessToast
-        ? { durationMs: Number.POSITIVE_INFINITY, welcomeTourStep: SUCCESS_TOAST_WELCOME_TOUR_STEP }
-        : undefined,
+      freezeSuccessToast ? { lifetime: "manual", welcomeTourStep: SUCCESS_TOAST_WELCOME_TOUR_STEP } : undefined,
     );
   }
 

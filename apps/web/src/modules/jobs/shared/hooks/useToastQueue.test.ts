@@ -41,11 +41,25 @@ describe("useToastQueue", () => {
     act(() => {
       result.current.enqueueToast({ title: "One" });
       result.current.enqueueToast({ title: "Two" });
-      result.current.dismissToast("toast-1", false);
+      result.current.dismissToast("toast-1");
     });
 
     expect(result.current.toastProps.toasts).toEqual([
       { id: "toast-2", title: "Two", intent: "info", description: undefined },
     ]);
+  });
+
+  it("keeps manual lifetime as toast queue metadata", () => {
+    vi.mocked(generateUuid).mockReturnValue("toast-1");
+
+    const { result } = renderHook(() => useToastQueue(), { wrapper: Wrapper });
+
+    act(() => {
+      result.current.enqueueToast({ title: "Created.", lifetime: "manual" });
+    });
+
+    expect(result.current.toastProps.toasts).toContainEqual(
+      expect.objectContaining({ id: "toast-1", lifetime: "manual" }),
+    );
   });
 });

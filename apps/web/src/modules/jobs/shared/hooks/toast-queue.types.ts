@@ -1,7 +1,16 @@
-import { type ToastIntent, type ToastProps } from "@job-tracker/ui";
+import { type ToastAttributes, type ToastIntent, type ToastLifetime, type ToastProps } from "@job-tracker/ui";
+
+export interface EnqueueToastInput {
+  id?: string;
+  title: string;
+  intent?: ToastIntent;
+  description?: string;
+  lifetime?: ToastLifetime;
+  attrs?: ToastAttributes;
+}
 
 export interface ToastQueueContextValue {
   toastProps: Pick<ToastProps, "toasts" | "onToastOpenChange">;
-  enqueueToast: (input: { title: string; intent?: ToastIntent; description?: string }) => void;
-  dismissToast: (id: string, open: boolean) => void;
+  enqueueToast: (input: EnqueueToastInput) => string;
+  dismissToast: (id: string) => void;
 }

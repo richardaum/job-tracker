@@ -119,7 +119,7 @@ export type {
 export { Timeline, TimelineContent, TimelineItem, TimelineMarker } from "./components/Timeline/Timeline";
 export type { TruncateTextProps } from "./components/TruncateText/TruncateText";
 export { TruncateText } from "./components/TruncateText/TruncateText";
-export type { ToastIntent, ToastItem, ToastProps } from "./components/Toast/Toast";
+export type { ToastAttributes, ToastIntent, ToastItem, ToastLifetime, ToastProps } from "./components/Toast/Toast";
 export { Toast } from "./components/Toast/Toast";
 export type { TooltipProps } from "./components/Tooltip/Tooltip";
 export { Tooltip } from "./components/Tooltip/Tooltip";

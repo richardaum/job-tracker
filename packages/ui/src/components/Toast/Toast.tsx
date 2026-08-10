@@ -7,6 +7,8 @@ import * as RadixToast from "@radix-ui/react-toast";
 import { cn } from "@ui/lib/cn";
 
 export type ToastIntent = "info" | "success" | "warning" | "error";
+export type ToastAttributes = Record<`data-${string}`, string | undefined>;
+export type ToastLifetime = "auto" | "manual";
 
 export interface ToastItem {
   id: string;
@@ -17,7 +19,8 @@ export interface ToastItem {
   onAction?: () => void;
   open?: boolean;
   durationMs?: number;
-  "data-welcome-tour-step"?: string;
+  lifetime?: ToastLifetime;
+  attrs?: ToastAttributes;
 }
 
 export interface ToastProps {
@@ -127,14 +130,15 @@ export function Toast({
     <RadixToast.Provider swipeDirection="right">
       {queue.map((toastItem) => {
         const currentIntent = toastItem.intent ?? "info";
-        const itemDurationMs = toastItem.durationMs ?? durationMs;
+        const itemDurationMs =
+          toastItem.lifetime === "manual" ? Number.POSITIVE_INFINITY : (toastItem.durationMs ?? durationMs);
 
         return (
           <RadixToast.Root
             key={toastItem.id}
             open={toastItem.open ?? true}
             duration={itemDurationMs}
-            data-welcome-tour-step={toastItem["data-welcome-tour-step"]}
+            {...toastItem.attrs}
             onOpenChange={(nextOpen) => {
               if (toastItem.id === "single") {
                 handleOpenChange(nextOpen);
@@ -181,7 +185,7 @@ export function Toast({
             >
               <XIcon size={14} weight="regular" />
             </RadixToast.Close>
-            <ToastProgress durationMs={itemDurationMs} />
+            {Number.isFinite(itemDurationMs) ? <ToastProgress durationMs={itemDurationMs} /> : null}
           </RadixToast.Root>
         );
       })}

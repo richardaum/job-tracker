@@ -50,4 +50,17 @@ describe("Toast", () => {
     expect(screen.getByText("First message")).toBeInTheDocument();
     expect(screen.getByText("Second message")).toBeInTheDocument();
   });
+
+  it("forwards queue attributes and hides the progress bar for manual toasts", () => {
+    const { container } = render(
+      <Toast
+        toasts={[
+          { id: "1", title: "Created", lifetime: "manual", attrs: { "data-welcome-tour-step": "job-created-toast" } },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Created").closest('[data-welcome-tour-step="job-created-toast"]')).toBeInTheDocument();
+    expect(container.querySelector(".origin-left")).not.toBeInTheDocument();
+  });
 });
