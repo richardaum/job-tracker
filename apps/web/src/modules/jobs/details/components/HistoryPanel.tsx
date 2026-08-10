@@ -165,58 +165,60 @@ export function HistoryPanel({ jobId }: HistoryPanelProps) {
         {stageEvents.length === 0 ? (
           <EmptyState variant="panel" message="No stage events yet." />
         ) : (
-          <StageTimeline
-            items={stageEvents.map((event) => ({
-              id: event.id,
-              fromStage: event.fromStage,
-              toStage: event.toStage,
-              reason: event.reason ?? null,
-              dateLabel: event.scheduledAt ? formatDateTime(event.scheduledAt) : formatDateTime(event.createdAt),
-            }))}
-            renderItemAction={(item) =>
-              !readOnly ? (
-                <div className={cn("flex items-center")}>
-                  {item.reason ? (
-                    <IconButton
-                      intent="ghost"
-                      size="sm"
-                      label="History reason"
-                      tooltip={item.reason}
-                      icon={<ChatCircleTextIcon size={14} weight="regular" />}
-                      className={cn("size-6  text-text-muted")}
-                    />
-                  ) : null}
-                  <IconButton
-                    intent="ghost"
-                    size="sm"
-                    label="Edit history item"
-                    tooltip="Edit history item"
-                    icon={<PencilSimpleIcon size={14} weight="regular" />}
-                    className={cn("size-6  text-text-muted")}
-                    onClick={() => openEditDialog(item.id)}
-                    disabled={isMutatingStageEvent}
-                  />
-                  <ConfirmDialog
-                    title="Delete history event?"
-                    description="This action cannot be undone."
-                    confirmLabel="Delete"
-                    onConfirm={() => handleDeleteEvent(item.id)}
-                    trigger={
+          <div data-welcome-tour-step="update-status-timeline">
+            <StageTimeline
+              items={stageEvents.map((event) => ({
+                id: event.id,
+                fromStage: event.fromStage,
+                toStage: event.toStage,
+                reason: event.reason ?? null,
+                dateLabel: event.scheduledAt ? formatDateTime(event.scheduledAt) : formatDateTime(event.createdAt),
+              }))}
+              renderItemAction={(item) =>
+                !readOnly ? (
+                  <div className={cn("flex items-center")}>
+                    {item.reason ? (
                       <IconButton
                         intent="ghost"
                         size="sm"
-                        label="Delete history item"
-                        tooltip="Delete history item"
-                        icon={<TrashIcon size={14} weight="regular" />}
+                        label="History reason"
+                        tooltip={item.reason}
+                        icon={<ChatCircleTextIcon size={14} weight="regular" />}
                         className={cn("size-6  text-text-muted")}
-                        disabled={isMutatingStageEvent}
                       />
-                    }
-                  />
-                </div>
-              ) : null
-            }
-          />
+                    ) : null}
+                    <IconButton
+                      intent="ghost"
+                      size="sm"
+                      label="Edit history item"
+                      tooltip="Edit history item"
+                      icon={<PencilSimpleIcon size={14} weight="regular" />}
+                      className={cn("size-6  text-text-muted")}
+                      onClick={() => openEditDialog(item.id)}
+                      disabled={isMutatingStageEvent}
+                    />
+                    <ConfirmDialog
+                      title="Delete history event?"
+                      description="This action cannot be undone."
+                      confirmLabel="Delete"
+                      onConfirm={() => handleDeleteEvent(item.id)}
+                      trigger={
+                        <IconButton
+                          intent="ghost"
+                          size="sm"
+                          label="Delete history item"
+                          tooltip="Delete history item"
+                          icon={<TrashIcon size={14} weight="regular" />}
+                          className={cn("size-6  text-text-muted")}
+                          disabled={isMutatingStageEvent}
+                        />
+                      }
+                    />
+                  </div>
+                ) : null
+              }
+            />
+          </div>
         )}
       </div>
       <Dialog

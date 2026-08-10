@@ -29,6 +29,9 @@ export function JobOverviewPage({ jobId }: JobOverviewPageProps) {
     onStatusDialogFreezeSuccessToastChange,
     requestStatusDialogCloseToast,
     statusDialogScheduledEnabled,
+    statusDialogQuickScheduleOption,
+    statusDialogSaveCount,
+    openStatusHistory,
   } = useJobDetailsContext();
   const readOnly = useJobDataSource() === "local";
   const [forceVisibleAction, setForceVisibleAction] = useState<string>();
@@ -62,9 +65,12 @@ export function JobOverviewPage({ jobId }: JobOverviewPageProps) {
         onFocusField={requestStatusDialogFocusField}
         onStatusDialogFreezeSuccessToastChange={onStatusDialogFreezeSuccessToastChange}
         onCloseStatusToast={requestStatusDialogCloseToast}
+        onShowStatusHistory={openStatusHistory}
         isStatusApplied={selectedStatusStage === ApplicationStage.Applied}
         isScreeningSelected={selectedStatusStage === ApplicationStage.RecruiterScreen}
         isCustomDateEnabled={statusDialogScheduledEnabled}
+        selectedQuickScheduleOption={statusDialogQuickScheduleOption}
+        statusDialogSaveCount={statusDialogSaveCount}
       />
     </div>
   );

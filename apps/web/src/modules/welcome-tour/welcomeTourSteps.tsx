@@ -23,7 +23,9 @@ export type WelcomeTourStepId =
   | "update-status-reopen"
   | "update-status-screening"
   | "update-status-custom-date"
-  | "update-status-interview";
+  | "update-status-interview"
+  | "update-status-scheduled-save"
+  | "update-status-timeline";
 
 type WelcomeTourStepContent = Omit<Step, "title" | "data" | "before" | "after"> & { advanceOnEnter?: boolean };
 
@@ -137,6 +139,7 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
     placement: "right",
     content: "Select Recruiter Screen to record that a screening interview is coming up.",
     disableFocusTrap: true,
+    advanceOnEnter: true,
     targetWaitTimeout: 2_000,
   },
   "update-status-custom-date": {
@@ -151,6 +154,18 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
     placement: "bottom",
     content: "Choose +3d to schedule this update for three days from now.",
     disableFocusTrap: true,
+    targetWaitTimeout: 2_000,
+  },
+  "update-status-scheduled-save": {
+    target: '[data-welcome-tour-step="update-status-save"]',
+    placement: "top",
+    content: "Click Save to schedule the Recruiter Screen update.",
+    disableFocusTrap: false,
+  },
+  "update-status-timeline": {
+    target: '[data-welcome-tour-step="update-status-timeline"]',
+    placement: "left",
+    content: "The Status timeline now shows the Recruiter Screen update scheduled for three days from now.",
     targetWaitTimeout: 2_000,
   },
 };
@@ -175,6 +190,8 @@ const WELCOME_TOUR_STEP_ORDER: WelcomeTourStepId[] = [
   "update-status-screening",
   "update-status-custom-date",
   "update-status-interview",
+  "update-status-scheduled-save",
+  "update-status-timeline",
 ];
 
 const WELCOME_TOUR_STEP_NUMBER = new Map(WELCOME_TOUR_STEP_ORDER.map((id, index) => [id, index + 1]));

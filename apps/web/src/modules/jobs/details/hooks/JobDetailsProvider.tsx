@@ -23,6 +23,9 @@ export function JobDetailsProvider({
   onStatusDialogFreezeSuccessToastChange,
   requestStatusDialogCloseToast,
   statusDialogScheduledEnabled,
+  statusDialogQuickScheduleOption,
+  statusDialogSaveCount,
+  openStatusHistory,
   children,
 }: JobDetailsProviderProps) {
   return (
@@ -43,6 +46,9 @@ export function JobDetailsProvider({
         onStatusDialogFreezeSuccessToastChange,
         requestStatusDialogCloseToast,
         statusDialogScheduledEnabled,
+        statusDialogQuickScheduleOption,
+        statusDialogSaveCount,
+        openStatusHistory,
       }}
     >
       {children}

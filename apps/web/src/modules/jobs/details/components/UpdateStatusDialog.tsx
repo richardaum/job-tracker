@@ -50,6 +50,8 @@ type UpdateStatusDialogProps = {
   onSelectedStageChange?: (stage: ApplicationStage | undefined) => void;
   scheduledEnabled?: boolean;
   onScheduledEnabledChange?: (enabled: boolean) => void;
+  onQuickScheduleOptionSelect?: (label: string) => void;
+  onSaved?: () => void;
   restrictInteractionTo?: UpdateStatusDialogRestrictedTarget;
   freezeSuccessToast?: boolean;
   ref?: Ref<UpdateStatusDialogHandle>;
@@ -75,6 +77,8 @@ export function UpdateStatusDialog({
   onSelectedStageChange,
   scheduledEnabled,
   onScheduledEnabledChange,
+  onQuickScheduleOptionSelect,
+  onSaved,
   restrictInteractionTo,
   freezeSuccessToast,
   ref,
@@ -111,12 +115,19 @@ export function UpdateStatusDialog({
   const [reasonDraft, setReasonDraft] = useState("");
   const statusTriggerRef = useRef<HTMLButtonElement | null>(null);
   const scheduleCheckboxRef = useRef<HTMLButtonElement | null>(null);
+  const threeDayScheduleRef = useRef<HTMLButtonElement | null>(null);
 
   const [createStageEvent, { loading: stageSaving }] = useCreateJobStageEvent();
   const saving = stageSaving;
   const canSave = Boolean(resolvedSelectedStage) && !saving;
   const scheduledAtValue = scheduledAtDraft.trim();
   const selectOptions = useMemo(() => stageOptions.map((option) => ({ ...option, value: option.value })), []);
+  const isStatusFieldInert = isInert(restrictInteractionTo, "status");
+  const isThreeDayScheduleStep = restrictInteractionTo !== undefined && !isInert(restrictInteractionTo, "schedule-3d");
+  const isCustomDateFieldInert = isInert(restrictInteractionTo, "custom-date");
+  const isCustomDateConfigurationInert = isCustomDateFieldInert || isThreeDayScheduleStep;
+  const isReasonFieldInert = isInert(restrictInteractionTo, "reason");
+  const isSaveFieldInert = isInert(restrictInteractionTo, "save");
 
   function handleOpenChange(nextOpen: boolean) {
     setResolvedOpen(nextOpen);
@@ -133,6 +144,7 @@ export function UpdateStatusDialog({
     focusField: (field) => {
       if (field === "status") statusTriggerRef.current?.focus();
       if (field === "custom-date") scheduleCheckboxRef.current?.focus();
+      if (field === "schedule-3d") threeDayScheduleRef.current?.focus();
     },
     closeToast: () => {
       if (lastToastIdRef.current) dismissToast(lastToastIdRef.current, false);
@@ -157,6 +169,7 @@ export function UpdateStatusDialog({
     }
     handleOpenChange(false);
     handleSelectedStageChange(undefined);
+    onSaved?.();
     handleToast(
       "Status update saved.",
       "success",
@@ -178,7 +191,7 @@ export function UpdateStatusDialog({
       contentClassName={cn("inset-0 m-auto h-fit translate-none")}
     >
       <Stack gap="sm">
-        <div inert={isInert(restrictInteractionTo, "status")} data-welcome-tour-step="update-status-applied">
+        <div inert={isStatusFieldInert} data-welcome-tour-step="update-status-applied">
           <FormField label="Status" htmlFor={`history-status-${jobId}`}>
             <Select
               value={resolvedSelectedStage}
@@ -186,16 +199,18 @@ export function UpdateStatusDialog({
               options={selectOptions}
               placeholder={`Current: ${formatStage(currentStage)}`}
               size="sm"
+              tabIndex={isStatusFieldInert ? -1 : undefined}
               onTriggerElementChange={(element) => {
                 statusTriggerRef.current = element;
               }}
             />
           </FormField>
         </div>
-        <div inert={isInert(restrictInteractionTo, "custom-date")} data-welcome-tour-step="update-status-custom-date">
-          <label className={cn("flex cursor-pointer items-center gap-2")}>
+        <div inert={isCustomDateFieldInert} data-welcome-tour-step="update-status-custom-date">
+          <label inert={isCustomDateConfigurationInert} className={cn("flex cursor-pointer items-center gap-2")}>
             <Checkbox
               id={`history-schedule-check-${jobId}`}
+              tabIndex={isCustomDateConfigurationInert ? -1 : undefined}
               checked={resolvedScheduledEnabled}
               onCheckedChange={(checked) => {
                 handleScheduledEnabledChange(checked);
@@ -211,18 +226,23 @@ export function UpdateStatusDialog({
             <span className={cn("text-sm text-text-default")}>Custom date</span>
           </label>
           {resolvedScheduledEnabled && (
-            <Stack gap="xs">
-              <Input
-                id={`history-scheduled-at-${jobId}`}
-                type="datetime-local"
-                size="sm"
-                value={scheduledAtDraft}
-                onChange={(event) => setScheduledAtDraft(event.target.value)}
-                disabled={saving}
-              />
+            <Stack gap="xs" className={cn("mt-2")}>
+              <div inert={isCustomDateConfigurationInert}>
+                <Input
+                  id={`history-scheduled-at-${jobId}`}
+                  type="datetime-local"
+                  size="sm"
+                  value={scheduledAtDraft}
+                  onChange={(event) => setScheduledAtDraft(event.target.value)}
+                  tabIndex={isCustomDateConfigurationInert ? -1 : undefined}
+                  disabled={saving}
+                />
+              </div>
               <div className={cn("flex flex-wrap gap-1")}>
                 {quickScheduleOptions.map((option) => {
                   const optionValue = getDateTimeInputValueFromNow(option.offsetDays);
+                  const isQuickScheduleOptionInert =
+                    isCustomDateFieldInert || (isThreeDayScheduleStep && option.label !== "+3d");
                   return (
                     <Button
                       key={option.label}
@@ -234,8 +254,16 @@ export function UpdateStatusDialog({
                         getDateOnlyFromDateTimeInput(scheduledAtDraft) === getDateOnlyFromDateTimeInput(optionValue) &&
                           "border-border-brand bg-bg-brand-subtle text-text-brand hover:bg-bg-brand-subtle",
                       )}
-                      onClick={() => setScheduledAtDraft(optionValue)}
+                      onClick={() => {
+                        setScheduledAtDraft(optionValue);
+                        onQuickScheduleOptionSelect?.(option.label);
+                      }}
                       disabled={saving}
+                      tabIndex={isQuickScheduleOptionInert ? -1 : undefined}
+                      inert={isQuickScheduleOptionInert}
+                      onElementChange={
+                        option.label === "+3d" ? (element) => (threeDayScheduleRef.current = element) : undefined
+                      }
                       data-welcome-tour-step={option.label === "+3d" ? "update-status-interview" : undefined}
                     >
                       {option.label}
@@ -246,7 +274,7 @@ export function UpdateStatusDialog({
             </Stack>
           )}
         </div>
-        <div inert={restrictInteractionTo !== undefined}>
+        <div inert={isReasonFieldInert}>
           <FormField label="Reason (optional)" htmlFor={`history-reason-${jobId}`}>
             <Input
               id={`history-reason-${jobId}`}
@@ -254,18 +282,20 @@ export function UpdateStatusDialog({
               size="sm"
               value={reasonDraft}
               onChange={(event) => setReasonDraft(event.target.value)}
+              tabIndex={isReasonFieldInert ? -1 : undefined}
               disabled={saving}
               placeholder="Brief explanation for this status change"
             />
           </FormField>
         </div>
-        <div inert={isInert(restrictInteractionTo, "save")} className={cn("flex justify-end")}>
+        <div inert={isSaveFieldInert} className={cn("flex justify-end")}>
           <Button
             intent="primary"
             size="md"
             onClick={() => void handleSaveStatusUpdate()}
             disabled={!canSave}
             state={saving ? "loading" : "default"}
+            tabIndex={isSaveFieldInert ? -1 : undefined}
             data-welcome-tour-step="update-status-save"
           >
             Save

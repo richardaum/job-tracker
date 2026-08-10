@@ -2,6 +2,8 @@
 
 import { ACTIONS, EVENTS } from "react-joyride";
 import { useFeatureFlagEnabled } from "posthog-js/react";
+import { useEffect, useRef, useState } from "react";
+import type { Controls } from "react-joyride";
 
 import { JoyrideSegmentedTour } from "@/modules/tour/JoyrideSegmentedTour";
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
@@ -16,6 +18,7 @@ import { useTour } from "@/modules/tour/useTour";
 
 const UPDATE_STATUS_FIELD_TARGET = '[data-welcome-tour-step="update-status-applied"]';
 const UPDATE_STATUS_CUSTOM_DATE_TARGET = '[data-welcome-tour-step="update-status-custom-date"]';
+const UPDATE_STATUS_INTERVIEW_TARGET = '[data-welcome-tour-step="update-status-interview"]';
 
 type WelcomeTourJobDetailsProps = {
   portalElement?: HTMLElement | null;
@@ -28,9 +31,12 @@ type WelcomeTourJobDetailsProps = {
   onFocusField: (field: UpdateStatusDialogRestrictedTarget) => void;
   onStatusDialogFreezeSuccessToastChange: (freeze: boolean) => void;
   onCloseStatusToast: () => void;
+  onShowStatusHistory: () => void;
   isStatusApplied?: boolean;
   isScreeningSelected?: boolean;
   isCustomDateEnabled?: boolean;
+  selectedQuickScheduleOption?: string;
+  statusDialogSaveCount: number;
 };
 
 export function WelcomeTourJobDetails({
@@ -44,12 +50,80 @@ export function WelcomeTourJobDetails({
   onFocusField,
   onStatusDialogFreezeSuccessToastChange,
   onCloseStatusToast,
+  onShowStatusHistory,
   isStatusApplied = false,
   isScreeningSelected = false,
   isCustomDateEnabled = false,
+  selectedQuickScheduleOption,
+  statusDialogSaveCount,
 }: WelcomeTourJobDetailsProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
   const { activeTour } = useTour();
+  const tourControlsRef = useRef<Controls | null>(null);
+  const isCustomDateStepActiveRef = useRef(false);
+  const wasCustomDateEnabledRef = useRef(isCustomDateEnabled);
+  const isInterviewStepActiveRef = useRef(false);
+  const previousQuickScheduleOptionRef = useRef(selectedQuickScheduleOption);
+  const [isScheduledSaveStepActive, setIsScheduledSaveStepActive] = useState(false);
+  const [hasScheduledStatusBeenSaved, setHasScheduledStatusBeenSaved] = useState(false);
+  const previousStatusDialogSaveCountRef = useRef(statusDialogSaveCount);
+
+  useEffect(() => {
+    const wasCustomDateEnabled = wasCustomDateEnabledRef.current;
+    wasCustomDateEnabledRef.current = isCustomDateEnabled;
+
+    if (
+      activeTour?.phase !== "update-status" ||
+      !isCustomDateStepActiveRef.current ||
+      wasCustomDateEnabled ||
+      !isCustomDateEnabled
+    ) {
+      return;
+    }
+
+    isCustomDateStepActiveRef.current = false;
+    tourControlsRef.current?.next();
+  }, [activeTour?.phase, isCustomDateEnabled]);
+
+  useEffect(() => {
+    const previousQuickScheduleOption = previousQuickScheduleOptionRef.current;
+    previousQuickScheduleOptionRef.current = selectedQuickScheduleOption;
+
+    if (
+      activeTour?.phase !== "update-status" ||
+      !isInterviewStepActiveRef.current ||
+      previousQuickScheduleOption === "+3d" ||
+      selectedQuickScheduleOption !== "+3d"
+    ) {
+      return;
+    }
+
+    isInterviewStepActiveRef.current = false;
+    tourControlsRef.current?.next();
+  }, [activeTour?.phase, selectedQuickScheduleOption]);
+
+  useEffect(() => {
+    const previousStatusDialogSaveCount = previousStatusDialogSaveCountRef.current;
+    previousStatusDialogSaveCountRef.current = statusDialogSaveCount;
+
+    if (
+      activeTour?.phase !== "update-status" ||
+      !isScheduledSaveStepActive ||
+      statusDialogSaveCount === previousStatusDialogSaveCount
+    ) {
+      return;
+    }
+
+    setHasScheduledStatusBeenSaved(true);
+  }, [activeTour?.phase, isScheduledSaveStepActive, statusDialogSaveCount]);
+
+  useEffect(() => {
+    if (activeTour?.phase !== "update-status" || !isScheduledSaveStepActive || !hasScheduledStatusBeenSaved) {
+      return;
+    }
+
+    tourControlsRef.current?.next();
+  }, [activeTour?.phase, hasScheduledStatusBeenSaved, isScheduledSaveStepActive]);
 
   if (
     welcomeTourEnabled !== true ||
@@ -69,6 +143,7 @@ export function WelcomeTourJobDetails({
           "update-status-screening",
           "update-status-custom-date",
           "update-status-interview",
+          "update-status-scheduled-save",
         ]
       : ["job-detail-title", "job-status", "job-company", "job-field-actions", "job-description-tab"];
   const steps = pickWelcomeTourSteps(stepIds, WELCOME_TOUR_LABEL, {
@@ -121,8 +196,19 @@ export function WelcomeTourJobDetails({
       after: () => onStatusDialogRestrictInteractionToChange(undefined),
     },
     "update-status-interview": {
-      before: async () => onStatusDialogRestrictInteractionToChange("custom-date"),
+      before: async () => onStatusDialogRestrictInteractionToChange("schedule-3d"),
       after: () => onStatusDialogRestrictInteractionToChange(undefined),
+    },
+    "update-status-scheduled-save": {
+      before: async () => {
+        setIsScheduledSaveStepActive(true);
+        setHasScheduledStatusBeenSaved(false);
+        onStatusDialogRestrictInteractionToChange("save");
+      },
+      after: ({ action }) => {
+        onStatusDialogRestrictInteractionToChange(undefined);
+        if (action === ACTIONS.NEXT && !hasScheduledStatusBeenSaved) onUpdateStatusSave();
+      },
     },
   });
 
@@ -132,14 +218,20 @@ export function WelcomeTourJobDetails({
       continuous
       steps={steps}
       portalElement={portalElement ?? undefined}
-      onSegmentComplete={activeTour.phase === "job-details" ? onDescriptionOpen : undefined}
-      onEvent={(event) => {
+      onSegmentComplete={activeTour.phase === "job-details" ? onDescriptionOpen : onShowStatusHistory}
+      onEvent={(event, controls) => {
+        tourControlsRef.current = controls;
         if (event.type !== EVENTS.TOOLTIP) return;
+        isCustomDateStepActiveRef.current = event.step.target === UPDATE_STATUS_CUSTOM_DATE_TARGET;
+        isInterviewStepActiveRef.current = event.step.target === UPDATE_STATUS_INTERVIEW_TARGET;
         if (event.step.target === UPDATE_STATUS_FIELD_TARGET) {
           onFocusField("status");
         }
         if (event.step.target === UPDATE_STATUS_CUSTOM_DATE_TARGET) {
           onFocusField("custom-date");
+        }
+        if (event.step.target === UPDATE_STATUS_INTERVIEW_TARGET) {
+          onFocusField("schedule-3d");
         }
       }}
       locale={{ last: "Got it" }}

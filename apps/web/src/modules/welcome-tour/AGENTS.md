@@ -29,13 +29,17 @@ A step targeting a field/button inside a Radix `Dialog` stacks four independent 
 | 5   | Tooltip/overlay isn't a descendant of the dialog, so the `inert` isolation from #2 doesn't cover it — it floats outside the boundary it's guiding.                                                                                                                                                                                                         | `Joyride`'s `portalElement` prop (forwarded via `JoyrideSegmentedTour`), set to the dialog's content node (captured via `onContentElementChange` → `Dialog`'s `ref` in `packages/ui/src/components/Dialog/Dialog.tsx`, lifted to state in the owning page). Also switch `styles.overlay.position` to `"fixed"` when `portalElement` is set (vs `"absolute"`), so the backdrop still covers the viewport. |
 | 6   | `Dialog`'s default centering (`fixed left-1/2 top-1/2 -translate-1/2`) puts a `transform` on the content element. A `transform` on an ancestor creates a new containing block for `position: fixed` descendants — so a `portalElement`'d overlay (#5) resolves `fixed` against the dialog's box instead of the viewport, and visually collapses inside it. | Pass `contentClassName={cn("inset-0 m-auto h-fit translate-none")}` to `Dialog`. `translate-none` cancels the inherited transform (tailwind-merge dedupes translate utilities); `inset-0 m-auto` centers via margin instead. Required on any dialog that uses `portalElement`.                                                                                                                           |
 
+#### `inert` controls and Radix `FocusScope`
+
+For every interactive descendant of a section made `inert`, also set `tabIndex={-1}` while it is restricted. Radix `FocusScope` enumerates controls by `tabIndex` but does not exclude controls inside an `inert` ancestor. Without this, it can choose a blocked earlier control as the first item when wrapping focus from the final item (such as **Skip**), and focus remains stuck. Components that wrap native controls must expose a `tabIndex` prop on their focusable trigger when needed.
+
 Techniques are independent and stack — a step needing real keyboard input into a dialog field uses all six.
 
 ### Checklist
 
 1. Stable `data-welcome-tour-step` on the target inside the dialog.
 2. Step: `disableFocusTrap: true` + `advanceOnEnter: true` if typing is required (#1).
-3. Dialog: `restrictInteractionTo` prop + `inert={restrictInteractionTo !== undefined}` wrappers (#2).
+3. Dialog: `restrictInteractionTo` prop + `inert={restrictInteractionTo !== undefined}` wrappers and `tabIndex={-1}` on their restricted interactive descendants (#2).
 4. Dialog: `focusField` imperative handle, called on `EVENTS.TOOLTIP` if typing is required (#3).
 5. Dialog: `contentClassName={cn("inset-0 m-auto h-fit translate-none")}` (#6).
 6. Page: capture `onContentElementChange` in state, pass as `portalElement` to the route-local `WelcomeTour*` component (#5).

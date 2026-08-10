@@ -22,6 +22,9 @@ export interface JobDetailsContextValue {
   onStatusDialogFreezeSuccessToastChange: (freeze: boolean) => void;
   requestStatusDialogCloseToast: () => void;
   statusDialogScheduledEnabled: boolean;
+  statusDialogQuickScheduleOption: string | undefined;
+  statusDialogSaveCount: number;
+  openStatusHistory: () => void;
 }
 
 export const JobDetailsContext = createContext<JobDetailsContextValue | null>(null);

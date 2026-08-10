@@ -30,6 +30,7 @@ import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchSta
 import { useJobDetailsRouteState } from "@/modules/jobs/details/hooks/useJobDetailsRouteState";
 import { useJobPageTitle } from "@/modules/jobs/details/hooks/useJobPageTitle";
 import { useTour } from "@/modules/tour/useTour";
+import { WelcomeTourStatusHistory } from "@/modules/welcome-tour/WelcomeTourStatusHistory";
 import { JobDetailsSubTabs } from "@/modules/jobs/details/job-details-header.slots";
 import { JobDetailsView } from "@/modules/jobs/details/page/JobDetailsView";
 import type { UpdateStatusDialogHandle } from "@/modules/jobs/details/components/UpdateStatusDialog";
@@ -201,6 +202,8 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
   >(undefined);
   const [statusDialogFreezeSuccessToast, setStatusDialogFreezeSuccessToast] = useState(false);
   const [statusDialogScheduledEnabled, setStatusDialogScheduledEnabled] = useState(false);
+  const [statusDialogQuickScheduleOption, setStatusDialogQuickScheduleOption] = useState<string>();
+  const [statusDialogSaveCount, setStatusDialogSaveCount] = useState(0);
   const statusDialogRef = useRef<UpdateStatusDialogHandle>(null);
   const [statusDialogElement, setStatusDialogElement] = useState<HTMLDivElement | null>(null);
   const { activeTour } = useTour();
@@ -230,6 +233,9 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
             onStatusDialogFreezeSuccessToastChange={setStatusDialogFreezeSuccessToast}
             requestStatusDialogCloseToast={() => statusDialogRef.current?.closeToast()}
             statusDialogScheduledEnabled={statusDialogScheduledEnabled}
+            statusDialogQuickScheduleOption={statusDialogQuickScheduleOption}
+            statusDialogSaveCount={statusDialogSaveCount}
+            openStatusHistory={() => setSidePanel("history")}
           >
             <JobDetailsView
               id={id}
@@ -264,6 +270,8 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                 freezeSuccessToast: statusDialogFreezeSuccessToast,
                 scheduledEnabled: statusDialogScheduledEnabled,
                 onScheduledEnabledChange: setStatusDialogScheduledEnabled,
+                onQuickScheduleOptionSelect: setStatusDialogQuickScheduleOption,
+                onSaved: () => setStatusDialogSaveCount((count) => count + 1),
                 ref: statusDialogRef,
                 onContentElementChange: setStatusDialogElement,
               }}
@@ -275,6 +283,7 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
             >
               {children}
             </JobDetailsView>
+            <WelcomeTourStatusHistory onReturnToJobs={() => router.push("/jobs")} />
           </JobDetailsProvider>
         </JobMatchStatusProvider>
       </JobFillStatusProvider>

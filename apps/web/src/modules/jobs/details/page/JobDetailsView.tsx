@@ -42,6 +42,8 @@ export interface JobDetailsViewProps {
     freezeSuccessToast: boolean;
     scheduledEnabled: boolean;
     onScheduledEnabledChange: (enabled: boolean) => void;
+    onQuickScheduleOptionSelect: (label: string) => void;
+    onSaved: () => void;
     ref: RefObject<UpdateStatusDialogHandle | null>;
     onContentElementChange: (element: HTMLDivElement | null) => void;
   };
@@ -76,6 +78,8 @@ export function JobDetailsView(props: JobDetailsViewProps) {
     freezeSuccessToast: statusDialogFreezeSuccessToast,
     scheduledEnabled: statusDialogScheduledEnabled,
     onScheduledEnabledChange: onStatusDialogScheduledEnabledChange,
+    onQuickScheduleOptionSelect: onStatusDialogQuickScheduleOptionSelect,
+    onSaved: onStatusDialogSaved,
     ref: statusDialogRef,
     onContentElementChange: onStatusDialogContentElementChange,
   } = statusDialog;
@@ -140,6 +144,8 @@ export function JobDetailsView(props: JobDetailsViewProps) {
             freezeSuccessToast={statusDialogFreezeSuccessToast}
             scheduledEnabled={statusDialogScheduledEnabled}
             onScheduledEnabledChange={onStatusDialogScheduledEnabledChange}
+            onQuickScheduleOptionSelect={onStatusDialogQuickScheduleOptionSelect}
+            onSaved={onStatusDialogSaved}
             ref={statusDialogRef}
             onContentElementChange={onStatusDialogContentElementChange}
           />
