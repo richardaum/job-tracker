@@ -5,11 +5,19 @@ import { EVENTS, Joyride, STATUS } from "react-joyride";
 
 import { useTour } from "@/modules/tour/useTour";
 
-type JoyrideSegmentedTourProps = ComponentProps<typeof Joyride> & { onSegmentComplete?: () => void };
+type JoyrideSegmentedTourProps = ComponentProps<typeof Joyride> & {
+  onSegmentComplete?: () => void;
+  onTourComplete?: () => void;
+};
 type JoyrideSegmentedTourEventHandler = NonNullable<JoyrideSegmentedTourProps["onEvent"]>;
 
 /** Runs a route-local tour segment and completes the tour at its global final step. */
-export function JoyrideSegmentedTour({ onEvent, onSegmentComplete, ...props }: JoyrideSegmentedTourProps) {
+export function JoyrideSegmentedTour({
+  onEvent,
+  onSegmentComplete,
+  onTourComplete,
+  ...props
+}: JoyrideSegmentedTourProps) {
   const { completeCurrentSegment, completeTour } = useTour();
 
   const handleEvent: JoyrideSegmentedTourEventHandler = (event, controls) => {
@@ -29,6 +37,7 @@ export function JoyrideSegmentedTour({ onEvent, onSegmentComplete, ...props }: J
 
     if (stepNumber === totalSteps) {
       completeTour();
+      onTourComplete?.();
       return;
     }
 

@@ -62,16 +62,20 @@ describe("JoyrideSegmentedTour", () => {
     expect(tourMocks.completeTour).not.toHaveBeenCalled();
   });
 
-  it("completes the tour without running a segment callback at the global final step", () => {
+  it("completes the tour and runs the final callback at the global final step", () => {
     const onSegmentComplete = vi.fn();
+    const onTourComplete = vi.fn();
     tourMocks.stepNumber = 14;
-    render(<JoyrideSegmentedTour run steps={[]} onSegmentComplete={onSegmentComplete} />);
+    render(
+      <JoyrideSegmentedTour run steps={[]} onSegmentComplete={onSegmentComplete} onTourComplete={onTourComplete} />,
+    );
 
     fireEvent.click(screen.getByRole("button", { name: "End segment" }));
 
     expect(tourMocks.completeTour).toHaveBeenCalledOnce();
     expect(tourMocks.completeCurrentSegment).not.toHaveBeenCalled();
     expect(onSegmentComplete).not.toHaveBeenCalled();
+    expect(onTourComplete).toHaveBeenCalledOnce();
   });
 
   it("completes the whole tour when it is skipped", () => {
