@@ -1,6 +1,6 @@
 import { SlotsProvider } from "@job-tracker/react-slots";
 import { Button, DropdownMenu } from "@job-tracker/ui";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactElement, ReactNode } from "react";
 
@@ -439,8 +439,10 @@ describe("MatchTabContent", () => {
       expect(gqlMocks.useJobMatchStatusChangedSubscription.mock.calls.length).toBeGreaterThanOrEqual(1),
     );
 
-    await getMatchStatusChangedHandler(gqlMocks.useJobMatchStatusChangedSubscription)({
-      status: AsyncMetadataStatus.Completed,
+    await act(async () => {
+      await getMatchStatusChangedHandler(gqlMocks.useJobMatchStatusChangedSubscription)({
+        status: AsyncMetadataStatus.Completed,
+      });
     });
 
     expect(await screen.findByText(/react streams into view/i)).toBeInTheDocument();
@@ -464,8 +466,10 @@ describe("MatchTabContent", () => {
       expect(gqlMocks.useJobMatchStatusChangedSubscription.mock.calls.length).toBeGreaterThanOrEqual(1),
     );
 
-    await getMatchStatusChangedHandler(gqlMocks.useJobMatchStatusChangedSubscription)({
-      status: AsyncMetadataStatus.Failed,
+    await act(async () => {
+      await getMatchStatusChangedHandler(gqlMocks.useJobMatchStatusChangedSubscription)({
+        status: AsyncMetadataStatus.Failed,
+      });
     });
 
     expect(await screen.findByText(/analysis failed/i)).toBeInTheDocument();

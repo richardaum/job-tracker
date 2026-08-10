@@ -50,6 +50,13 @@ function mockSettings(
   return { loading: false, data: { settings: { ...defaults, ...overrides } } };
 }
 
+async function actOnAsyncEvent(event: () => void) {
+  await act(async () => {
+    event();
+    await Promise.resolve();
+  });
+}
+
 describe("SettingsTabPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -83,7 +90,7 @@ describe("SettingsTabPage", () => {
     const switches = screen.getAllByRole("switch");
     const autoFillSwitch = switches[1]!;
 
-    fireEvent.click(autoFillSwitch);
+    await actOnAsyncEvent(() => fireEvent.click(autoFillSwitch));
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         variables: { input: { autoFillEnabled: true } },
@@ -108,7 +115,7 @@ describe("SettingsTabPage", () => {
     const switches = screen.getAllByRole("switch");
     const autoSummarySwitch = switches[2]!;
 
-    fireEvent.click(autoSummarySwitch);
+    await actOnAsyncEvent(() => fireEvent.click(autoSummarySwitch));
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         variables: { input: { autoSummaryEnabled: true } },
@@ -123,7 +130,7 @@ describe("SettingsTabPage", () => {
 
     const autoMatchSwitch = screen.getAllByRole("switch")[3]!;
 
-    fireEvent.click(autoMatchSwitch);
+    await actOnAsyncEvent(() => fireEvent.click(autoMatchSwitch));
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         variables: { input: { autoMatchEnabled: true } },
@@ -191,7 +198,7 @@ describe("SettingsTabPage", () => {
 
     const numberInput = screen.getByRole("spinbutton");
     fireEvent.change(numberInput, { target: { value: "60" } });
-    fireEvent.submit(screen.getByRole("form", { name: "Duplicate detection window" }));
+    await actOnAsyncEvent(() => fireEvent.submit(screen.getByRole("form", { name: "Duplicate detection window" })));
 
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({ variables: { input: { duplicateWindowDays: 60 } } }),
@@ -212,7 +219,7 @@ describe("SettingsTabPage", () => {
     expect(duplicateWindowSaveButton).not.toBeDisabled();
     expect(updateSettingsMock).not.toHaveBeenCalled();
 
-    fireEvent.click(duplicateWindowSaveButton);
+    await actOnAsyncEvent(() => fireEvent.click(duplicateWindowSaveButton));
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         variables: { input: { duplicateWindowDays: 60 } },
@@ -257,7 +264,7 @@ describe("SettingsTabPage", () => {
     const numberInput = screen.getByRole("spinbutton");
     fireEvent.change(numberInput, { target: { value: "500" } });
     const saveButtons = screen.getAllByRole("button", { name: "Save" });
-    fireEvent.click(saveButtons[saveButtons.length - 1]!);
+    await actOnAsyncEvent(() => fireEvent.click(saveButtons[saveButtons.length - 1]!));
 
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({ variables: { input: { duplicateWindowDays: 365 } } }),
@@ -285,7 +292,7 @@ describe("SettingsTabPage", () => {
     const switches = screen.getAllByRole("switch");
     const aiEnabledSwitch = switches[0]!;
 
-    fireEvent.click(aiEnabledSwitch);
+    await actOnAsyncEvent(() => fireEvent.click(aiEnabledSwitch));
     expect(updateSettingsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         variables: { input: { aiEnabled: false } },
@@ -326,7 +333,7 @@ describe("SettingsTabPage", () => {
     fireEvent.change(keyInput, { target: { value: "sk-test-key" } });
 
     const saveButtons = screen.getAllByRole("button", { name: "Save" });
-    fireEvent.click(saveButtons[0]!);
+    await actOnAsyncEvent(() => fireEvent.click(saveButtons[0]!));
 
     expect(saveOpenAiKeyMock).toHaveBeenCalledWith({ variables: { key: "sk-test-key" } });
   });
@@ -400,7 +407,7 @@ describe("SettingsTabPage", () => {
     render(<SettingsTabPage />);
 
     const removeButton = screen.getByRole("button", { name: "Remove" });
-    fireEvent.click(removeButton);
+    await actOnAsyncEvent(() => fireEvent.click(removeButton));
 
     expect(removeOpenAiKeyMock).toHaveBeenCalled();
   });

@@ -5,7 +5,16 @@ import { describe, expect, it, vi } from "vitest";
 const navigationMocks = vi.hoisted(() => ({ searchParams: "" }));
 
 vi.mock("next/link", () => ({
-  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => (
+  default: ({
+    href,
+    children,
+    prefetch: _prefetch,
+    ...props
+  }: {
+    href: string;
+    children: React.ReactNode;
+    prefetch?: boolean;
+  }) => (
     <a href={href} {...props}>
       {children}
     </a>

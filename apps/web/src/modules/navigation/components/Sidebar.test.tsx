@@ -36,7 +36,16 @@ vi.mock("next/link", () => ({
     "aria-label"?: string;
     [key: string]: unknown;
   }) => (
-    <a href={href} onClick={onClick} aria-label={ariaLabel} data-testid={`link-${href}`} {...props}>
+    <a
+      href={href}
+      onClick={(event) => {
+        event.preventDefault();
+        onClick?.();
+      }}
+      aria-label={ariaLabel}
+      data-testid={`link-${href}`}
+      {...props}
+    >
       {children}
     </a>
   ),

@@ -124,7 +124,12 @@ describe("PasteListenerProvider", () => {
   it("skips paste when activeElement is a nested child of ProseMirror", () => {
     render(
       <TestWrapper>
-        <div className={cn("ProseMirror")} contentEditable="true" data-testid="prosemirror">
+        <div
+          className={cn("ProseMirror")}
+          contentEditable="true"
+          suppressContentEditableWarning
+          data-testid="prosemirror"
+        >
           <p data-testid="paragraph">Some text</p>
         </div>
       </TestWrapper>,

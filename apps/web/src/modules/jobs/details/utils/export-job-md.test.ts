@@ -203,15 +203,18 @@ describe("formatJobAsMarkdown", () => {
 describe("downloadMarkdown", () => {
   let createObjectURLSpy: ReturnType<typeof vi.spyOn>;
   let revokeObjectURLSpy: ReturnType<typeof vi.spyOn>;
+  let anchorClickSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     createObjectURLSpy = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock-url");
     revokeObjectURLSpy = vi.spyOn(URL, "revokeObjectURL").mockReturnValue();
+    anchorClickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
   });
 
   afterEach(() => {
     createObjectURLSpy.mockRestore();
     revokeObjectURLSpy.mockRestore();
+    anchorClickSpy.mockRestore();
   });
 
   it("creates a Blob with text/markdown MIME type and triggers download", () => {
@@ -230,6 +233,7 @@ describe("downloadMarkdown", () => {
     expect(anchor.tagName).toBe("A");
     expect(anchor.download).toBe("test.md");
     expect(anchor.href).toBe("blob:mock-url");
+    expect(anchorClickSpy).toHaveBeenCalledOnce();
 
     expect(removeChild).toHaveBeenCalledOnce();
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");

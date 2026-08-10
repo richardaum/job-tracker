@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AiBlockedDialog } from "./AiBlockedDialog";
 import { aiBlockedDialogState } from "@/lib/ai-blocked-dialog-state";
@@ -16,7 +16,7 @@ describe("AiBlockedDialog", () => {
   it("should render with AI_DISABLED_BY_USER message", async () => {
     render(<AiBlockedDialog />);
 
-    aiBlockedDialogState.openDialog("AI_DISABLED_BY_USER");
+    act(() => aiBlockedDialogState.openDialog("AI_DISABLED_BY_USER"));
 
     await waitFor(() => {
       expect(screen.getByText("AI Features Unavailable")).toBeInTheDocument();
@@ -29,7 +29,7 @@ describe("AiBlockedDialog", () => {
   it("should render with AI_KEY_REQUIRED message", async () => {
     render(<AiBlockedDialog />);
 
-    aiBlockedDialogState.openDialog("AI_KEY_REQUIRED");
+    act(() => aiBlockedDialogState.openDialog("AI_KEY_REQUIRED"));
 
     await waitFor(() => {
       expect(screen.getByText("AI Features Unavailable")).toBeInTheDocument();
@@ -42,7 +42,7 @@ describe("AiBlockedDialog", () => {
   it("should have Settings link", async () => {
     render(<AiBlockedDialog />);
 
-    aiBlockedDialogState.openDialog("AI_DISABLED_BY_USER");
+    act(() => aiBlockedDialogState.openDialog("AI_DISABLED_BY_USER"));
 
     await waitFor(() => {
       const link = screen.getByRole("link", { name: /Go to Settings/i });
@@ -54,7 +54,7 @@ describe("AiBlockedDialog", () => {
     const user = userEvent.setup();
     render(<AiBlockedDialog />);
 
-    aiBlockedDialogState.openDialog("AI_DISABLED_BY_USER");
+    act(() => aiBlockedDialogState.openDialog("AI_DISABLED_BY_USER"));
 
     await waitFor(() => {
       expect(screen.getByText("AI Features Unavailable")).toBeInTheDocument();
@@ -72,7 +72,7 @@ describe("AiBlockedDialog", () => {
     const user = userEvent.setup();
     render(<AiBlockedDialog />);
 
-    aiBlockedDialogState.openDialog("AI_KEY_REQUIRED");
+    act(() => aiBlockedDialogState.openDialog("AI_KEY_REQUIRED"));
 
     await waitFor(() => {
       expect(screen.getByText("AI Features Unavailable")).toBeInTheDocument();
@@ -93,7 +93,7 @@ describe("AiBlockedDialog", () => {
     expect(screen.queryByText("AI Features Unavailable")).not.toBeInTheDocument();
 
     // Open with AI_DISABLED_BY_USER
-    aiBlockedDialogState.openDialog("AI_DISABLED_BY_USER");
+    act(() => aiBlockedDialogState.openDialog("AI_DISABLED_BY_USER"));
 
     await waitFor(() => {
       expect(
@@ -102,14 +102,14 @@ describe("AiBlockedDialog", () => {
     });
 
     // Close
-    aiBlockedDialogState.closeDialog();
+    act(() => aiBlockedDialogState.closeDialog());
 
     await waitFor(() => {
       expect(screen.queryByText("AI Features Unavailable")).not.toBeInTheDocument();
     });
 
     // Open with AI_KEY_REQUIRED
-    aiBlockedDialogState.openDialog("AI_KEY_REQUIRED");
+    act(() => aiBlockedDialogState.openDialog("AI_KEY_REQUIRED"));
 
     await waitFor(() => {
       expect(
