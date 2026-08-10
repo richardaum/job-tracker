@@ -52,7 +52,7 @@ describe("Toast", () => {
   });
 
   it("forwards queue attributes and hides the progress bar for manual toasts", () => {
-    const { container } = render(
+    render(
       <Toast
         toasts={[
           { id: "1", title: "Created", lifetime: "manual", attrs: { "data-welcome-tour-step": "job-created-toast" } },
@@ -60,7 +60,7 @@ describe("Toast", () => {
       />,
     );
 
-    expect(screen.getByText("Created").closest('[data-welcome-tour-step="job-created-toast"]')).toBeInTheDocument();
-    expect(container.querySelector(".origin-left")).not.toBeInTheDocument();
+    expect(screen.getByTestId("toast-root")).toHaveAttribute("data-welcome-tour-step", "job-created-toast");
+    expect(screen.queryByTestId("toast-progress")).not.toBeInTheDocument();
   });
 });

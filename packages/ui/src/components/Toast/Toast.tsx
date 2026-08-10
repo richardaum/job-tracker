@@ -76,6 +76,7 @@ function ToastProgress({ durationMs }: ToastProgressProps) {
 
   return (
     <div
+      data-testid="toast-progress"
       aria-hidden
       className={cn(
         "pointer-events-none absolute inset-x-0 bottom-0 h-1 origin-left bg-border-brand/40 transition-transform ease-linear",
@@ -139,6 +140,7 @@ export function Toast({
             open={toastItem.open ?? true}
             duration={itemDurationMs}
             {...toastItem.attrs}
+            data-testid="toast-root"
             onOpenChange={(nextOpen) => {
               if (toastItem.id === "single") {
                 handleOpenChange(nextOpen);
