@@ -3,6 +3,7 @@ import type { Step } from "react-joyride";
 
 export const WELCOME_TOUR_FEATURE_FLAG = "welcome-tour-enabled";
 export const WELCOME_TOUR_LABEL = "Create your first job";
+export const WELCOME_TOUR_JOB_CREATED_TOAST_STEP = "job-created-toast";
 
 export type WelcomeTourStepId =
   | "welcome"
@@ -10,6 +11,7 @@ export type WelcomeTourStepId =
   | "job-title-input"
   | "job-company-input"
   | "create-job-button"
+  | "job-created-toast"
   | "job-detail-title"
   | "job-status"
   | "job-company"
@@ -25,6 +27,7 @@ export type WelcomeTourStepId =
   | "update-status-custom-date"
   | "update-status-interview"
   | "update-status-scheduled-save"
+  | "status-panel-tab"
   | "update-status-timeline";
 
 type WelcomeTourStepContent = Omit<Step, "title" | "data" | "before" | "after"> & { advanceOnEnter?: boolean };
@@ -70,6 +73,12 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
     target: '[data-welcome-tour-step="create-job-button"]',
     placement: "top",
     content: "Everything looks good. Click Create to add this job to your tracker.",
+    targetWaitTimeout: 2_000,
+  },
+  "job-created-toast": {
+    target: `[data-welcome-tour-step="${WELCOME_TOUR_JOB_CREATED_TOAST_STEP}"]`,
+    placement: "bottom",
+    content: "This confirms your job was created. It will disappear when we move on.",
     targetWaitTimeout: 2_000,
   },
   "job-detail-title": {
@@ -162,6 +171,12 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
     content: "Click Save to schedule the Recruiter Screen update.",
     disableFocusTrap: false,
   },
+  "status-panel-tab": {
+    target: '[data-welcome-tour-step="status-panel-tab"]',
+    placement: "bottom",
+    content: "Open this tab to review every status update for this application.",
+    targetWaitTimeout: 2_000,
+  },
   "update-status-timeline": {
     target: '[data-welcome-tour-step="update-status-timeline"]',
     placement: "left",
@@ -176,6 +191,7 @@ const WELCOME_TOUR_STEP_ORDER: WelcomeTourStepId[] = [
   "job-title-input",
   "job-company-input",
   "create-job-button",
+  "job-created-toast",
   "job-detail-title",
   "job-status",
   "job-company",
@@ -191,6 +207,7 @@ const WELCOME_TOUR_STEP_ORDER: WelcomeTourStepId[] = [
   "update-status-custom-date",
   "update-status-interview",
   "update-status-scheduled-save",
+  "status-panel-tab",
   "update-status-timeline",
 ];
 

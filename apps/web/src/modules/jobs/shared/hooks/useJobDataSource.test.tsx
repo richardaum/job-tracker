@@ -1,40 +1,25 @@
 import { renderHook } from "@testing-library/react";
-import type { ReactNode } from "react";
-import { describe, expect, it } from "vitest";
-
-import { TourContext } from "@/modules/tour/tour.context";
-import { WELCOME_TOUR_REGISTRY } from "@/modules/welcome-tour/welcomeTourDefinitions";
+import { describe, expect, it, vi } from "vitest";
 
 import { useJobDataSource } from "./useJobDataSource";
 
-function Wrapper({ children, activeTour }: { children: ReactNode; activeTour: "welcome-tour" | null }) {
-  return (
-    <TourContext.Provider
-      value={{
-        activeTour: activeTour ? { ...WELCOME_TOUR_REGISTRY[activeTour], phase: "job-creation" } : null,
-        startTour: () => undefined,
-        completeCurrentSegment: () => undefined,
-        completeTour: () => undefined,
-      }}
-    >
-      {children}
-    </TourContext.Provider>
-  );
-}
+const useWelcomeTourMock = vi.fn();
+
+vi.mock("@/modules/welcome-tour/useWelcomeTour", () => ({ useWelcomeTour: () => useWelcomeTourMock() }));
 
 describe("useJobDataSource", () => {
-  it("uses the data source declared by the active tour", () => {
-    const { result } = renderHook(() => useJobDataSource(), {
-      wrapper: ({ children }) => <Wrapper activeTour="welcome-tour">{children}</Wrapper>,
-    });
+  it("uses local data while the welcome tour is active", () => {
+    useWelcomeTourMock.mockReturnValue({ activePhase: "job-creation" });
+
+    const { result } = renderHook(() => useJobDataSource());
 
     expect(result.current).toBe("local");
   });
 
   it("uses database when there is no active tour", () => {
-    const { result } = renderHook(() => useJobDataSource(), {
-      wrapper: ({ children }) => <Wrapper activeTour={null}>{children}</Wrapper>,
-    });
+    useWelcomeTourMock.mockReturnValue({ activePhase: null });
+
+    const { result } = renderHook(() => useJobDataSource());
 
     expect(result.current).toBe("database");
   });

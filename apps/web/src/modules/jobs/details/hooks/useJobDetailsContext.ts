@@ -24,7 +24,6 @@ export interface JobDetailsContextValue {
   statusDialogScheduledEnabled: boolean;
   statusDialogQuickScheduleOption: string | undefined;
   statusDialogSaveCount: number;
-  openStatusHistory: () => void;
 }
 
 export const JobDetailsContext = createContext<JobDetailsContextValue | null>(null);

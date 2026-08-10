@@ -1,14 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { JoyrideSegmentedTour } from "@/modules/tour/JoyrideSegmentedTour";
+import { WelcomeTourJoyride } from "./WelcomeTourJoyride";
 
 const tourMocks = vi.hoisted(() => ({
-  action: "next",
+  complete: vi.fn(),
   completeCurrentSegment: vi.fn(),
-  completeTour: vi.fn(),
-  stepNumber: 5,
   status: "finished",
+  stepNumber: 5,
   totalSteps: 14,
 }));
 
@@ -21,7 +20,6 @@ vi.mock("react-joyride", () => ({
       onClick={() =>
         onEvent?.(
           {
-            action: tourMocks.action,
             status: tourMocks.status,
             step: { data: { stepNumber: tourMocks.stepNumber, totalSteps: tourMocks.totalSteps } },
             type: "tour:end",
@@ -35,15 +33,14 @@ vi.mock("react-joyride", () => ({
   ),
 }));
 
-vi.mock("@/modules/tour/useTour", () => ({
-  useTour: () => ({ completeCurrentSegment: tourMocks.completeCurrentSegment, completeTour: tourMocks.completeTour }),
+vi.mock("./useWelcomeTour", () => ({
+  useWelcomeTour: () => ({ completeCurrentSegment: tourMocks.completeCurrentSegment, complete: tourMocks.complete }),
 }));
 
-describe("JoyrideSegmentedTour", () => {
+describe("WelcomeTourJoyride", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal("fetch", vi.fn());
-    tourMocks.action = "next";
     tourMocks.stepNumber = 5;
     tourMocks.status = "finished";
     tourMocks.totalSteps = 14;
@@ -51,40 +48,35 @@ describe("JoyrideSegmentedTour", () => {
 
   afterEach(() => vi.unstubAllGlobals());
 
-  it("advances the tour and runs the external callback when an intermediate segment ends", () => {
+  it("advances an intermediate segment and runs its callback", () => {
     const onSegmentComplete = vi.fn();
-    render(<JoyrideSegmentedTour run steps={[]} onSegmentComplete={onSegmentComplete} />);
+    render(<WelcomeTourJoyride run steps={[]} onSegmentComplete={onSegmentComplete} />);
 
     fireEvent.click(screen.getByRole("button", { name: "End segment" }));
 
     expect(tourMocks.completeCurrentSegment).toHaveBeenCalledOnce();
     expect(onSegmentComplete).toHaveBeenCalledOnce();
-    expect(tourMocks.completeTour).not.toHaveBeenCalled();
+    expect(tourMocks.complete).not.toHaveBeenCalled();
   });
 
-  it("completes the tour and runs the final callback at the global final step", () => {
-    const onSegmentComplete = vi.fn();
+  it("completes the tour and runs the final callback at the final step", () => {
     const onTourComplete = vi.fn();
     tourMocks.stepNumber = 14;
-    render(
-      <JoyrideSegmentedTour run steps={[]} onSegmentComplete={onSegmentComplete} onTourComplete={onTourComplete} />,
-    );
+    render(<WelcomeTourJoyride run steps={[]} onTourComplete={onTourComplete} />);
 
     fireEvent.click(screen.getByRole("button", { name: "End segment" }));
 
-    expect(tourMocks.completeTour).toHaveBeenCalledOnce();
-    expect(tourMocks.completeCurrentSegment).not.toHaveBeenCalled();
-    expect(onSegmentComplete).not.toHaveBeenCalled();
+    expect(tourMocks.complete).toHaveBeenCalledOnce();
     expect(onTourComplete).toHaveBeenCalledOnce();
   });
 
-  it("completes the whole tour when it is skipped", () => {
+  it("completes the tour when skipped", () => {
     tourMocks.status = "skipped";
-    render(<JoyrideSegmentedTour run steps={[]} />);
+    render(<WelcomeTourJoyride run steps={[]} />);
 
     fireEvent.click(screen.getByRole("button", { name: "End segment" }));
 
-    expect(tourMocks.completeTour).toHaveBeenCalledOnce();
+    expect(tourMocks.complete).toHaveBeenCalledOnce();
     expect(tourMocks.completeCurrentSegment).not.toHaveBeenCalled();
   });
 });

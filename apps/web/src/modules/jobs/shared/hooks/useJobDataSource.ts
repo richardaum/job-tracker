@@ -1,8 +1,8 @@
-import { useTour } from "@/modules/tour/useTour";
+import { useWelcomeTour } from "@/modules/welcome-tour/useWelcomeTour";
 import type { JobPersistenceMode } from "@/modules/jobs/shared/types/jobPersistenceMode";
 
-/** Resolves the Job data source declared by the active welcome tour. */
+/** Uses local job data while the welcome tour is active. */
 export function useJobDataSource(): JobPersistenceMode {
-  const { activeTour } = useTour();
-  return activeTour?.dataSources?.job === "local" ? "local" : "database";
+  const { activePhase } = useWelcomeTour();
+  return activePhase ? "local" : "database";
 }

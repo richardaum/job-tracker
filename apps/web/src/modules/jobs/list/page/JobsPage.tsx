@@ -20,7 +20,8 @@ import { useCreateQuickJob } from "@/modules/jobs/shared/hooks/useCreateQuickJob
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { useUpdateQuickJob } from "@/modules/jobs/shared/hooks/useUpdateQuickJob";
 import { useNewJobWelcomeTour } from "@/modules/welcome-tour/useNewJobWelcomeTour";
-import { WELCOME_TOUR_LABEL } from "@/modules/welcome-tour/welcomeTourSteps";
+import { useWelcomeTour } from "@/modules/welcome-tour/useWelcomeTour";
+import { WELCOME_TOUR_JOB_CREATED_TOAST_STEP, WELCOME_TOUR_LABEL } from "@/modules/welcome-tour/welcomeTourSteps";
 import { WelcomeTourJobsList } from "@/modules/welcome-tour/WelcomeTourJobsList";
 
 function stripSearchKeys(currentSearch: string, keysToRemove: Array<string>): string {
@@ -96,6 +97,7 @@ export default function JobsPage() {
   const newJobDialogRef = useRef<JobQuickEditDialogHandle>(null);
   const [newJobDialogElement, setNewJobDialogElement] = useState<HTMLDivElement | null>(null);
   const [newJobWelcomeTour, dispatchNewJobWelcomeTour] = useNewJobWelcomeTour();
+  const { activePhase, clearCreatedJobToastId, setCreatedJobToastId } = useWelcomeTour();
 
   function showToast(message: string, intent: "success" | "error") {
     enqueueToast({ title: message, intent });
@@ -103,10 +105,21 @@ export default function JobsPage() {
 
   const { createQuickJob, isCreatingQuickJob } = useCreateQuickJob({
     onCreated: (jobId) => {
-      showToast("Job created.", "success");
+      const isWelcomeTourActive = activePhase !== null;
+      const toastId = enqueueToast({
+        title: "Job created.",
+        intent: "success",
+        lifetime: isWelcomeTourActive ? "manual" : "auto",
+        attrs: isWelcomeTourActive ? { "data-welcome-tour-step": WELCOME_TOUR_JOB_CREATED_TOAST_STEP } : undefined,
+      });
+
+      setCreatedJobToastId(toastId);
       router.push(`/jobs/${jobId}`);
     },
-    onError: () => showToast("Something went wrong. Please try again.", "error"),
+    onError: () => {
+      clearCreatedJobToastId();
+      showToast("Something went wrong. Please try again.", "error");
+    },
   });
 
   const { updateQuickJob, isUpdatingQuickJob } = useUpdateQuickJob({

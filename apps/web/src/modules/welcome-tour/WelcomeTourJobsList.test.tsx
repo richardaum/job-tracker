@@ -2,8 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { WelcomeTourJobsList } from "./WelcomeTourJobsList";
-import { TourProvider } from "@/modules/tour/TourProvider";
-import { WELCOME_TOUR_REGISTRY } from "@/modules/welcome-tour/welcomeTourDefinitions";
+import { WelcomeTourProvider } from "@/modules/welcome-tour/WelcomeTourProvider";
 
 const useFeatureFlagEnabledMock = vi.fn();
 const joyridePropsMock = vi.fn();
@@ -64,9 +63,9 @@ describe("WelcomeTourJobsList", () => {
     const portalElement = document.createElement("div");
 
     render(
-      <TourProvider registry={WELCOME_TOUR_REGISTRY}>
+      <WelcomeTourProvider>
         <WelcomeTourJobsList portalElement={portalElement} />
-      </TourProvider>,
+      </WelcomeTourProvider>,
     );
 
     expect(joyridePropsMock).toHaveBeenCalledWith(
@@ -97,7 +96,7 @@ describe("WelcomeTourJobsList", () => {
     );
   });
 
-  it("numbers the create-job step as 5 of the full 21-step welcome tour sequence", () => {
+  it("numbers the create-job step as 5 of the full 23-step welcome tour sequence", () => {
     useFeatureFlagEnabledMock.mockReturnValue(true);
 
     renderWelcomeTour();
@@ -107,7 +106,7 @@ describe("WelcomeTourJobsList", () => {
         steps: expect.arrayContaining([
           expect.objectContaining({
             target: '[data-welcome-tour-step="create-job-button"]',
-            data: expect.objectContaining({ stepNumber: 5, totalSteps: 21 }),
+            data: expect.objectContaining({ stepNumber: 5, totalSteps: 23 }),
           }),
         ]),
       }),
@@ -138,8 +137,8 @@ describe("WelcomeTourJobsList", () => {
 
 function renderWelcomeTour() {
   return render(
-    <TourProvider registry={WELCOME_TOUR_REGISTRY}>
+    <WelcomeTourProvider>
       <WelcomeTourJobsList />
-    </TourProvider>,
+    </WelcomeTourProvider>,
   );
 }

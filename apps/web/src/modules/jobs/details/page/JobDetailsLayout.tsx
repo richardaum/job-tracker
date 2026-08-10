@@ -29,7 +29,7 @@ import { useJobDetails } from "@/modules/jobs/details/hooks/useJobDetails";
 import { JobMatchStatusProvider } from "@/modules/jobs/details/hooks/JobMatchStatusProvider";
 import { useJobDetailsRouteState } from "@/modules/jobs/details/hooks/useJobDetailsRouteState";
 import { useJobPageTitle } from "@/modules/jobs/details/hooks/useJobPageTitle";
-import { useTour } from "@/modules/tour/useTour";
+import { useWelcomeTour } from "@/modules/welcome-tour/useWelcomeTour";
 import { WelcomeTourStatusHistory } from "@/modules/welcome-tour/WelcomeTourStatusHistory";
 import { JobDetailsSubTabs } from "@/modules/jobs/details/job-details-header.slots";
 import { JobDetailsView } from "@/modules/jobs/details/page/JobDetailsView";
@@ -206,8 +206,8 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
   const [statusDialogSaveCount, setStatusDialogSaveCount] = useState(0);
   const statusDialogRef = useRef<UpdateStatusDialogHandle>(null);
   const [statusDialogElement, setStatusDialogElement] = useState<HTMLDivElement | null>(null);
-  const { activeTour } = useTour();
-  const updateStatusDialogDismissible = activeTour?.id !== "welcome-tour";
+  const { activePhase } = useWelcomeTour();
+  const updateStatusDialogDismissible = activePhase === null;
 
   useJobPageTitle(viewModel.job, activeTab);
 
@@ -235,7 +235,6 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
             statusDialogScheduledEnabled={statusDialogScheduledEnabled}
             statusDialogQuickScheduleOption={statusDialogQuickScheduleOption}
             statusDialogSaveCount={statusDialogSaveCount}
-            openStatusHistory={() => setSidePanel("history")}
           >
             <JobDetailsView
               id={id}
@@ -283,7 +282,10 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
             >
               {children}
             </JobDetailsView>
-            <WelcomeTourStatusHistory onReturnToJobs={() => router.push("/jobs")} />
+            <WelcomeTourStatusHistory
+              onOpenStatusHistory={() => setSidePanel("history")}
+              onReturnToJobs={() => router.push("/jobs")}
+            />
           </JobDetailsProvider>
         </JobMatchStatusProvider>
       </JobFillStatusProvider>

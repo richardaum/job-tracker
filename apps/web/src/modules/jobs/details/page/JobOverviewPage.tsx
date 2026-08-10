@@ -11,11 +11,13 @@ import { useJobDetailsContext } from "@/modules/jobs/details/hooks/useJobDetails
 import { useToastQueue } from "@/modules/jobs/shared/hooks/useToastQueue";
 import { useJobDataSource } from "@/modules/jobs/shared/hooks/useJobDataSource";
 import { WelcomeTourJobDetails } from "@/modules/welcome-tour/WelcomeTourJobDetails";
+import { useWelcomeTourCreatedJobToast } from "@/modules/welcome-tour/useWelcomeTourCreatedJobToast";
 
 type JobOverviewPageProps = { jobId: string };
 export function JobOverviewPage({ jobId }: JobOverviewPageProps) {
   const router = useRouter();
   const { enqueueToast } = useToastQueue();
+  const { closeCreatedJobToast } = useWelcomeTourCreatedJobToast();
   const {
     job,
     closeStatusDialog,
@@ -31,7 +33,6 @@ export function JobOverviewPage({ jobId }: JobOverviewPageProps) {
     statusDialogScheduledEnabled,
     statusDialogQuickScheduleOption,
     statusDialogSaveCount,
-    openStatusHistory,
   } = useJobDetailsContext();
   const readOnly = useJobDataSource() === "local";
   const [forceVisibleAction, setForceVisibleAction] = useState<string>();
@@ -65,7 +66,7 @@ export function JobOverviewPage({ jobId }: JobOverviewPageProps) {
         onFocusField={requestStatusDialogFocusField}
         onStatusDialogFreezeSuccessToastChange={onStatusDialogFreezeSuccessToastChange}
         onCloseStatusToast={requestStatusDialogCloseToast}
-        onShowStatusHistory={openStatusHistory}
+        onCloseJobCreatedToast={closeCreatedJobToast}
         isStatusApplied={selectedStatusStage === ApplicationStage.Applied}
         isScreeningSelected={selectedStatusStage === ApplicationStage.RecruiterScreen}
         isCustomDateEnabled={statusDialogScheduledEnabled}

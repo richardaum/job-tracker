@@ -13,6 +13,7 @@ const useQuickFilterCountsQueryMock = vi.fn();
 const useCreateJobMutationMock = vi.fn();
 const useUpdateJobMutationMock = vi.fn();
 const routerPushSpy = vi.fn();
+const useTourMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(navigationMocks.searchParams),
@@ -73,6 +74,8 @@ vi.mock("@/modules/welcome-tour/WelcomeTourJobsList", () => ({ WelcomeTourJobsLi
 
 vi.mock("@/modules/jobs/shared/hooks/useJobDataSource", () => ({ useJobDataSource: () => "database" }));
 
+vi.mock("@/modules/welcome-tour/useWelcomeTour", () => ({ useWelcomeTour: () => useTourMock() }));
+
 describe("JobsPage", () => {
   beforeEach(() => {
     navigationMocks.searchParams = "";
@@ -81,6 +84,7 @@ describe("JobsPage", () => {
     useQuickFilterCountsQueryMock.mockReturnValue({ data: { quickFilterCounts: [] }, loading: false });
     useCreateJobMutationMock.mockReturnValue([vi.fn(), { loading: false }]);
     useUpdateJobMutationMock.mockReturnValue([vi.fn(), { loading: false }]);
+    useTourMock.mockReturnValue({ activePhase: null });
   });
 
   it("passes DRAFT filter to Jobs query when URL has q=draft", () => {

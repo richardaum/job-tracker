@@ -1,32 +1,39 @@
 "use client";
 
 import { useFeatureFlagEnabled } from "posthog-js/react";
+import { ACTIONS } from "react-joyride";
 
-import { JoyrideSegmentedTour } from "@/modules/tour/JoyrideSegmentedTour";
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
+import { WelcomeTourJoyride } from "@/modules/welcome-tour/WelcomeTourJoyride";
 import {
   WELCOME_TOUR_FEATURE_FLAG,
   WELCOME_TOUR_LABEL,
   pickWelcomeTourSteps,
 } from "@/modules/welcome-tour/welcomeTourSteps";
-import { useTour } from "@/modules/tour/useTour";
+import { useWelcomeTour } from "@/modules/welcome-tour/useWelcomeTour";
 
-type WelcomeTourStatusHistoryProps = { onReturnToJobs: () => void };
+type WelcomeTourStatusHistoryProps = { onOpenStatusHistory: () => void; onReturnToJobs: () => void };
 
-/** Completes the welcome tour by highlighting the scheduled status event. */
-export function WelcomeTourStatusHistory({ onReturnToJobs }: WelcomeTourStatusHistoryProps) {
+/** Completes the welcome tour by opening the Status tab, then highlighting the scheduled event. */
+export function WelcomeTourStatusHistory({ onOpenStatusHistory, onReturnToJobs }: WelcomeTourStatusHistoryProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
-  const { activeTour } = useTour();
+  const { activePhase } = useWelcomeTour();
 
-  if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour" || activeTour.phase !== "status-history") {
+  if (welcomeTourEnabled !== true || activePhase !== "status-history") {
     return null;
   }
 
   return (
-    <JoyrideSegmentedTour
+    <WelcomeTourJoyride
       run
       continuous
-      steps={pickWelcomeTourSteps(["update-status-timeline"], WELCOME_TOUR_LABEL)}
+      steps={pickWelcomeTourSteps(["status-panel-tab", "update-status-timeline"], WELCOME_TOUR_LABEL, {
+        "status-panel-tab": {
+          after: ({ action }) => {
+            if (action === ACTIONS.NEXT) onOpenStatusHistory();
+          },
+        },
+      })}
       onTourComplete={onReturnToJobs}
       locale={{ last: "Got it" }}
       options={{

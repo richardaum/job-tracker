@@ -5,8 +5,8 @@ import { useFeatureFlagEnabled } from "posthog-js/react";
 import { useEffect, useRef, useState } from "react";
 import type { Controls } from "react-joyride";
 
-import { JoyrideSegmentedTour } from "@/modules/tour/JoyrideSegmentedTour";
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
+import { WelcomeTourJoyride } from "@/modules/welcome-tour/WelcomeTourJoyride";
 import type { UpdateStatusDialogRestrictedTarget } from "@/modules/jobs/details/components/update-status-dialog-inert";
 import {
   WELCOME_TOUR_LABEL,
@@ -14,7 +14,7 @@ import {
   pickWelcomeTourSteps,
   type WelcomeTourStepId,
 } from "@/modules/welcome-tour/welcomeTourSteps";
-import { useTour } from "@/modules/tour/useTour";
+import { useWelcomeTour } from "@/modules/welcome-tour/useWelcomeTour";
 
 const UPDATE_STATUS_FIELD_TARGET = '[data-welcome-tour-step="update-status-applied"]';
 const UPDATE_STATUS_CUSTOM_DATE_TARGET = '[data-welcome-tour-step="update-status-custom-date"]';
@@ -31,7 +31,7 @@ type WelcomeTourJobDetailsProps = {
   onFocusField: (field: UpdateStatusDialogRestrictedTarget) => void;
   onStatusDialogFreezeSuccessToastChange: (freeze: boolean) => void;
   onCloseStatusToast: () => void;
-  onShowStatusHistory: () => void;
+  onCloseJobCreatedToast: () => void;
   isStatusApplied?: boolean;
   isScreeningSelected?: boolean;
   isCustomDateEnabled?: boolean;
@@ -50,7 +50,7 @@ export function WelcomeTourJobDetails({
   onFocusField,
   onStatusDialogFreezeSuccessToastChange,
   onCloseStatusToast,
-  onShowStatusHistory,
+  onCloseJobCreatedToast,
   isStatusApplied = false,
   isScreeningSelected = false,
   isCustomDateEnabled = false,
@@ -58,7 +58,7 @@ export function WelcomeTourJobDetails({
   statusDialogSaveCount,
 }: WelcomeTourJobDetailsProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
-  const { activeTour } = useTour();
+  const { activePhase } = useWelcomeTour();
   const tourControlsRef = useRef<Controls | null>(null);
   const isCustomDateStepActiveRef = useRef(false);
   const wasCustomDateEnabledRef = useRef(isCustomDateEnabled);
@@ -73,7 +73,7 @@ export function WelcomeTourJobDetails({
     wasCustomDateEnabledRef.current = isCustomDateEnabled;
 
     if (
-      activeTour?.phase !== "update-status" ||
+      activePhase !== "update-status" ||
       !isCustomDateStepActiveRef.current ||
       wasCustomDateEnabled ||
       !isCustomDateEnabled
@@ -83,14 +83,14 @@ export function WelcomeTourJobDetails({
 
     isCustomDateStepActiveRef.current = false;
     tourControlsRef.current?.next();
-  }, [activeTour?.phase, isCustomDateEnabled]);
+  }, [activePhase, isCustomDateEnabled]);
 
   useEffect(() => {
     const previousQuickScheduleOption = previousQuickScheduleOptionRef.current;
     previousQuickScheduleOptionRef.current = selectedQuickScheduleOption;
 
     if (
-      activeTour?.phase !== "update-status" ||
+      activePhase !== "update-status" ||
       !isInterviewStepActiveRef.current ||
       previousQuickScheduleOption === "+3d" ||
       selectedQuickScheduleOption !== "+3d"
@@ -100,14 +100,14 @@ export function WelcomeTourJobDetails({
 
     isInterviewStepActiveRef.current = false;
     tourControlsRef.current?.next();
-  }, [activeTour?.phase, selectedQuickScheduleOption]);
+  }, [activePhase, selectedQuickScheduleOption]);
 
   useEffect(() => {
     const previousStatusDialogSaveCount = previousStatusDialogSaveCountRef.current;
     previousStatusDialogSaveCountRef.current = statusDialogSaveCount;
 
     if (
-      activeTour?.phase !== "update-status" ||
+      activePhase !== "update-status" ||
       !isScheduledSaveStepActive ||
       statusDialogSaveCount === previousStatusDialogSaveCount
     ) {
@@ -115,25 +115,20 @@ export function WelcomeTourJobDetails({
     }
 
     setHasScheduledStatusBeenSaved(true);
-  }, [activeTour?.phase, isScheduledSaveStepActive, statusDialogSaveCount]);
+  }, [activePhase, isScheduledSaveStepActive, statusDialogSaveCount]);
 
   useEffect(() => {
-    if (activeTour?.phase !== "update-status" || !isScheduledSaveStepActive || !hasScheduledStatusBeenSaved) {
+    if (activePhase !== "update-status" || !isScheduledSaveStepActive || !hasScheduledStatusBeenSaved) {
       return;
     }
 
     tourControlsRef.current?.next();
-  }, [activeTour?.phase, hasScheduledStatusBeenSaved, isScheduledSaveStepActive]);
+  }, [activePhase, hasScheduledStatusBeenSaved, isScheduledSaveStepActive]);
 
-  if (
-    welcomeTourEnabled !== true ||
-    activeTour?.id !== "welcome-tour" ||
-    (activeTour.phase !== "job-details" && activeTour.phase !== "update-status")
-  )
-    return null;
+  if (welcomeTourEnabled !== true || (activePhase !== "job-details" && activePhase !== "update-status")) return null;
 
   const stepIds: WelcomeTourStepId[] =
-    activeTour.phase === "update-status"
+    activePhase === "update-status"
       ? [
           "update-status-button",
           "update-status-applied",
@@ -145,8 +140,20 @@ export function WelcomeTourJobDetails({
           "update-status-interview",
           "update-status-scheduled-save",
         ]
-      : ["job-detail-title", "job-status", "job-company", "job-field-actions", "job-description-tab"];
+      : [
+          "job-created-toast",
+          "job-detail-title",
+          "job-status",
+          "job-company",
+          "job-field-actions",
+          "job-description-tab",
+        ];
   const steps = pickWelcomeTourSteps(stepIds, WELCOME_TOUR_LABEL, {
+    "job-created-toast": {
+      after: ({ action }) => {
+        if (action === ACTIONS.NEXT) onCloseJobCreatedToast();
+      },
+    },
     "job-field-actions": {
       before: async () => onFieldActionsVisibilityChange(true),
       after: () => onFieldActionsVisibilityChange(false),
@@ -213,14 +220,18 @@ export function WelcomeTourJobDetails({
   });
 
   return (
-    <JoyrideSegmentedTour
+    <WelcomeTourJoyride
       run
       continuous
       steps={steps}
       portalElement={portalElement ?? undefined}
-      onSegmentComplete={activeTour.phase === "job-details" ? onDescriptionOpen : onShowStatusHistory}
+      onSegmentComplete={activePhase === "job-details" ? onDescriptionOpen : undefined}
       onEvent={(event, controls) => {
         tourControlsRef.current = controls;
+        if (event.type === EVENTS.TOUR_END) {
+          onCloseJobCreatedToast();
+          return;
+        }
         if (event.type !== EVENTS.TOOLTIP) return;
         isCustomDateStepActiveRef.current = event.step.target === UPDATE_STATUS_CUSTOM_DATE_TARGET;
         isInterviewStepActiveRef.current = event.step.target === UPDATE_STATUS_INTERVIEW_TARGET;

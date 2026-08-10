@@ -99,7 +99,7 @@ vi.mock("@/modules/jobs/details/hooks/useJobDetailsViewModel", () => ({
 
 vi.mock("@/modules/jobs/shared/hooks/useJobDataSource", () => ({ useJobDataSource: () => "database" }));
 
-vi.mock("@/modules/tour/useTour", () => ({ useTour: () => ({ activeTour: null, startTour: vi.fn() }) }));
+vi.mock("@/modules/welcome-tour/useWelcomeTour", () => ({ useWelcomeTour: () => ({ activePhase: null }) }));
 
 vi.mock("@/modules/jobs/details/page/JobOverviewPage", () => ({
   JobOverviewPage: () => <div data-testid="overview-tab-mock" />,

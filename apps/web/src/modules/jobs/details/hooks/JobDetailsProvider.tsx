@@ -25,7 +25,6 @@ export function JobDetailsProvider({
   statusDialogScheduledEnabled,
   statusDialogQuickScheduleOption,
   statusDialogSaveCount,
-  openStatusHistory,
   children,
 }: JobDetailsProviderProps) {
   return (
@@ -48,7 +47,6 @@ export function JobDetailsProvider({
         statusDialogScheduledEnabled,
         statusDialogQuickScheduleOption,
         statusDialogSaveCount,
-        openStatusHistory,
       }}
     >
       {children}

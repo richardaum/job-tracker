@@ -9,7 +9,7 @@ type HistoryTabProps = { jobId: string; fullWidth?: boolean };
 export function HistoryTab({ jobId, fullWidth }: HistoryTabProps) {
   const href = jobDetailsHref(`/jobs/${jobId}/history`, { fullWidth });
   return (
-    <DetailsTabTrigger tab="history" href={href}>
+    <DetailsTabTrigger tab="history" href={href} data-welcome-tour-step="status-panel-tab">
       History
     </DetailsTabTrigger>
   );

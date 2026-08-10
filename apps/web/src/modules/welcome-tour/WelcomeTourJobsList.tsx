@@ -6,14 +6,14 @@ import { ACTIONS, EVENTS } from "react-joyride";
 import { useFeatureFlagEnabled } from "posthog-js/react";
 import { useEffect } from "react";
 
-import { JoyrideSegmentedTour } from "@/modules/tour/JoyrideSegmentedTour";
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
+import { WelcomeTourJoyride } from "@/modules/welcome-tour/WelcomeTourJoyride";
 import {
   WELCOME_TOUR_LABEL,
   WELCOME_TOUR_FEATURE_FLAG,
   pickWelcomeTourSteps,
 } from "@/modules/welcome-tour/welcomeTourSteps";
-import { useTour } from "@/modules/tour/useTour";
+import { useWelcomeTour } from "@/modules/welcome-tour/useWelcomeTour";
 
 export interface WelcomeTourJobsListProps {
   tourLabel?: ReactNode;
@@ -39,14 +39,13 @@ export function WelcomeTourJobsList({
   isJobCompanyFilled = false,
 }: WelcomeTourJobsListProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
-  const { activeTour, startTour } = useTour();
+  const { activePhase, start } = useWelcomeTour();
 
   useEffect(() => {
-    if (welcomeTourEnabled === true) startTour("welcome-tour");
-  }, [startTour, welcomeTourEnabled]);
+    if (welcomeTourEnabled === true) start();
+  }, [start, welcomeTourEnabled]);
 
-  if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour" || activeTour.phase !== "job-creation")
-    return null;
+  if (welcomeTourEnabled !== true || activePhase !== "job-creation") return null;
 
   const steps = pickWelcomeTourSteps(
     ["welcome", "new-job-button", "job-title-input", "job-company-input", "create-job-button"],
@@ -76,7 +75,7 @@ export function WelcomeTourJobsList({
   );
 
   return (
-    <JoyrideSegmentedTour
+    <WelcomeTourJoyride
       run
       continuous
       steps={steps}

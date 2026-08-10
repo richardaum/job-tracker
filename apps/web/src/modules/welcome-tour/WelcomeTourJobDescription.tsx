@@ -2,14 +2,14 @@
 
 import { useFeatureFlagEnabled } from "posthog-js/react";
 
-import { JoyrideSegmentedTour } from "@/modules/tour/JoyrideSegmentedTour";
 import { WelcomeTourTooltip } from "@/modules/welcome-tour/WelcomeTourTooltip";
+import { WelcomeTourJoyride } from "@/modules/welcome-tour/WelcomeTourJoyride";
 import {
   WELCOME_TOUR_LABEL,
   WELCOME_TOUR_FEATURE_FLAG,
   pickWelcomeTourSteps,
 } from "@/modules/welcome-tour/welcomeTourSteps";
-import { useTour } from "@/modules/tour/useTour";
+import { useWelcomeTour } from "@/modules/welcome-tour/useWelcomeTour";
 
 /**
  * Continues the welcome tour on the Description route. It is deliberately a
@@ -19,13 +19,12 @@ type WelcomeTourJobDescriptionProps = { onOverviewOpen: () => void };
 
 export function WelcomeTourJobDescription({ onOverviewOpen }: WelcomeTourJobDescriptionProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
-  const { activeTour } = useTour();
+  const { activePhase } = useWelcomeTour();
 
-  if (welcomeTourEnabled !== true || activeTour?.id !== "welcome-tour" || activeTour.phase !== "job-description")
-    return null;
+  if (welcomeTourEnabled !== true || activePhase !== "job-description") return null;
 
   return (
-    <JoyrideSegmentedTour
+    <WelcomeTourJoyride
       run
       continuous
       steps={pickWelcomeTourSteps(["job-description-editor"], WELCOME_TOUR_LABEL)}
