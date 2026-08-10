@@ -18,6 +18,7 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   asChild?: boolean;
+  onElementChange?: (element: HTMLButtonElement | null) => void;
 }
 
 const defaultScheme: Record<ButtonIntent, ButtonScheme> = {
@@ -59,6 +60,7 @@ export function Button({
   leftIcon,
   rightIcon,
   asChild,
+  onElementChange,
   className,
   disabled,
   ...props
@@ -79,6 +81,7 @@ export function Button({
     <Component
       {...(asChild ? {} : { type: "button" as const })}
       {...props}
+      ref={asChild ? undefined : onElementChange}
       disabled={isDisabled}
       aria-busy={isLoading ? true : undefined}
       className={classes}

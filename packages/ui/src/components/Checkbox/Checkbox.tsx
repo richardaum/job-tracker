@@ -8,6 +8,7 @@ export interface CheckboxProps {
   disabled?: boolean;
   required?: boolean;
   id?: string;
+  tabIndex?: number;
   name?: string;
   value?: string;
   state?: "default" | "error";
@@ -33,6 +34,7 @@ export function Checkbox({
   disabled = false,
   required = false,
   id,
+  tabIndex,
   name,
   value,
   state = "default",
@@ -43,6 +45,7 @@ export function Checkbox({
     <RadixCheckbox.Root
       ref={onElementChange}
       id={id}
+      tabIndex={tabIndex}
       name={name}
       value={value}
       checked={checked}
