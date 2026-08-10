@@ -16,6 +16,8 @@ export interface ToastItem {
   actionLabel?: string;
   onAction?: () => void;
   open?: boolean;
+  durationMs?: number;
+  "data-welcome-tour-step"?: string;
 }
 
 export interface ToastProps {
@@ -125,12 +127,14 @@ export function Toast({
     <RadixToast.Provider swipeDirection="right">
       {queue.map((toastItem) => {
         const currentIntent = toastItem.intent ?? "info";
+        const itemDurationMs = toastItem.durationMs ?? durationMs;
 
         return (
           <RadixToast.Root
             key={toastItem.id}
             open={toastItem.open ?? true}
-            duration={durationMs}
+            duration={itemDurationMs}
+            data-welcome-tour-step={toastItem["data-welcome-tour-step"]}
             onOpenChange={(nextOpen) => {
               if (toastItem.id === "single") {
                 handleOpenChange(nextOpen);
@@ -177,7 +181,7 @@ export function Toast({
             >
               <XIcon size={14} weight="regular" />
             </RadixToast.Close>
-            <ToastProgress durationMs={durationMs} />
+            <ToastProgress durationMs={itemDurationMs} />
           </RadixToast.Root>
         );
       })}

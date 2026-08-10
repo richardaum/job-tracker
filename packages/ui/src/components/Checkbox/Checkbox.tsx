@@ -12,6 +12,7 @@ export interface CheckboxProps {
   value?: string;
   state?: "default" | "error";
   size?: "sm" | "md";
+  onElementChange?: (element: HTMLButtonElement | null) => void;
 }
 
 const sizeClasses: Record<NonNullable<CheckboxProps["size"]>, string> = { sm: "size-4", md: "size-5" };
@@ -36,9 +37,11 @@ export function Checkbox({
   value,
   state = "default",
   size = "md",
+  onElementChange,
 }: CheckboxProps) {
   return (
     <RadixCheckbox.Root
+      ref={onElementChange}
       id={id}
       name={name}
       value={value}

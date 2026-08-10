@@ -130,6 +130,7 @@ export { Text } from "./components/Typography/Text";
 export type { WizardProps, WizardSidebarProps, WizardStep } from "./components/Wizard/Wizard";
 export { Wizard, WizardMain, WizardSidebar } from "./components/Wizard/Wizard";
 export { useAsyncEffect } from "./hooks/useAsyncEffect";
+export { useControlledState } from "./hooks/useControlledState";
 export type { DialogControl } from "./hooks/useDialog";
 export { useDialog } from "./hooks/useDialog";
 export { conceptIcon } from "./icons/concept-map";
