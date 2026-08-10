@@ -30,7 +30,9 @@ function DetailPageHeader({
           <div className={cn("pointer-events-auto flex shrink-0 items-start justify-end gap-2")}>{trailing}</div>
         </div>
       ) : null}
-      <div className={cn("flex flex-col", stackClassName, hasTrailing ? trailingOffsetClassName : undefined)}>{children}</div>
+      <div className={cn("flex flex-col", stackClassName, hasTrailing ? trailingOffsetClassName : undefined)}>
+        {children}
+      </div>
     </div>
   );
 }

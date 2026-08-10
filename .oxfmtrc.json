@@ -23,6 +23,7 @@
     ".cursor/skills",
     ".windsurf/skills",
     "specs/INDEX.md",
-    "apps/web/src/gql"
+    "apps/web/src/gql",
+    "apps/api/src/schema.gql"
   ]
 }
