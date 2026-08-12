@@ -16,6 +16,7 @@ import { SourceTemplateEntity } from "./entities/source-template.entity";
 import { UserEntity } from "./entities/user.entity";
 import { UserAccountEntity } from "./entities/user-account.entity";
 import { UserSettingEntity } from "./entities/user-setting.entity";
+import { UserTourProgressEntity } from "./entities/user-tour-progress.entity";
 import { WorkPreferencesEntity } from "./entities/work-preferences.entity";
 import { migrations } from "./migrations";
 import { SnakeCaseNamingStrategy } from "./naming-strategy";
@@ -39,6 +40,7 @@ export const apiEntities = [
   MatchAnalysisEntity,
   WorkPreferencesEntity,
   UserSettingEntity,
+  UserTourProgressEntity,
 ];
 
 export const apiSubscribers = [UuidGenerateSubscriber];
