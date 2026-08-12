@@ -118,6 +118,25 @@ describe("QuickFilters", () => {
     expect(draftChip.getAttribute("class")).toContain("border-brand");
   });
 
+  it("marks the Active chip as the final welcome-tour filter target", () => {
+    render(<QuickFilters />);
+
+    expect(screen.getByRole("button", { name: /^Active/ })).toHaveAttribute(
+      "data-welcome-tour-step",
+      "active-jobs-filter",
+    );
+  });
+
+  it("restricts keyboard interaction to the requested filter", () => {
+    render(<QuickFilters restrictInteractionTo="active" />);
+
+    const activeFilter = screen.getByRole("button", { name: /^Active/ });
+    const draftFilter = screen.getByRole("button", { name: /^Draft/ });
+
+    expect(activeFilter).not.toHaveAttribute("tabindex", "-1");
+    expect(draftFilter).toHaveAttribute("tabindex", "-1");
+  });
+
   it("toggle off All uses explicit q=incoming (preserves other params)", async () => {
     navigationMocks.searchParams = "q=all&company=Acme";
     const user = userEvent.setup();

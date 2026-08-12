@@ -14,6 +14,7 @@ const useCreateJobMutationMock = vi.fn();
 const useUpdateJobMutationMock = vi.fn();
 const routerPushSpy = vi.fn();
 const useTourMock = vi.fn();
+const useJobDataSourceMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(navigationMocks.searchParams),
@@ -72,19 +73,21 @@ vi.mock("@/modules/jobs/details/components/SalaryEditDialog", () => ({ SalaryEdi
 
 vi.mock("@/modules/welcome-tour/WelcomeTourJobsList", () => ({ WelcomeTourJobsList: () => null }));
 
-vi.mock("@/modules/jobs/shared/hooks/useJobDataSource", () => ({ useJobDataSource: () => "database" }));
+vi.mock("@/modules/jobs/shared/hooks/useJobDataSource", () => ({ useJobDataSource: () => useJobDataSourceMock() }));
 
 vi.mock("@/modules/welcome-tour/useWelcomeTour", () => ({ useWelcomeTour: () => useTourMock() }));
 
 describe("JobsPage", () => {
   beforeEach(() => {
     navigationMocks.searchParams = "";
+    window.localStorage.clear();
     routerPushSpy.mockClear();
     vi.clearAllMocks();
     useQuickFilterCountsQueryMock.mockReturnValue({ data: { quickFilterCounts: [] }, loading: false });
     useCreateJobMutationMock.mockReturnValue([vi.fn(), { loading: false }]);
     useUpdateJobMutationMock.mockReturnValue([vi.fn(), { loading: false }]);
     useTourMock.mockReturnValue({ activePhase: null });
+    useJobDataSourceMock.mockReturnValue("database");
   });
 
   it("passes DRAFT filter to Jobs query when URL has q=draft", () => {
@@ -293,6 +296,49 @@ describe("JobsPage", () => {
     const postingLink = screen.getByRole("link", { name: /view posting/i });
     expect(postingLink).toBeVisible();
     expect(postingLink).toHaveAttribute("target", "_blank");
+  });
+
+  it("shows the created tutorial job and sample jobs after selecting Active", () => {
+    navigationMocks.searchParams = "q=active";
+    useJobDataSourceMock.mockReturnValue("local");
+    window.localStorage.setItem(
+      "job-tracker:welcome-tour-job-draft:v1",
+      JSON.stringify({
+        id: "welcome-tour-job",
+        title: "My new role",
+        company: "Acme",
+        createdAt: "2026-08-12T14:00:00.000Z",
+        stageEvents: [
+          {
+            id: "welcome-tour-stage-event-1",
+            fromStage: "Applied",
+            toStage: "RecruiterScreen",
+            reason: null,
+            scheduledAt: "2026-08-15T14:00:00.000Z",
+            createdAt: "2026-08-12T14:00:00.000Z",
+          },
+        ],
+      }),
+    );
+    useJobStageEventsQueryMock.mockReturnValue({ data: { jobStageEvents: [] }, loading: false, error: undefined });
+    useCurrentUserMock.mockReturnValue({
+      user: { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: null },
+    });
+    useJobsQueryMock.mockReturnValue({ data: undefined, loading: false, error: undefined });
+
+    render(<JobsPage />);
+
+    expect(screen.getByText("My new role")).toBeInTheDocument();
+    expect(screen.getByText("Senior Frontend Engineer")).toBeInTheDocument();
+    expect(screen.getByText("Product Engineer")).toBeInTheDocument();
+    expect(screen.getByText("Full-stack Engineer")).toBeInTheDocument();
+    expect(screen.getAllByRole("link").map((link) => link.textContent)).toEqual([
+      "My new role",
+      "Senior Frontend Engineer",
+      "Product Engineer",
+      "Full-stack Engineer",
+    ]);
+    expect(useJobsQueryMock).toHaveBeenCalledWith(expect.objectContaining({ skip: true }));
   });
 
   it("renders empty state when user has no jobs", () => {

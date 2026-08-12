@@ -8,9 +8,17 @@ import { WelcomeTourStatusHistory } from "./WelcomeTourStatusHistory";
 
 const useFeatureFlagEnabledMock = vi.fn();
 const joyridePropsMock = vi.fn();
+const useTourProgressQueryMock = vi.fn();
+const saveTourProgressMock = vi.fn();
 
 vi.mock("posthog-js/react", () => ({
   useFeatureFlagEnabled: (...args: unknown[]) => useFeatureFlagEnabledMock(...args),
+}));
+
+vi.mock("@/gql/hooks", () => ({
+  TourProgressStatus: { InProgress: "InProgress", Completed: "Completed", Skipped: "Skipped" },
+  useSaveTourProgressMutation: () => [saveTourProgressMock],
+  useTourProgressQuery: (...args: unknown[]) => useTourProgressQueryMock(...args),
 }));
 
 vi.mock("react-joyride", () => ({
@@ -40,6 +48,8 @@ describe("WelcomeTourStatusHistory", () => {
       JSON.stringify({ active: true, tourId: "welcome-tour", phase: "status-history" }),
     );
     useFeatureFlagEnabledMock.mockReturnValue(true);
+    useTourProgressQueryMock.mockReturnValue({ data: undefined, loading: false });
+    saveTourProgressMock.mockResolvedValue(undefined);
   });
 
   it("opens the Status tab after its guided step", async () => {
@@ -53,11 +63,11 @@ describe("WelcomeTourStatusHistory", () => {
         steps: [
           expect.objectContaining({
             target: '[data-welcome-tour-step="status-panel-tab"]',
-            data: expect.objectContaining({ stepNumber: 22, totalSteps: 23 }),
+            data: expect.objectContaining({ stepNumber: 22, totalSteps: 25 }),
           }),
           expect.objectContaining({
             target: '[data-welcome-tour-step="update-status-timeline"]',
-            data: expect.objectContaining({ stepNumber: 23, totalSteps: 23 }),
+            data: expect.objectContaining({ stepNumber: 23, totalSteps: 25 }),
           }),
         ],
       }),
