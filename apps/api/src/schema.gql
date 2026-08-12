@@ -453,6 +453,24 @@ type PreferenceType {
   weight: Weight!
 }
 
+type TourProgressType {
+  id: ID!
+  tourId: String!
+  tourVersion: Int!
+  status: TourProgressStatus!
+  currentStepId: String
+  completedAt: DateTime
+  skippedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum TourProgressStatus {
+  InProgress
+  Completed
+  Skipped
+}
+
 type Query {
   users: [UserType!]!
   me: UserType!
@@ -481,6 +499,7 @@ type Query {
   resumes: [ResumeType!]!
   resume(id: ID!): ResumeType!
   workPreferences: [PreferenceType!]!
+  tourProgress(tourId: String!): TourProgressType
   matchAnalyses: [MatchAnalysisType!]!
   match(id: ID!): MatchAnalysisType!
   jobMatch(jobId: ID!): MatchAnalysisType
@@ -529,6 +548,7 @@ type Mutation {
   updateResume(id: ID!, input: UpdateResumeInput!): ResumeType!
   deleteResume(id: ID!): DeleteMutationPayloadType!
   updateWorkPreferences(items: [PreferenceInput!]!): [PreferenceType!]!
+  saveTourProgress(input: SaveTourProgressInput!): TourProgressType!
   generateJobMatch(input: GenerateMatchInput!): MatchAnalysisType!
   deleteMatchAnalysis(id: ID!): DeleteMutationPayloadType!
   createAiConversation(jobId: ID!): AiConversationType!
@@ -677,6 +697,13 @@ input UpdateResumeInput {
 input PreferenceInput {
   text: String!
   weight: Weight!
+}
+
+input SaveTourProgressInput {
+  tourId: String!
+  tourVersion: Int!
+  status: TourProgressStatus!
+  currentStepId: String
 }
 
 input GenerateMatchInput {

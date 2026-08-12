@@ -23,6 +23,7 @@ import { ResumesModule } from "./domains/resumes/resumes.module";
 import { SettingsModule } from "./domains/settings/settings.module";
 import { SourcesModule } from "./domains/sources/sources.module";
 import { WorkPreferencesModule } from "./domains/work-preferences/work-preferences.module";
+import { WelcomeTourModule } from "./domains/welcome-tour/welcome-tour.module";
 import { apiEnv } from "./env/server";
 import { fixSubscriptionResolve } from "./graphql/fix-subscription-resolve";
 import { graphqlFormatError } from "./graphql/graphql-format-error";
@@ -45,6 +46,7 @@ import { parseWsCookies } from "./graphql/parse-ws-cookies";
     ResumesModule,
     SettingsModule,
     WorkPreferencesModule,
+    WelcomeTourModule,
     MatchAnalysisModule,
     AiChatModule,
     AiModule,
