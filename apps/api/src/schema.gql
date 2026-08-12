@@ -549,6 +549,7 @@ type Mutation {
   deleteResume(id: ID!): DeleteMutationPayloadType!
   updateWorkPreferences(items: [PreferenceInput!]!): [PreferenceType!]!
   saveTourProgress(input: SaveTourProgressInput!): TourProgressType!
+  resetTourProgress(input: ResetTourProgressInput!): TourProgressType!
   generateJobMatch(input: GenerateMatchInput!): MatchAnalysisType!
   deleteMatchAnalysis(id: ID!): DeleteMutationPayloadType!
   createAiConversation(jobId: ID!): AiConversationType!
@@ -704,6 +705,12 @@ input SaveTourProgressInput {
   tourVersion: Int!
   status: TourProgressStatus!
   currentStepId: String
+}
+
+input ResetTourProgressInput {
+  tourId: String!
+  tourVersion: Int!
+  currentStepId: String!
 }
 
 input GenerateMatchInput {

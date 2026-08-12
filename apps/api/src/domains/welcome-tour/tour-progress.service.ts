@@ -1,7 +1,7 @@
 import { TourProgressStatusEnum } from "@api/domains/welcome-tour/tour-progress-status.enum";
 import { BadRequestException, Injectable } from "@nestjs/common";
 
-import type { SaveTourProgressDto, TourProgress } from "./tour-progress.schema";
+import type { ResetTourProgressDto, SaveTourProgressDto, TourProgress } from "./tour-progress.schema";
 import { TourProgressRepository } from "./tour-progress.repository";
 
 @Injectable()
@@ -28,6 +28,18 @@ export class TourProgressService {
     }
 
     const progress = existing ?? this.repo.create(userId, progressDto);
+    return this.persistProgress(progress, progressDto);
+  }
+
+  async reset(userId: string, dto: ResetTourProgressDto): Promise<TourProgress> {
+    const progressDto = normalizeProgressDto({ ...dto, status: TourProgressStatusEnum.InProgress });
+    const existing = await this.repo.findByUserAndTourId(userId, progressDto.tourId);
+    const progress = existing ?? this.repo.create(userId, progressDto);
+
+    return this.persistProgress(progress, progressDto);
+  }
+
+  private persistProgress(progress: TourProgress, progressDto: SaveTourProgressDto): Promise<TourProgress> {
     progress.tourVersion = progressDto.tourVersion;
     progress.status = progressDto.status;
     progress.currentStepId = progressDto.currentStepId ?? null;

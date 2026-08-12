@@ -101,6 +101,25 @@ describe("TourProgressService", () => {
     expect(progress.status).toBe(TourProgressStatusEnum.InProgress);
     expect(progress.completedAt).toBeNull();
   });
+
+  it("resets a terminal tour to its first step without changing the tour version", async () => {
+    const progress = createProgress({
+      status: TourProgressStatusEnum.Completed,
+      tourVersion: 1,
+      completedAt: new Date(),
+      currentStepId: null,
+    });
+    repo.findByUserAndTourId.mockResolvedValue(progress);
+    repo.save.mockResolvedValue(progress);
+
+    await service.reset("user-1", { tourId: " welcome-tour ", tourVersion: 1, currentStepId: " job-creation " });
+
+    expect(progress.tourVersion).toBe(1);
+    expect(progress.status).toBe(TourProgressStatusEnum.InProgress);
+    expect(progress.currentStepId).toBe("job-creation");
+    expect(progress.completedAt).toBeNull();
+    expect(progress.skippedAt).toBeNull();
+  });
 });
 
 function createProgress(overrides: Partial<UserTourProgressEntity> = {}): UserTourProgressEntity {

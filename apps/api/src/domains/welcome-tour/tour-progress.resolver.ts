@@ -6,6 +6,7 @@ import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 
+import { ResetTourProgressInput } from "./reset-tour-progress.input";
 import { SaveTourProgressInput } from "./save-tour-progress.input";
 import { TourProgressService } from "./tour-progress.service";
 import { TourProgressType } from "./tour-progress.type";
@@ -30,5 +31,13 @@ export class TourProgressResolver {
     @CurrentUser() user: { userId: string },
   ): Promise<TourProgressType> {
     return this.service.save(user.userId, input);
+  }
+
+  @Mutation(() => TourProgressType)
+  resetTourProgress(
+    @Args("input") input: ResetTourProgressInput,
+    @CurrentUser() user: { userId: string },
+  ): Promise<TourProgressType> {
+    return this.service.reset(user.userId, input);
   }
 }
