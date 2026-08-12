@@ -45,6 +45,14 @@ export function getWelcomeTourJobDraftRevision() {
   return draftRevision;
 }
 
+/** Clears the tutorial-only job persisted from a previous tour run. */
+export function clearWelcomeTourJobDraft() {
+  if (typeof window === "undefined") return;
+
+  const [error] = tryRun(() => window.localStorage.removeItem(WELCOME_TOUR_JOB_DRAFT_STORAGE_KEY));
+  if (!error) notifyDraftListeners();
+}
+
 /**
  * Stores the tutorial-only job separately from the GraphQL job collection.
  *
