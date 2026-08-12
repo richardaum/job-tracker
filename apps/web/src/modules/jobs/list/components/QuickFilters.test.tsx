@@ -8,6 +8,7 @@ const navigationMocks = { searchParams: "" };
 const routerPushSpy = vi.fn();
 
 const useQuickFilterCountsQueryMock = vi.fn();
+const useWelcomeTourMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/jobs",
@@ -27,6 +28,8 @@ vi.mock("@/gql/hooks", () => ({
   },
   useQuickFilterCountsQuery: (...args: unknown[]) => useQuickFilterCountsQueryMock(...args),
 }));
+
+vi.mock("@/modules/welcome-tour/useWelcomeTour", () => ({ useWelcomeTour: () => useWelcomeTourMock() }));
 
 function queryFromRouterPush(callIndex = 0) {
   const target = routerPushSpy.mock.calls[callIndex]?.[0] as string | undefined;
@@ -58,6 +61,7 @@ describe("QuickFilters", () => {
   beforeEach(() => {
     navigationMocks.searchParams = "";
     routerPushSpy.mockClear();
+    useWelcomeTourMock.mockReturnValue({ activePhase: null });
     useQuickFilterCountsQueryMock.mockReturnValue(defaultQuickFilterCounts());
   });
 
@@ -90,6 +94,17 @@ describe("QuickFilters", () => {
     expect(screen.getByRole("button", { name: /^New/ })).toHaveTextContent("New");
     expect(screen.getByRole("button", { name: /^Duplicated/ })).toHaveTextContent("Duplicated");
     expect(screen.queryByText("(0)")).not.toBeInTheDocument();
+  });
+
+  it("hides real counts during the initial welcome-tour step", () => {
+    useWelcomeTourMock.mockReturnValue({ activePhase: "job-creation" });
+
+    render(<QuickFilters />);
+
+    expect(screen.getByRole("button", { name: "All" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Incoming" })).toBeInTheDocument();
+    expect(screen.queryByText(/\(\d+\)/)).not.toBeInTheDocument();
+    expect(useQuickFilterCountsQueryMock).toHaveBeenCalledWith(expect.objectContaining({ skip: true }));
   });
 
   it("All chip shows total sum of all counts", () => {

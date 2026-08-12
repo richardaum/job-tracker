@@ -439,6 +439,7 @@ export type Mutation = {
   reportExtensionActivity: ExtensionActivityEvent;
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
+  resetTourProgress: TourProgressType;
   saveOpenAiKey: UserSetting;
   saveTourProgress: TourProgressType;
   setUserTrialCallsLimit: UserSetting;
@@ -592,6 +593,11 @@ export type MutationRequestJobSummaryArgs = {
 
 export type MutationRerunSourceTemplateArgs = {
   templateId: Scalars['ID']['input'];
+};
+
+
+export type MutationResetTourProgressArgs = {
+  input: ResetTourProgressInput;
 };
 
 
@@ -892,6 +898,12 @@ export enum RequirementType {
   NiceToHave = 'NiceToHave',
   SoftSkill = 'SoftSkill'
 }
+
+export type ResetTourProgressInput = {
+  currentStepId: Scalars['String']['input'];
+  tourId: Scalars['String']['input'];
+  tourVersion: Scalars['Int']['input'];
+};
 
 export type ResumeType = {
   __typename?: 'ResumeType';
@@ -1673,6 +1685,13 @@ export type SaveTourProgressMutationVariables = Exact<{
 
 
 export type SaveTourProgressMutation = { __typename?: 'Mutation', saveTourProgress: { __typename?: 'TourProgressType', id: string, tourId: string, tourVersion: number, status: TourProgressStatus, currentStepId?: string | null } };
+
+export type ResetTourProgressMutationVariables = Exact<{
+  input: ResetTourProgressInput;
+}>;
+
+
+export type ResetTourProgressMutation = { __typename?: 'Mutation', resetTourProgress: { __typename?: 'TourProgressType', id: string, tourId: string, tourVersion: number, status: TourProgressStatus, currentStepId?: string | null } };
 
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4897,6 +4916,42 @@ export const SaveTourProgressDocument = gql`
 export function useSaveTourProgressMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveTourProgressMutation, SaveTourProgressMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return ApolloReactHooks.useMutation<SaveTourProgressMutation, SaveTourProgressMutationVariables>(SaveTourProgressDocument, options);
+      }
+
+
+export const ResetTourProgressDocument = gql`
+    mutation ResetTourProgress($input: ResetTourProgressInput!) {
+  resetTourProgress(input: $input) {
+    id
+    tourId
+    tourVersion
+    status
+    currentStepId
+  }
+}
+    `;
+
+
+/**
+ * __useResetTourProgressMutation__
+ *
+ * To run a mutation, you first call `useResetTourProgressMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResetTourProgressMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resetTourProgressMutation, { data, loading, error }] = useResetTourProgressMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useResetTourProgressMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ResetTourProgressMutation, ResetTourProgressMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ResetTourProgressMutation, ResetTourProgressMutationVariables>(ResetTourProgressDocument, options);
       }
 
 

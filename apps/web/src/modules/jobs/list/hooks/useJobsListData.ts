@@ -6,6 +6,7 @@ import { ApplicationQuickFilter, useJobsQuery } from "@/gql/hooks";
 
 import type { useJobsListFilters } from "@/modules/jobs/list/hooks/useJobsListFilters";
 import { useJobDataSource } from "@/modules/jobs/shared/hooks/useJobDataSource";
+import { useWelcomeTour } from "@/modules/welcome-tour/useWelcomeTour";
 import { getWelcomeTourActiveJobs } from "@/modules/welcome-tour/welcomeTourJobList";
 import {
   getWelcomeTourJobDraft,
@@ -18,8 +19,10 @@ type JobsListFilters = ReturnType<typeof useJobsListFilters>;
 /** Selects the database collection or the active local job collection for the jobs list. */
 export function useJobsListData({ activeFilter, companyFilter, runIdFilter }: JobsListFilters) {
   const dataSource = useJobDataSource();
-  const localJobs = useLocalJobsList(activeFilter, dataSource === "local");
-  const useLocalJobs = localJobs.length > 0;
+  const { activePhase } = useWelcomeTour();
+  const useLocalJobs = dataSource === "local";
+  const shouldShowCreatedDraft = activePhase === "jobs-list";
+  const localJobs = useLocalJobsList(activeFilter, shouldShowCreatedDraft);
   const { data, loading, error } = useJobsQuery({
     fetchPolicy: "cache-and-network",
     skip: useLocalJobs,
@@ -33,11 +36,14 @@ export function useJobsListData({ activeFilter, companyFilter, runIdFilter }: Jo
   return { jobs: data?.jobs ?? [], loading, error, hasData: Boolean(data) };
 }
 
-/** Keeps the local data source reactive while its Active-filter examples are displayed. */
-function useLocalJobsList(activeFilter: ApplicationQuickFilter | null, enabled: boolean) {
+/**
+ * Keeps the draft reactive throughout the tour, while exposing it in the list
+ * only for the final Active-filter segment.
+ */
+function useLocalJobsList(activeFilter: ApplicationQuickFilter | null, shouldShowCreatedDraft: boolean) {
   useSyncExternalStore(subscribeToWelcomeTourJobDraft, getWelcomeTourJobDraftRevision, () => 0);
 
-  if (!enabled || activeFilter !== ApplicationQuickFilter.Active) return [];
+  if (!shouldShowCreatedDraft || activeFilter !== ApplicationQuickFilter.Active) return [];
 
   const draft = getWelcomeTourJobDraft();
   return draft ? getWelcomeTourActiveJobs(draft) : [];

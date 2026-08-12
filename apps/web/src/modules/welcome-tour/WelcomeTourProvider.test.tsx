@@ -2,14 +2,17 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { saveTourProgressMock, tourProgressQueryMock, useSaveTourProgressMutationMock } = vi.hoisted(() => ({
-  saveTourProgressMock: vi.fn(),
-  tourProgressQueryMock: vi.fn(),
-  useSaveTourProgressMutationMock: vi.fn(),
-}));
+const { resetTourProgressMock, saveTourProgressMock, tourProgressQueryMock, useSaveTourProgressMutationMock } =
+  vi.hoisted(() => ({
+    resetTourProgressMock: vi.fn(),
+    saveTourProgressMock: vi.fn(),
+    tourProgressQueryMock: vi.fn(),
+    useSaveTourProgressMutationMock: vi.fn(),
+  }));
 
 vi.mock("@/gql/hooks", () => ({
   TourProgressStatus: { InProgress: "InProgress", Completed: "Completed", Skipped: "Skipped" },
+  useResetTourProgressMutation: () => [resetTourProgressMock],
   useSaveTourProgressMutation: useSaveTourProgressMutationMock,
   useTourProgressQuery: tourProgressQueryMock,
 }));
@@ -24,6 +27,7 @@ function Wrapper({ children }: { children: ReactNode }) {
 
 describe("WelcomeTourProvider", () => {
   beforeEach(() => {
+    resetTourProgressMock.mockResolvedValue({});
     saveTourProgressMock.mockResolvedValue({});
     tourProgressQueryMock.mockReturnValue({ data: { tourProgress: null }, loading: false });
     useSaveTourProgressMutationMock.mockReturnValue([saveTourProgressMock]);
@@ -86,6 +90,33 @@ describe("WelcomeTourProvider", () => {
     act(() => result.current.start());
 
     expect(window.localStorage.getItem(WELCOME_TOUR_JOB_DRAFT_STORAGE_KEY)).toBeNull();
+  });
+
+  it("resets persisted and browser tour progress to the initial phase", async () => {
+    tourProgressQueryMock.mockReturnValue({
+      data: { tourProgress: { currentStepId: null, status: "Completed", tourVersion: 1 } },
+      loading: false,
+    });
+    window.localStorage.setItem(WELCOME_TOUR_JOB_DRAFT_STORAGE_KEY, JSON.stringify({ id: "welcome-tour-job" }));
+    window.sessionStorage.setItem(
+      "job-tracker:tour-session:v1",
+      JSON.stringify({ active: true, tourId: "welcome-tour", phase: "jobs-list" }),
+    );
+
+    const { result } = renderHook(() => useWelcomeTour(), { wrapper: Wrapper });
+
+    let didReset = false;
+    await act(async () => {
+      didReset = await result.current.reset();
+    });
+
+    expect(didReset).toBe(true);
+    expect(result.current.activePhase).toBe("job-creation");
+    expect(window.localStorage.getItem(WELCOME_TOUR_JOB_DRAFT_STORAGE_KEY)).toBeNull();
+    expect(window.sessionStorage.getItem("job-tracker:tour-session:v1")).toContain('"phase":"job-creation"');
+    expect(resetTourProgressMock).toHaveBeenCalledWith({
+      variables: { input: { currentStepId: "job-creation", tourId: "welcome-tour", tourVersion: 1 } },
+    });
   });
 
   it("does not restart a completed tour", async () => {

@@ -73,6 +73,10 @@ vi.mock("@/modules/navigation/components/ObfuscatedText", () => ({
   ObfuscatedText: ({ text }: { text: string; obfuscatedText: string }) => <span>{text}</span>,
 }));
 
+vi.mock("@/modules/navigation/components/WelcomeTourProgressTrackbar", () => ({
+  WelcomeTourProgressTrackbar: () => <span>Welcome tour</span>,
+}));
+
 type MockedSettingsQueryResult = {
   data: {
     settings: {
@@ -231,6 +235,12 @@ describe("Sidebar", () => {
   it("renders logout button", () => {
     render(<Sidebar user={mockUser} />);
     expect(screen.getAllByText("Log Out").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("renders welcome-tour progress", () => {
+    render(<Sidebar user={mockUser} />);
+
+    expect(screen.getAllByText("Welcome tour").length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders trial quota trackbar when hasOpenAiKey is false", () => {

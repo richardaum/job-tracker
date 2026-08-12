@@ -1,6 +1,11 @@
 import { tryRun } from "@job-tracker/try-run";
 
-import { TourProgressStatus, useSaveTourProgressMutation, useTourProgressQuery } from "@/gql/hooks";
+import {
+  TourProgressStatus,
+  useResetTourProgressMutation,
+  useSaveTourProgressMutation,
+  useTourProgressQuery,
+} from "@/gql/hooks";
 
 import { WELCOME_TOUR_PHASES, type WelcomeTourPhase } from "./welcomeTour.types";
 
@@ -11,11 +16,14 @@ type WelcomeTourStartState = "blocked" | "fresh" | "persist-session" | "restart"
 
 interface UseWelcomeTourProgressPersistenceParams {
   hasEnded: boolean;
+  hasLocallyReset: boolean;
   localPhase: WelcomeTourPhase | null;
 }
 
 interface WelcomeTourProgressPersistence {
   activePhase: WelcomeTourPhase | null;
+  tourStatus: TourProgressStatus | null;
+  resetProgress: (phase: WelcomeTourPhase) => Promise<boolean>;
   saveCompleted: () => void;
   saveInProgress: (phase: WelcomeTourPhase) => void;
   saveSkipped: () => void;
@@ -25,6 +33,7 @@ interface WelcomeTourProgressPersistence {
 /** GraphQL-backed source of truth for restoring and recording welcome-tour progress. */
 export function useWelcomeTourProgressPersistence({
   hasEnded,
+  hasLocallyReset,
   localPhase,
 }: UseWelcomeTourProgressPersistenceParams): WelcomeTourProgressPersistence {
   const { data, loading } = useTourProgressQuery({
@@ -32,9 +41,11 @@ export function useWelcomeTourProgressPersistence({
     fetchPolicy: "network-only",
   });
   const [saveTourProgress] = useSaveTourProgressMutation();
+  const [resetTourProgress] = useResetTourProgressMutation();
   const progress = data?.tourProgress;
   const shouldResetStoredVersion = progress?.tourVersion !== undefined && progress.tourVersion < WELCOME_TOUR_VERSION;
   const hasStoredTerminalStatus =
+    !hasLocallyReset &&
     !shouldResetStoredVersion &&
     (progress?.status === TourProgressStatus.Completed || progress?.status === TourProgressStatus.Skipped);
   const storedPhase = toWelcomeTourPhase(progress?.currentStepId ?? null);
@@ -63,8 +74,20 @@ export function useWelcomeTourProgressPersistence({
     );
   };
 
+  async function resetProgress(phase: WelcomeTourPhase): Promise<boolean> {
+    const [error] = await tryRun(
+      resetTourProgress({
+        variables: { input: { tourId: WELCOME_TOUR_ID, tourVersion: WELCOME_TOUR_VERSION, currentStepId: phase } },
+      }),
+    );
+
+    return !error;
+  }
+
   return {
     activePhase,
+    tourStatus: progress?.status ?? (localPhase ? TourProgressStatus.InProgress : null),
+    resetProgress,
     saveCompleted: () => save(TourProgressStatus.Completed, null),
     saveInProgress: (phase) => save(TourProgressStatus.InProgress, phase),
     saveSkipped: () => save(TourProgressStatus.Skipped, null),

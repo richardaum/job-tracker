@@ -438,6 +438,7 @@ export type Mutation = {
   reportExtensionActivity: ExtensionActivityEvent;
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
+  resetTourProgress: TourProgressType;
   saveOpenAiKey: UserSetting;
   saveTourProgress: TourProgressType;
   setUserTrialCallsLimit: UserSetting;
@@ -591,6 +592,11 @@ export type MutationRequestJobSummaryArgs = {
 
 export type MutationRerunSourceTemplateArgs = {
   templateId: Scalars['ID']['input'];
+};
+
+
+export type MutationResetTourProgressArgs = {
+  input: ResetTourProgressInput;
 };
 
 
@@ -891,6 +897,12 @@ export enum RequirementType {
   NiceToHave = 'NiceToHave',
   SoftSkill = 'SoftSkill'
 }
+
+export type ResetTourProgressInput = {
+  currentStepId: Scalars['String']['input'];
+  tourId: Scalars['String']['input'];
+  tourVersion: Scalars['Int']['input'];
+};
 
 export type ResumeType = {
   __typename?: 'ResumeType';
@@ -1672,6 +1684,13 @@ export type SaveTourProgressMutationVariables = Exact<{
 
 
 export type SaveTourProgressMutation = { __typename?: 'Mutation', saveTourProgress: { __typename?: 'TourProgressType', id: string, tourId: string, tourVersion: number, status: TourProgressStatus, currentStepId?: string | null } };
+
+export type ResetTourProgressMutationVariables = Exact<{
+  input: ResetTourProgressInput;
+}>;
+
+
+export type ResetTourProgressMutation = { __typename?: 'Mutation', resetTourProgress: { __typename?: 'TourProgressType', id: string, tourId: string, tourVersion: number, status: TourProgressStatus, currentStepId?: string | null } };
 
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2803,6 +2822,17 @@ export const SaveTourProgressDocument = gql`
   }
 }
     `;
+export const ResetTourProgressDocument = gql`
+    mutation ResetTourProgress($input: ResetTourProgressInput!) {
+  resetTourProgress(input: $input) {
+    id
+    tourId
+    tourVersion
+    status
+    currentStepId
+  }
+}
+    `;
 export const WorkPreferencesDocument = gql`
     query WorkPreferences {
   workPreferences {
@@ -3063,6 +3093,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     SaveTourProgress(variables: SaveTourProgressMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SaveTourProgressMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<SaveTourProgressMutation>({ document: SaveTourProgressDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SaveTourProgress', 'mutation', variables);
+    },
+    ResetTourProgress(variables: ResetTourProgressMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ResetTourProgressMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ResetTourProgressMutation>({ document: ResetTourProgressDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'ResetTourProgress', 'mutation', variables);
     },
     WorkPreferences(variables?: WorkPreferencesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<WorkPreferencesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<WorkPreferencesQuery>({ document: WorkPreferencesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'WorkPreferences', 'query', variables);

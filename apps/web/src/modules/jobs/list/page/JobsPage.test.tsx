@@ -300,6 +300,7 @@ describe("JobsPage", () => {
 
   it("shows the created tutorial job and sample jobs after selecting Active", () => {
     navigationMocks.searchParams = "q=active";
+    useTourMock.mockReturnValue({ activePhase: "jobs-list" });
     useJobDataSourceMock.mockReturnValue("local");
     window.localStorage.setItem(
       "job-tracker:welcome-tour-job-draft:v1",
@@ -340,6 +341,29 @@ describe("JobsPage", () => {
     ]);
     expect(useJobsQueryMock).toHaveBeenCalledWith(expect.objectContaining({ skip: true }));
   });
+
+  it.each(["job-creation", "job-details", "job-description", "update-status", "status-history"])(
+    "shows no real jobs during the %s welcome-tour phase",
+    (activePhase) => {
+      useTourMock.mockReturnValue({ activePhase });
+      useJobDataSourceMock.mockReturnValue("local");
+      useJobStageEventsQueryMock.mockReturnValue({ data: { jobStageEvents: [] }, loading: false, error: undefined });
+      useCurrentUserMock.mockReturnValue({
+        user: { id: "user-1", name: "Test User", email: "test@example.com", avatarUrl: null },
+      });
+      useJobsQueryMock.mockReturnValue({
+        data: { jobs: [{ id: "existing-job", title: "Existing job", company: { id: "company-1", name: "Acme" } }] },
+        loading: false,
+        error: undefined,
+      });
+
+      render(<JobsPage />);
+
+      expect(screen.getByText(/no jobs yet/i)).toBeInTheDocument();
+      expect(screen.queryByText("Existing job")).not.toBeInTheDocument();
+      expect(useJobsQueryMock).toHaveBeenCalledWith(expect.objectContaining({ skip: true }));
+    },
+  );
 
   it("renders empty state when user has no jobs", () => {
     useJobStageEventsQueryMock.mockReturnValue({ data: { jobStageEvents: [] } });

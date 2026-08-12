@@ -3,6 +3,8 @@
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useRef, useState } from "react";
 
+import { TourProgressStatus } from "@/gql/hooks";
+
 import { WelcomeTourContext } from "./welcomeTour.context";
 import { clearWelcomeTourJobDraft } from "./welcomeTourJobDraft";
 import {
@@ -17,13 +19,13 @@ type WelcomeTourProviderProps = { children: ReactNode };
 
 export function WelcomeTourProvider({ children }: WelcomeTourProviderProps) {
   const [localPhase, setLocalPhase] = useState(readWelcomeTourSession);
-  const [hasEnded, setHasEnded] = useState(false);
+  const [hasLocallyReset, setHasLocallyReset] = useState(false);
+  const [terminalStatus, setTerminalStatus] = useState<TourProgressStatus | null>(null);
   const [createdJobToastId, setCreatedJobToastId] = useState<string | null>(null);
   const createdJobToastIdRef = useRef<string | null>(null);
-  const { activePhase, saveCompleted, saveInProgress, saveSkipped, startState } = useWelcomeTourProgressPersistence({
-    hasEnded,
-    localPhase,
-  });
+  const hasEnded = terminalStatus !== null;
+  const { activePhase, resetProgress, saveCompleted, saveInProgress, saveSkipped, startState, tourStatus } =
+    useWelcomeTourProgressPersistence({ hasEnded, hasLocallyReset, localPhase });
 
   const start = useCallback(() => {
     const initialPhase = WELCOME_TOUR_PHASES[0];
@@ -47,6 +49,22 @@ export function WelcomeTourProvider({ children }: WelcomeTourProviderProps) {
     saveInProgress(initialPhase);
   }, [activePhase, saveInProgress, startState]);
 
+  const reset = useCallback(async (): Promise<boolean> => {
+    const initialPhase = WELCOME_TOUR_PHASES[0];
+    const didReset = await resetProgress(initialPhase);
+    if (!didReset) return false;
+
+    clearWelcomeTourJobDraft();
+    clearWelcomeTourSession();
+    createdJobToastIdRef.current = null;
+    setCreatedJobToastId(null);
+    setHasLocallyReset(true);
+    setTerminalStatus(null);
+    setLocalPhase(initialPhase);
+    persistWelcomeTourSession(initialPhase);
+    return true;
+  }, [resetProgress]);
+
   const completeCurrentSegment = useCallback(() => {
     if (!activePhase || hasEnded) return;
 
@@ -59,7 +77,7 @@ export function WelcomeTourProvider({ children }: WelcomeTourProviderProps) {
   }, [activePhase, hasEnded, saveInProgress]);
 
   const complete = useCallback(() => {
-    setHasEnded(true);
+    setTerminalStatus(TourProgressStatus.Completed);
     setLocalPhase(null);
     createdJobToastIdRef.current = null;
     setCreatedJobToastId(null);
@@ -68,7 +86,7 @@ export function WelcomeTourProvider({ children }: WelcomeTourProviderProps) {
   }, [saveCompleted]);
 
   const skip = useCallback(() => {
-    setHasEnded(true);
+    setTerminalStatus(TourProgressStatus.Skipped);
     setLocalPhase(null);
     createdJobToastIdRef.current = null;
     setCreatedJobToastId(null);
@@ -96,7 +114,9 @@ export function WelcomeTourProvider({ children }: WelcomeTourProviderProps) {
   const value = useMemo(
     () => ({
       activePhase,
+      tourStatus: terminalStatus ?? tourStatus,
       start,
+      reset,
       completeCurrentSegment,
       complete,
       skip,
@@ -114,7 +134,10 @@ export function WelcomeTourProvider({ children }: WelcomeTourProviderProps) {
       saveCreatedJobToastId,
       skip,
       start,
+      reset,
       takeCreatedJobToastId,
+      terminalStatus,
+      tourStatus,
     ],
   );
 

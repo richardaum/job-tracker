@@ -29,6 +29,7 @@ import { getApiBaseUrl } from "@/lib/api-endpoints";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
 import { TrialQuotaTrackbar } from "@/modules/navigation/components/TrialQuotaTrackbar";
+import { WelcomeTourProgressTrackbar } from "@/modules/navigation/components/WelcomeTourProgressTrackbar";
 
 const API_URL = getApiBaseUrl();
 
@@ -166,6 +167,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
 
       {/* Bottom items */}
       <div className={cn("flex flex-col gap-0 p-3 ")}>
+        <WelcomeTourProgressTrackbar onResetComplete={onClose} />
         {shouldShowTrialTrackbar && settingsData?.settings && (
           <TrialQuotaTrackbar
             trialCallsUsed={settingsData.settings.trialCallsUsed}

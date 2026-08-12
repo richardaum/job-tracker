@@ -17,6 +17,7 @@ vi.mock("posthog-js/react", () => ({
 
 vi.mock("@/gql/hooks", () => ({
   TourProgressStatus: { InProgress: "InProgress", Completed: "Completed", Skipped: "Skipped" },
+  useResetTourProgressMutation: () => [vi.fn()],
   useSaveTourProgressMutation: () => [saveTourProgressMock],
   useTourProgressQuery: (...args: unknown[]) => useTourProgressQueryMock(...args),
 }));

@@ -5,6 +5,7 @@ import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ApplicationQuickFilter, useQuickFilterCountsQuery } from "@/gql/hooks";
+import { useWelcomeTour } from "@/modules/welcome-tour/useWelcomeTour";
 
 const QUICK_FILTERS = [
   { key: "all", label: "All", tooltip: "Show all jobs" },
@@ -42,13 +43,19 @@ export function QuickFilters({ restrictInteractionTo }: QuickFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { activePhase } = useWelcomeTour();
   const activeFilter = resolveActiveQuickFilterKey(searchParams.get("q"));
 
   const company = searchParams.get("company");
   const runId = searchParams.get("runId");
-  const { data } = useQuickFilterCountsQuery({ variables: { company, runId }, fetchPolicy: "cache-and-network" });
+  const isInitialWelcomeTourStep = activePhase === "job-creation";
+  const { data } = useQuickFilterCountsQuery({
+    variables: { company, runId },
+    fetchPolicy: "cache-and-network",
+    skip: isInitialWelcomeTourStep,
+  });
 
-  const entries = data?.quickFilterCounts ?? [];
+  const entries = isInitialWelcomeTourStep ? [] : (data?.quickFilterCounts ?? []);
   const counts: Record<string, number> = {};
   let allCount = 0;
   for (const entry of entries) {

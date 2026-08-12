@@ -17,3 +17,13 @@ mutation SaveTourProgress($input: SaveTourProgressInput!) {
     currentStepId
   }
 }
+
+mutation ResetTourProgress($input: ResetTourProgressInput!) {
+  resetTourProgress(input: $input) {
+    id
+    tourId
+    tourVersion
+    status
+    currentStepId
+  }
+}
