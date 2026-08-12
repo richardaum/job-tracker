@@ -13,7 +13,7 @@ type WelcomeTourJoyrideEventHandler = NonNullable<WelcomeTourJoyrideProps["onEve
 
 /** Runs one route-local segment of the welcome tour. */
 export function WelcomeTourJoyride({ onEvent, onSegmentComplete, onTourComplete, ...props }: WelcomeTourJoyrideProps) {
-  const { completeCurrentSegment, complete } = useWelcomeTour();
+  const { completeCurrentSegment, complete, skip } = useWelcomeTour();
 
   const handleEvent: WelcomeTourJoyrideEventHandler = (event, controls) => {
     onEvent?.(event, controls);
@@ -23,7 +23,7 @@ export function WelcomeTourJoyride({ onEvent, onSegmentComplete, onTourComplete,
     if (event.type !== EVENTS.TOUR_END) return;
 
     if (event.status === STATUS.SKIPPED) {
-      complete();
+      skip();
       return;
     }
     if (event.status !== STATUS.FINISHED) return;

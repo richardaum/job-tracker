@@ -3,6 +3,7 @@ import { type ReactNode, Suspense } from "react";
 import { AuthenticatedShellDocument } from "@/gql/graphql";
 import { PreloadQuery } from "@/lib/apollo-rsc";
 import { AuthenticatedLayout } from "@/modules/navigation/layouts/AuthenticatedLayout";
+import { WelcomeTourProvider } from "@/modules/welcome-tour/WelcomeTourProvider";
 
 /**
  * Next 16.3+: `useSearchParams` requires a **server** `Suspense` ancestor. Wrapping the
@@ -13,7 +14,9 @@ export default function AuthenticatedSegmentLayout({ children }: AuthenticatedSe
   return (
     <PreloadQuery query={AuthenticatedShellDocument}>
       <Suspense fallback={null}>
-        <AuthenticatedLayout>{children}</AuthenticatedLayout>
+        <WelcomeTourProvider>
+          <AuthenticatedLayout>{children}</AuthenticatedLayout>
+        </WelcomeTourProvider>
       </Suspense>
     </PreloadQuery>
   );

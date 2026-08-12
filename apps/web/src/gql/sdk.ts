@@ -439,6 +439,7 @@ export type Mutation = {
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
   saveOpenAiKey: UserSetting;
+  saveTourProgress: TourProgressType;
   setUserTrialCallsLimit: UserSetting;
   updateCompany: CompanyType;
   updateJob: JobType;
@@ -598,6 +599,11 @@ export type MutationSaveOpenAiKeyArgs = {
 };
 
 
+export type MutationSaveTourProgressArgs = {
+  input: SaveTourProgressInput;
+};
+
+
 export type MutationSetUserTrialCallsLimitArgs = {
   limit: Scalars['Int']['input'];
   userId: Scalars['ID']['input'];
@@ -734,6 +740,7 @@ export type Query = {
   sourceRuns: Array<SourceRunType>;
   sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
+  tourProgress?: Maybe<TourProgressType>;
   users: Array<UserType>;
   workPreferences: Array<PreferenceType>;
 };
@@ -864,6 +871,11 @@ export type QuerySourceTemplateArgs = {
   id: Scalars['ID']['input'];
 };
 
+
+export type QueryTourProgressArgs = {
+  tourId: Scalars['String']['input'];
+};
+
 export type ReportExtensionActivityInput = {
   browser?: InputMaybe<Scalars['String']['input']>;
   extensionVersion?: InputMaybe<Scalars['String']['input']>;
@@ -901,6 +913,13 @@ export enum SalaryPeriod {
   Month = 'Month',
   Year = 'Year'
 }
+
+export type SaveTourProgressInput = {
+  currentStepId?: InputMaybe<Scalars['String']['input']>;
+  status: TourProgressStatus;
+  tourId: Scalars['String']['input'];
+  tourVersion: Scalars['Int']['input'];
+};
 
 export type SourceRunActivityEvent = {
   __typename?: 'SourceRunActivityEvent';
@@ -997,6 +1016,25 @@ export type SubscriptionJobMatchStatusChangedArgs = {
 
 export type SubscriptionJobSummaryStatusChangedArgs = {
   jobId: Scalars['ID']['input'];
+};
+
+export enum TourProgressStatus {
+  Completed = 'Completed',
+  InProgress = 'InProgress',
+  Skipped = 'Skipped'
+}
+
+export type TourProgressType = {
+  __typename?: 'TourProgressType';
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  currentStepId?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  skippedAt?: Maybe<Scalars['DateTime']['output']>;
+  status: TourProgressStatus;
+  tourId: Scalars['String']['output'];
+  tourVersion: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type UpdateCompanyInput = {
@@ -1620,6 +1658,20 @@ export type CreatePlanMutationVariables = Exact<{
 
 
 export type CreatePlanMutation = { __typename?: 'Mutation', createPlan: { __typename?: 'PlanType', id: string, displayName: string, document: any, createdAt: any, updatedAt: any } };
+
+export type TourProgressQueryVariables = Exact<{
+  tourId: Scalars['String']['input'];
+}>;
+
+
+export type TourProgressQuery = { __typename?: 'Query', tourProgress?: { __typename?: 'TourProgressType', id: string, tourId: string, tourVersion: number, status: TourProgressStatus, currentStepId?: string | null } | null };
+
+export type SaveTourProgressMutationVariables = Exact<{
+  input: SaveTourProgressInput;
+}>;
+
+
+export type SaveTourProgressMutation = { __typename?: 'Mutation', saveTourProgress: { __typename?: 'TourProgressType', id: string, tourId: string, tourVersion: number, status: TourProgressStatus, currentStepId?: string | null } };
 
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2729,6 +2781,28 @@ export const CreatePlanDocument = gql`
   }
 }
     `;
+export const TourProgressDocument = gql`
+    query TourProgress($tourId: String!) {
+  tourProgress(tourId: $tourId) {
+    id
+    tourId
+    tourVersion
+    status
+    currentStepId
+  }
+}
+    `;
+export const SaveTourProgressDocument = gql`
+    mutation SaveTourProgress($input: SaveTourProgressInput!) {
+  saveTourProgress(input: $input) {
+    id
+    tourId
+    tourVersion
+    status
+    currentStepId
+  }
+}
+    `;
 export const WorkPreferencesDocument = gql`
     query WorkPreferences {
   workPreferences {
@@ -2983,6 +3057,12 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     CreatePlan(variables: CreatePlanMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<CreatePlanMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreatePlanMutation>({ document: CreatePlanDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'CreatePlan', 'mutation', variables);
+    },
+    TourProgress(variables: TourProgressQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<TourProgressQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<TourProgressQuery>({ document: TourProgressDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'TourProgress', 'query', variables);
+    },
+    SaveTourProgress(variables: SaveTourProgressMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<SaveTourProgressMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SaveTourProgressMutation>({ document: SaveTourProgressDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'SaveTourProgress', 'mutation', variables);
     },
     WorkPreferences(variables?: WorkPreferencesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<WorkPreferencesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<WorkPreferencesQuery>({ document: WorkPreferencesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'WorkPreferences', 'query', variables);

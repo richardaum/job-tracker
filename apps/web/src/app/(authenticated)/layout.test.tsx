@@ -17,6 +17,10 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/hooks/useCurrentUser", () => ({ useCurrentUser: () => useCurrentUserMock() }));
 
+vi.mock("@/modules/welcome-tour/WelcomeTourProvider", () => ({
+  WelcomeTourProvider: ({ children }: { children: ReactNode }) => children,
+}));
+
 vi.mock("posthog-js/react", () => ({ usePostHog: () => ({ identify: vi.fn() }), useFeatureFlagEnabled: () => true }));
 
 vi.mock("@/gql/hooks", async (importOriginal) => {

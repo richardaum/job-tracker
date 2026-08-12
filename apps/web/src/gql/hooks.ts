@@ -440,6 +440,7 @@ export type Mutation = {
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
   saveOpenAiKey: UserSetting;
+  saveTourProgress: TourProgressType;
   setUserTrialCallsLimit: UserSetting;
   updateCompany: CompanyType;
   updateJob: JobType;
@@ -599,6 +600,11 @@ export type MutationSaveOpenAiKeyArgs = {
 };
 
 
+export type MutationSaveTourProgressArgs = {
+  input: SaveTourProgressInput;
+};
+
+
 export type MutationSetUserTrialCallsLimitArgs = {
   limit: Scalars['Int']['input'];
   userId: Scalars['ID']['input'];
@@ -735,6 +741,7 @@ export type Query = {
   sourceRuns: Array<SourceRunType>;
   sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
+  tourProgress?: Maybe<TourProgressType>;
   users: Array<UserType>;
   workPreferences: Array<PreferenceType>;
 };
@@ -865,6 +872,11 @@ export type QuerySourceTemplateArgs = {
   id: Scalars['ID']['input'];
 };
 
+
+export type QueryTourProgressArgs = {
+  tourId: Scalars['String']['input'];
+};
+
 export type ReportExtensionActivityInput = {
   browser?: InputMaybe<Scalars['String']['input']>;
   extensionVersion?: InputMaybe<Scalars['String']['input']>;
@@ -902,6 +914,13 @@ export enum SalaryPeriod {
   Month = 'Month',
   Year = 'Year'
 }
+
+export type SaveTourProgressInput = {
+  currentStepId?: InputMaybe<Scalars['String']['input']>;
+  status: TourProgressStatus;
+  tourId: Scalars['String']['input'];
+  tourVersion: Scalars['Int']['input'];
+};
 
 export type SourceRunActivityEvent = {
   __typename?: 'SourceRunActivityEvent';
@@ -998,6 +1017,25 @@ export type SubscriptionJobMatchStatusChangedArgs = {
 
 export type SubscriptionJobSummaryStatusChangedArgs = {
   jobId: Scalars['ID']['input'];
+};
+
+export enum TourProgressStatus {
+  Completed = 'Completed',
+  InProgress = 'InProgress',
+  Skipped = 'Skipped'
+}
+
+export type TourProgressType = {
+  __typename?: 'TourProgressType';
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  currentStepId?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  skippedAt?: Maybe<Scalars['DateTime']['output']>;
+  status: TourProgressStatus;
+  tourId: Scalars['String']['output'];
+  tourVersion: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type UpdateCompanyInput = {
@@ -1621,6 +1659,20 @@ export type CreatePlanMutationVariables = Exact<{
 
 
 export type CreatePlanMutation = { __typename?: 'Mutation', createPlan: { __typename?: 'PlanType', id: string, displayName: string, document: any, createdAt: any, updatedAt: any } };
+
+export type TourProgressQueryVariables = Exact<{
+  tourId: Scalars['String']['input'];
+}>;
+
+
+export type TourProgressQuery = { __typename?: 'Query', tourProgress?: { __typename?: 'TourProgressType', id: string, tourId: string, tourVersion: number, status: TourProgressStatus, currentStepId?: string | null } | null };
+
+export type SaveTourProgressMutationVariables = Exact<{
+  input: SaveTourProgressInput;
+}>;
+
+
+export type SaveTourProgressMutation = { __typename?: 'Mutation', saveTourProgress: { __typename?: 'TourProgressType', id: string, tourId: string, tourVersion: number, status: TourProgressStatus, currentStepId?: string | null } };
 
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4769,6 +4821,82 @@ export const CreatePlanDocument = gql`
 export function useCreatePlanMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreatePlanMutation, CreatePlanMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return ApolloReactHooks.useMutation<CreatePlanMutation, CreatePlanMutationVariables>(CreatePlanDocument, options);
+      }
+
+
+export const TourProgressDocument = gql`
+    query TourProgress($tourId: String!) {
+  tourProgress(tourId: $tourId) {
+    id
+    tourId
+    tourVersion
+    status
+    currentStepId
+  }
+}
+    `;
+
+/**
+ * __useTourProgressQuery__
+ *
+ * To run a query within a React component, call `useTourProgressQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTourProgressQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTourProgressQuery({
+ *   variables: {
+ *      tourId: // value for 'tourId'
+ *   },
+ * });
+ */
+export function useTourProgressQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TourProgressQuery, TourProgressQueryVariables> & ({ variables: TourProgressQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TourProgressQuery, TourProgressQueryVariables>(TourProgressDocument, options);
+      }
+export function useTourProgressLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TourProgressQuery, TourProgressQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TourProgressQuery, TourProgressQueryVariables>(TourProgressDocument, options);
+        }
+
+export type TourProgressQueryHookResult = ReturnType<typeof useTourProgressQuery>;
+export type TourProgressLazyQueryHookResult = ReturnType<typeof useTourProgressLazyQuery>;
+
+export const SaveTourProgressDocument = gql`
+    mutation SaveTourProgress($input: SaveTourProgressInput!) {
+  saveTourProgress(input: $input) {
+    id
+    tourId
+    tourVersion
+    status
+    currentStepId
+  }
+}
+    `;
+
+
+/**
+ * __useSaveTourProgressMutation__
+ *
+ * To run a mutation, you first call `useSaveTourProgressMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveTourProgressMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveTourProgressMutation, { data, loading, error }] = useSaveTourProgressMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveTourProgressMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveTourProgressMutation, SaveTourProgressMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveTourProgressMutation, SaveTourProgressMutationVariables>(SaveTourProgressDocument, options);
       }
 
 

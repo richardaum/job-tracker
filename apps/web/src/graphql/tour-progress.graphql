@@ -1,0 +1,19 @@
+query TourProgress($tourId: String!) {
+  tourProgress(tourId: $tourId) {
+    id
+    tourId
+    tourVersion
+    status
+    currentStepId
+  }
+}
+
+mutation SaveTourProgress($input: SaveTourProgressInput!) {
+  saveTourProgress(input: $input) {
+    id
+    tourId
+    tourVersion
+    status
+    currentStepId
+  }
+}

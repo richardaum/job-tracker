@@ -438,6 +438,7 @@ export type Mutation = {
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
   saveOpenAiKey: UserSetting;
+  saveTourProgress: TourProgressType;
   setUserTrialCallsLimit: UserSetting;
   updateCompany: CompanyType;
   updateJob: JobType;
@@ -597,6 +598,11 @@ export type MutationSaveOpenAiKeyArgs = {
 };
 
 
+export type MutationSaveTourProgressArgs = {
+  input: SaveTourProgressInput;
+};
+
+
 export type MutationSetUserTrialCallsLimitArgs = {
   limit: Scalars['Int']['input'];
   userId: Scalars['ID']['input'];
@@ -733,6 +739,7 @@ export type Query = {
   sourceRuns: Array<SourceRunType>;
   sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
+  tourProgress?: Maybe<TourProgressType>;
   users: Array<UserType>;
   workPreferences: Array<PreferenceType>;
 };
@@ -863,6 +870,11 @@ export type QuerySourceTemplateArgs = {
   id: Scalars['ID']['input'];
 };
 
+
+export type QueryTourProgressArgs = {
+  tourId: Scalars['String']['input'];
+};
+
 export type ReportExtensionActivityInput = {
   browser?: InputMaybe<Scalars['String']['input']>;
   extensionVersion?: InputMaybe<Scalars['String']['input']>;
@@ -900,6 +912,13 @@ export enum SalaryPeriod {
   Month = 'Month',
   Year = 'Year'
 }
+
+export type SaveTourProgressInput = {
+  currentStepId?: InputMaybe<Scalars['String']['input']>;
+  status: TourProgressStatus;
+  tourId: Scalars['String']['input'];
+  tourVersion: Scalars['Int']['input'];
+};
 
 export type SourceRunActivityEvent = {
   __typename?: 'SourceRunActivityEvent';
@@ -996,6 +1015,25 @@ export type SubscriptionJobMatchStatusChangedArgs = {
 
 export type SubscriptionJobSummaryStatusChangedArgs = {
   jobId: Scalars['ID']['input'];
+};
+
+export enum TourProgressStatus {
+  Completed = 'Completed',
+  InProgress = 'InProgress',
+  Skipped = 'Skipped'
+}
+
+export type TourProgressType = {
+  __typename?: 'TourProgressType';
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  currentStepId?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  skippedAt?: Maybe<Scalars['DateTime']['output']>;
+  status: TourProgressStatus;
+  tourId: Scalars['String']['output'];
+  tourVersion: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type UpdateCompanyInput = {
@@ -1644,6 +1682,20 @@ export type CreatePlanMutationVariables = Exact<{
 
 export type CreatePlanMutation = { __typename?: 'Mutation', createPlan: { __typename?: 'PlanType', id: string, displayName: string, document: any, createdAt: any, updatedAt: any } };
 
+export type TourProgressQueryVariables = Exact<{
+  tourId: Scalars['String']['input'];
+}>;
+
+
+export type TourProgressQuery = { __typename?: 'Query', tourProgress?: { __typename?: 'TourProgressType', id: string, tourId: string, tourVersion: number, status: TourProgressStatus, currentStepId?: string | null } | null };
+
+export type SaveTourProgressMutationVariables = Exact<{
+  input: SaveTourProgressInput;
+}>;
+
+
+export type SaveTourProgressMutation = { __typename?: 'Mutation', saveTourProgress: { __typename?: 'TourProgressType', id: string, tourId: string, tourVersion: number, status: TourProgressStatus, currentStepId?: string | null } };
+
 export type WorkPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -1737,5 +1789,7 @@ export const SourceRunActivityEventsLiveDocument = {"kind":"Document","definitio
 export const PlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Plan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"plan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"document"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"templates"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"planId"}},{"kind":"Field","name":{"kind":"Name","value":"surfaceUrl"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleCron"}},{"kind":"Field","name":{"kind":"Name","value":"scheduleEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"config"}},{"kind":"Field","name":{"kind":"Name","value":"runs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"errorMessage"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"jobCount"}}]}}]}}]}}]}}]} as unknown as DocumentNode<PlanQuery, PlanQueryVariables>;
 export const UpdatePlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdatePlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdatePlanInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updatePlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"document"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<UpdatePlanMutation, UpdatePlanMutationVariables>;
 export const CreatePlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreatePlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreatePlanInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createPlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"document"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreatePlanMutation, CreatePlanMutationVariables>;
+export const TourProgressDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"TourProgress"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"tourId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tourProgress"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"tourId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"tourId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"tourId"}},{"kind":"Field","name":{"kind":"Name","value":"tourVersion"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"currentStepId"}}]}}]}}]} as unknown as DocumentNode<TourProgressQuery, TourProgressQueryVariables>;
+export const SaveTourProgressDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SaveTourProgress"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SaveTourProgressInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"saveTourProgress"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"tourId"}},{"kind":"Field","name":{"kind":"Name","value":"tourVersion"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"currentStepId"}}]}}]}}]} as unknown as DocumentNode<SaveTourProgressMutation, SaveTourProgressMutationVariables>;
 export const WorkPreferencesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"WorkPreferences"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workPreferences"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"weight"}}]}}]}}]} as unknown as DocumentNode<WorkPreferencesQuery, WorkPreferencesQueryVariables>;
 export const UpdateWorkPreferencesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateWorkPreferences"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"items"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"PreferenceInput"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateWorkPreferences"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"items"},"value":{"kind":"Variable","name":{"kind":"Name","value":"items"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"weight"}}]}}]}}]} as unknown as DocumentNode<UpdateWorkPreferencesMutation, UpdateWorkPreferencesMutationVariables>;

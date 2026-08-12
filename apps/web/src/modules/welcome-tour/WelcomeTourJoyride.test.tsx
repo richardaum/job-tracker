@@ -6,6 +6,7 @@ import { WelcomeTourJoyride } from "./WelcomeTourJoyride";
 const tourMocks = vi.hoisted(() => ({
   complete: vi.fn(),
   completeCurrentSegment: vi.fn(),
+  skip: vi.fn(),
   status: "finished",
   stepNumber: 5,
   totalSteps: 14,
@@ -34,7 +35,11 @@ vi.mock("react-joyride", () => ({
 }));
 
 vi.mock("./useWelcomeTour", () => ({
-  useWelcomeTour: () => ({ completeCurrentSegment: tourMocks.completeCurrentSegment, complete: tourMocks.complete }),
+  useWelcomeTour: () => ({
+    completeCurrentSegment: tourMocks.completeCurrentSegment,
+    complete: tourMocks.complete,
+    skip: tourMocks.skip,
+  }),
 }));
 
 describe("WelcomeTourJoyride", () => {
@@ -70,13 +75,14 @@ describe("WelcomeTourJoyride", () => {
     expect(onTourComplete).toHaveBeenCalledOnce();
   });
 
-  it("completes the tour when skipped", () => {
+  it("marks the tour as skipped", () => {
     tourMocks.status = "skipped";
     render(<WelcomeTourJoyride run steps={[]} />);
 
     fireEvent.click(screen.getByRole("button", { name: "End segment" }));
 
-    expect(tourMocks.complete).toHaveBeenCalledOnce();
+    expect(tourMocks.skip).toHaveBeenCalledOnce();
+    expect(tourMocks.complete).not.toHaveBeenCalled();
     expect(tourMocks.completeCurrentSegment).not.toHaveBeenCalled();
   });
 });

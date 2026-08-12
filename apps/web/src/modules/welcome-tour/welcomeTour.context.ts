@@ -9,6 +9,7 @@ export interface WelcomeTourContextValue {
   start: () => void;
   completeCurrentSegment: () => void;
   complete: () => void;
+  skip: () => void;
   createdJobToastId: string | null;
   setCreatedJobToastId: (toastId: string) => void;
   clearCreatedJobToastId: () => void;

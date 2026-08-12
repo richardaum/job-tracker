@@ -6,9 +6,17 @@ import { WelcomeTourProvider } from "@/modules/welcome-tour/WelcomeTourProvider"
 import { WelcomeTourJobDetails } from "./WelcomeTourJobDetails";
 
 const useFeatureFlagEnabledMock = vi.fn();
+const useTourProgressQueryMock = vi.fn();
+const saveTourProgressMock = vi.fn();
 
 vi.mock("posthog-js/react", () => ({
   useFeatureFlagEnabled: (...args: unknown[]) => useFeatureFlagEnabledMock(...args),
+}));
+
+vi.mock("@/gql/hooks", () => ({
+  TourProgressStatus: { InProgress: "InProgress", Completed: "Completed", Skipped: "Skipped" },
+  useSaveTourProgressMutation: () => [saveTourProgressMock],
+  useTourProgressQuery: (...args: unknown[]) => useTourProgressQueryMock(...args),
 }));
 
 vi.mock("react-joyride", () => ({
@@ -48,6 +56,8 @@ describe("WelcomeTourJobDetails", () => {
       JSON.stringify({ active: true, tourId: "welcome-tour", phase: "job-details" }),
     );
     useFeatureFlagEnabledMock.mockReturnValue(true);
+    useTourProgressQueryMock.mockReturnValue({ data: undefined, loading: false });
+    saveTourProgressMock.mockResolvedValue(undefined);
   });
 
   it("closes the created-job toast after advancing its tour step", async () => {
