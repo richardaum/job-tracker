@@ -28,7 +28,9 @@ export type WelcomeTourStepId =
   | "update-status-interview"
   | "update-status-scheduled-save"
   | "status-panel-tab"
-  | "update-status-timeline";
+  | "update-status-timeline"
+  | "active-jobs-filter"
+  | "active-jobs-list";
 
 type WelcomeTourStepContent = Omit<Step, "title" | "data" | "before" | "after"> & { advanceOnEnter?: boolean };
 
@@ -183,6 +185,19 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
     content: "The Status timeline now shows the Recruiter Screen update scheduled for three days from now.",
     targetWaitTimeout: 2_000,
   },
+  "active-jobs-filter": {
+    target: '[data-welcome-tour-step="active-jobs-filter"]',
+    placement: "bottom",
+    content: "Back on your jobs list, click Active to see applications that are in progress.",
+    disableFocusTrap: true,
+    targetWaitTimeout: 2_000,
+  },
+  "active-jobs-list": {
+    target: '[data-welcome-tour-step="active-jobs-list"]',
+    placement: "bottom",
+    content: "Your new job appears first, alongside a few sample active applications to show how this view works.",
+    targetWaitTimeout: 2_000,
+  },
 };
 
 const WELCOME_TOUR_STEP_ORDER: WelcomeTourStepId[] = [
@@ -209,6 +224,8 @@ const WELCOME_TOUR_STEP_ORDER: WelcomeTourStepId[] = [
   "update-status-scheduled-save",
   "status-panel-tab",
   "update-status-timeline",
+  "active-jobs-filter",
+  "active-jobs-list",
 ];
 
 const WELCOME_TOUR_STEP_NUMBER = new Map(WELCOME_TOUR_STEP_ORDER.map((id, index) => [id, index + 1]));

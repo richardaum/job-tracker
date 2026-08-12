@@ -21,6 +21,7 @@ const QUICK_FILTERS = [
 ] as const;
 
 type QuickFilterKey = (typeof QUICK_FILTERS)[number]["key"];
+type QuickFiltersProps = { restrictInteractionTo?: QuickFilterKey };
 
 const FILTER_COUNT_KEY_MAP: Record<string, QuickFilterKey> = {
   [ApplicationQuickFilter.Draft]: "draft",
@@ -37,7 +38,7 @@ function resolveActiveQuickFilterKey(raw: string | null): QuickFilterKey {
   return match ? match.key : "incoming";
 }
 
-export function QuickFilters() {
+export function QuickFilters({ restrictInteractionTo }: QuickFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -78,14 +79,25 @@ export function QuickFilters() {
   return (
     <div className={cn("flex items-center gap-2 border-b border-border-subtle px-4 py-2 sm:px-6")}>
       <div className={cn("flex flex-wrap items-center gap-1.5")}>
-        {QUICK_FILTERS.map(({ key, label, tooltip }) => (
-          <Tooltip key={key} content={tooltip} side="bottom">
-            <FilterChip active={activeFilter === key} onClick={() => toggle(key)}>
-              {label}
-              {counts[key] > 0 && <span className={cn("ml-1")}>({counts[key]})</span>}
-            </FilterChip>
-          </Tooltip>
-        ))}
+        {QUICK_FILTERS.map(({ key, label, tooltip }) => {
+          const isRestricted = restrictInteractionTo !== undefined && restrictInteractionTo !== key;
+
+          return (
+            <div key={key} inert={isRestricted}>
+              <Tooltip content={tooltip} side="bottom">
+                <FilterChip
+                  active={activeFilter === key}
+                  onClick={() => toggle(key)}
+                  tabIndex={isRestricted ? -1 : undefined}
+                  data-welcome-tour-step={key === "active" ? "active-jobs-filter" : undefined}
+                >
+                  {label}
+                  {counts[key] > 0 && <span className={cn("ml-1")}>({counts[key]})</span>}
+                </FilterChip>
+              </Tooltip>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

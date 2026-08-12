@@ -4,6 +4,7 @@ export const WELCOME_TOUR_PHASES = [
   "job-description",
   "update-status",
   "status-history",
+  "jobs-list",
 ] as const;
 
 export type WelcomeTourPhase = (typeof WELCOME_TOUR_PHASES)[number];

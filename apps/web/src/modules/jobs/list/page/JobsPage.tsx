@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
+import { ApplicationQuickFilter } from "@/gql/hooks";
 import { JobCard } from "@/modules/jobs/list/components/JobCard";
 import { JobQuickEditDialog, type JobQuickEditDialogHandle } from "@/modules/jobs/list/components/JobQuickEditDialog";
 import { JobsCompanyFilterBanner } from "@/modules/jobs/list/components/JobsCompanyFilterBanner";
@@ -88,6 +89,8 @@ export default function JobsPage() {
   }
 
   const filters = useJobsListFilters();
+  const { activePhase, clearCreatedJobToastId, setCreatedJobToastId } = useWelcomeTour();
+  const quickFilterInteractionTarget = activePhase === "jobs-list" ? "active" : undefined;
   const jobsData = useJobsListData(filters);
   const { jobs, companyFilter, error, runIdFilter, showInitialLoading } = useJobsListViewModel(filters, jobsData);
 
@@ -97,7 +100,6 @@ export default function JobsPage() {
   const newJobDialogRef = useRef<JobQuickEditDialogHandle>(null);
   const [newJobDialogElement, setNewJobDialogElement] = useState<HTMLDivElement | null>(null);
   const [newJobWelcomeTour, dispatchNewJobWelcomeTour] = useNewJobWelcomeTour();
-  const { activePhase, clearCreatedJobToastId, setCreatedJobToastId } = useWelcomeTour();
 
   function showToast(message: string, intent: "success" | "error") {
     enqueueToast({ title: message, intent });
@@ -162,7 +164,7 @@ export default function JobsPage() {
       </div>
 
       {/* Quick filters */}
-      <QuickFilters />
+      <QuickFilters restrictInteractionTo={quickFilterInteractionTarget} />
       <JobsCompanyFilterBanner companyName={companyFilter} onClear={() => navigateDeletingSearchKeys(["company"])} />
       <JobsImportRunFilterBanner runId={runIdFilter} onClear={() => navigateDeletingSearchKeys(["runId"])} />
 
@@ -175,18 +177,20 @@ export default function JobsPage() {
         ) : jobs.length === 0 ? (
           <EmptyState variant="default" message="No jobs yet." detail="Add your first one to start tracking." />
         ) : (
-          <Stack gap="sm">
-            {jobs.map((job) => (
-              <JobCard
-                key={job.id}
-                job={job}
-                onSuccess={(msg) => showToast(msg, "success")}
-                onError={(msg) => showToast(msg, "error")}
-                quickEditLoading={isUpdatingQuickJob}
-                onQuickEdit={updateQuickJob}
-              />
-            ))}
-          </Stack>
+          <div data-welcome-tour-step="active-jobs-list">
+            <Stack gap="sm">
+              {jobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  onSuccess={(msg) => showToast(msg, "success")}
+                  onError={(msg) => showToast(msg, "error")}
+                  quickEditLoading={isUpdatingQuickJob}
+                  onQuickEdit={updateQuickJob}
+                />
+              ))}
+            </Stack>
+          </div>
         )}
       </div>
 
@@ -205,6 +209,7 @@ export default function JobsPage() {
         onSubmitNewJob={() => newJobDialogRef.current?.submit()}
         isJobTitleFilled={newJobWelcomeTour.titleFilled}
         isJobCompanyFilled={newJobWelcomeTour.companyFilled}
+        isActiveFilterSelected={filters.activeFilter === ApplicationQuickFilter.Active}
       />
     </div>
   );

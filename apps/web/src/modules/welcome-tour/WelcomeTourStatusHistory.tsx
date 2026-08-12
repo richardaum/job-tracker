@@ -14,7 +14,7 @@ import { useWelcomeTour } from "@/modules/welcome-tour/useWelcomeTour";
 
 type WelcomeTourStatusHistoryProps = { onOpenStatusHistory: () => void; onReturnToJobs: () => void };
 
-/** Completes the welcome tour by opening the Status tab, then highlighting the scheduled event. */
+/** Opens the Status tab, then returns to the jobs list for the welcome tour's final segment. */
 export function WelcomeTourStatusHistory({ onOpenStatusHistory, onReturnToJobs }: WelcomeTourStatusHistoryProps) {
   const welcomeTourEnabled = useFeatureFlagEnabled(WELCOME_TOUR_FEATURE_FLAG);
   const { activePhase } = useWelcomeTour();
@@ -34,7 +34,7 @@ export function WelcomeTourStatusHistory({ onOpenStatusHistory, onReturnToJobs }
           },
         },
       })}
-      onTourComplete={onReturnToJobs}
+      onSegmentComplete={onReturnToJobs}
       locale={{ last: "Got it" }}
       options={{
         buttons: ["primary", "skip"],
