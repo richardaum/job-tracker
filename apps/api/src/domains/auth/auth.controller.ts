@@ -137,6 +137,7 @@ export class AuthController {
       path: REFRESH_COOKIE_PATH,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+    this.logger.log(`refresh succeeded userId=${rotatedUser.id}`);
     res.json({ ok: true });
   }
 
@@ -183,17 +184,34 @@ export class AuthController {
     if (refreshToken) {
       const [verifyErr, payload] = tryRun(() => this.authService.verifyRefreshToken(refreshToken));
       if (!verifyErr && payload) {
-        await tryRun(this.userService.incrementTokenVersion(payload.userId));
+        const [revokeErr] = await tryRun(this.userService.incrementTokenVersion(payload.userId));
+        if (revokeErr) {
+          this.logger.warn(
+            `logout revoke failed userId=${payload.userId} err=${revokeErr instanceof Error ? `${revokeErr.name}: ${revokeErr.message}` : String(revokeErr)}`,
+          );
+        }
         return;
       }
+      this.logger.warn(
+        `logout revoke skipped reason=refresh_verify_failed err=${verifyErr instanceof Error ? `${verifyErr.name}: ${verifyErr.message}` : String(verifyErr)}`,
+      );
     }
 
     const accessToken = req.cookies?.access_token;
     if (accessToken) {
       const [verifyErr, payload] = tryRun(() => this.authService.verifyAccessToken(accessToken));
       if (!verifyErr && payload) {
-        await tryRun(this.userService.incrementTokenVersion(payload.userId));
+        const [revokeErr] = await tryRun(this.userService.incrementTokenVersion(payload.userId));
+        if (revokeErr) {
+          this.logger.warn(
+            `logout revoke failed userId=${payload.userId} err=${revokeErr instanceof Error ? `${revokeErr.name}: ${revokeErr.message}` : String(revokeErr)}`,
+          );
+        }
+        return;
       }
+      this.logger.warn(
+        `logout revoke skipped reason=access_verify_failed err=${verifyErr instanceof Error ? `${verifyErr.name}: ${verifyErr.message}` : String(verifyErr)}`,
+      );
     }
   }
 }

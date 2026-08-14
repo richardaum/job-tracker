@@ -21,7 +21,11 @@ async function refreshAccessToken(refreshUrl: string): Promise<boolean> {
     fetch(refreshUrl, authMutationRequestInit({ method: "POST", credentials: "include" })),
   );
   if (err) {
+    console.warn(`[auth] refresh fetch failed: ${err instanceof Error ? `${err.name}: ${err.message}` : String(err)}`);
     return false;
+  }
+  if (!response.ok) {
+    console.warn(`[auth] refresh request rejected status=${response.status}`);
   }
   return response.ok;
 }
