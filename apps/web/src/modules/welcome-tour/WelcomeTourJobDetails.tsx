@@ -27,6 +27,7 @@ type WelcomeTourJobDetailsProps = {
   onUpdateStatus: () => void;
   onUpdateStatusClose: () => void;
   onUpdateStatusSave: () => void;
+  onScheduleStatusInThreeDays: () => void;
   onStatusDialogRestrictInteractionToChange: (field: UpdateStatusDialogRestrictedTarget | undefined) => void;
   onFocusField: (field: UpdateStatusDialogRestrictedTarget) => void;
   onStatusDialogFreezeSuccessToastChange: (freeze: boolean) => void;
@@ -46,6 +47,7 @@ export function WelcomeTourJobDetails({
   onUpdateStatus,
   onUpdateStatusClose,
   onUpdateStatusSave,
+  onScheduleStatusInThreeDays,
   onStatusDialogRestrictInteractionToChange,
   onFocusField,
   onStatusDialogFreezeSuccessToastChange,
@@ -64,6 +66,7 @@ export function WelcomeTourJobDetails({
   const wasCustomDateEnabledRef = useRef(isCustomDateEnabled);
   const isInterviewStepActiveRef = useRef(false);
   const previousQuickScheduleOptionRef = useRef(selectedQuickScheduleOption);
+  const [isThreeDayScheduleRequested, setIsThreeDayScheduleRequested] = useState(false);
   const [isScheduledSaveStepActive, setIsScheduledSaveStepActive] = useState(false);
   const [hasScheduledStatusBeenSaved, setHasScheduledStatusBeenSaved] = useState(false);
   const previousStatusDialogSaveCountRef = useRef(statusDialogSaveCount);
@@ -98,9 +101,13 @@ export function WelcomeTourJobDetails({
       return;
     }
 
+    if (isThreeDayScheduleRequested) {
+      return;
+    }
+
     isInterviewStepActiveRef.current = false;
     tourControlsRef.current?.next();
-  }, [activePhase, selectedQuickScheduleOption]);
+  }, [activePhase, isThreeDayScheduleRequested, selectedQuickScheduleOption]);
 
   useEffect(() => {
     const previousStatusDialogSaveCount = previousStatusDialogSaveCountRef.current;
@@ -204,7 +211,13 @@ export function WelcomeTourJobDetails({
     },
     "update-status-interview": {
       before: async () => onStatusDialogRestrictInteractionToChange("schedule-3d"),
-      after: () => onStatusDialogRestrictInteractionToChange(undefined),
+      after: ({ action }) => {
+        onStatusDialogRestrictInteractionToChange(undefined);
+        if (action !== ACTIONS.NEXT || selectedQuickScheduleOption === "+3d") return;
+
+        setIsThreeDayScheduleRequested(true);
+        onScheduleStatusInThreeDays();
+      },
     },
     "update-status-scheduled-save": {
       before: async () => {
@@ -235,6 +248,7 @@ export function WelcomeTourJobDetails({
         if (event.type !== EVENTS.TOOLTIP) return;
         isCustomDateStepActiveRef.current = event.step.target === UPDATE_STATUS_CUSTOM_DATE_TARGET;
         isInterviewStepActiveRef.current = event.step.target === UPDATE_STATUS_INTERVIEW_TARGET;
+        if (isInterviewStepActiveRef.current) setIsThreeDayScheduleRequested(false);
         if (event.step.target === UPDATE_STATUS_FIELD_TARGET) {
           onFocusField("status");
         }

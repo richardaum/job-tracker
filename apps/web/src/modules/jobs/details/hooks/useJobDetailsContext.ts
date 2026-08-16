@@ -14,6 +14,7 @@ export interface JobDetailsContextValue {
   selectedStatusStage: ApplicationStage | undefined;
   onSelectedStatusStageChange: (stage: ApplicationStage | undefined) => void;
   requestStatusDialogSave: () => void;
+  requestStatusDialogScheduleInThreeDays: () => void;
   statusDialogRestrictInteractionTo: UpdateStatusDialogRestrictedTarget | undefined;
   onStatusDialogRestrictInteractionToChange: (target: UpdateStatusDialogRestrictedTarget | undefined) => void;
   requestStatusDialogFocusField: (field: UpdateStatusDialogRestrictedTarget) => void;

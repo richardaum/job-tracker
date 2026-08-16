@@ -37,6 +37,8 @@ const quickScheduleOptions = [
   { label: "+2d", offsetDays: 2 },
   { label: "+3d", offsetDays: 3 },
 ] as const;
+const THREE_DAY_SCHEDULE_LABEL = "+3d";
+const THREE_DAY_SCHEDULE_OFFSET = 3;
 
 type UpdateStatusDialogProps = {
   jobId: string;
@@ -60,6 +62,7 @@ type UpdateStatusDialogProps = {
 export type UpdateStatusDialogHandle = {
   save: () => void;
   focusField: (field: UpdateStatusDialogRestrictedTarget) => void;
+  scheduleInThreeDays: () => void;
   closeToast: () => void;
 };
 
@@ -142,6 +145,11 @@ export function UpdateStatusDialog({
       if (field === "status") statusTriggerRef.current?.focus();
       if (field === "custom-date") scheduleCheckboxRef.current?.focus();
       if (field === "schedule-3d") threeDayScheduleRef.current?.focus();
+    },
+    scheduleInThreeDays: () => {
+      handleScheduledEnabledChange(true);
+      setScheduledAtDraft(getDateTimeInputValueFromNow(THREE_DAY_SCHEDULE_OFFSET));
+      onQuickScheduleOptionSelect?.(THREE_DAY_SCHEDULE_LABEL);
     },
     closeToast: () => {
       if (lastToastIdRef.current) dismissToast(lastToastIdRef.current);

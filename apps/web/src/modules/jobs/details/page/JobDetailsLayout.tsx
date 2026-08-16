@@ -225,6 +225,7 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
             selectedStatusStage={selectedStatusStage}
             onSelectedStatusStageChange={setSelectedStatusStage}
             requestStatusDialogSave={() => statusDialogRef.current?.save()}
+            requestStatusDialogScheduleInThreeDays={() => statusDialogRef.current?.scheduleInThreeDays()}
             statusDialogRestrictInteractionTo={statusDialogRestrictInteractionTo}
             onStatusDialogRestrictInteractionToChange={setStatusDialogRestrictInteractionTo}
             requestStatusDialogFocusField={(field) => statusDialogRef.current?.focusField(field)}

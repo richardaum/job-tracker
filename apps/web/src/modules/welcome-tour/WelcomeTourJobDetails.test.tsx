@@ -42,6 +42,16 @@ vi.mock("react-joyride", () => ({
       >
         Advance created toast
       </button>
+      <button
+        type="button"
+        onClick={() =>
+          steps
+            .find((step) => step.target === '[data-welcome-tour-step="update-status-interview"]')
+            ?.after?.({ action: "next" })
+        }
+      >
+        Advance three-day schedule
+      </button>
       <button type="button" onClick={() => onEvent?.({ status: "skipped", step: { data: {} }, type: "tour:end" }, {})}>
         Skip tour
       </button>
@@ -82,9 +92,24 @@ describe("WelcomeTourJobDetails", () => {
 
     expect(onCloseJobCreatedToast).toHaveBeenCalledOnce();
   });
+
+  it("schedules the status update for three days ahead after advancing step 20", async () => {
+    const onScheduleStatusInThreeDays = vi.fn();
+    const user = userEvent.setup();
+    window.sessionStorage.setItem(
+      "job-tracker:tour-session:v1",
+      JSON.stringify({ active: true, tourId: "welcome-tour", phase: "update-status" }),
+    );
+
+    renderWelcomeTour(vi.fn(), onScheduleStatusInThreeDays);
+
+    await user.click(screen.getByRole("button", { name: "Advance three-day schedule" }));
+
+    expect(onScheduleStatusInThreeDays).toHaveBeenCalledOnce();
+  });
 });
 
-function renderWelcomeTour(onCloseJobCreatedToast: () => void) {
+function renderWelcomeTour(onCloseJobCreatedToast: () => void, onScheduleStatusInThreeDays = vi.fn()) {
   return render(
     <WelcomeTourProvider>
       <WelcomeTourJobDetails
@@ -93,6 +118,7 @@ function renderWelcomeTour(onCloseJobCreatedToast: () => void) {
         onUpdateStatus={vi.fn()}
         onUpdateStatusClose={vi.fn()}
         onUpdateStatusSave={vi.fn()}
+        onScheduleStatusInThreeDays={onScheduleStatusInThreeDays}
         onStatusDialogRestrictInteractionToChange={vi.fn()}
         onFocusField={vi.fn()}
         onStatusDialogFreezeSuccessToastChange={vi.fn()}

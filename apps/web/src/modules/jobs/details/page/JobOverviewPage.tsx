@@ -25,6 +25,7 @@ export function JobOverviewPage({ jobId }: JobOverviewPageProps) {
     sourcePrimaryText,
     selectedStatusStage,
     requestStatusDialogSave,
+    requestStatusDialogScheduleInThreeDays,
     onStatusDialogRestrictInteractionToChange,
     requestStatusDialogFocusField,
     statusDialogElement,
@@ -62,6 +63,7 @@ export function JobOverviewPage({ jobId }: JobOverviewPageProps) {
         onUpdateStatus={openStatusDialog}
         onUpdateStatusClose={closeStatusDialog}
         onUpdateStatusSave={requestStatusDialogSave}
+        onScheduleStatusInThreeDays={requestStatusDialogScheduleInThreeDays}
         onStatusDialogRestrictInteractionToChange={onStatusDialogRestrictInteractionToChange}
         onFocusField={requestStatusDialogFocusField}
         onStatusDialogFreezeSuccessToastChange={onStatusDialogFreezeSuccessToastChange}
