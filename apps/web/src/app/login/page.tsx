@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@job-tracker/ui";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { APP_TITLE } from "@/app/metadata";
@@ -11,16 +11,24 @@ import { getApiBaseUrl } from "@/lib/api-endpoints";
 import { hasGraphQLCode } from "@/lib/graphql-entity-errors";
 import { LoginSocialPanel } from "@/modules/auth/login/LoginSocialPanel";
 import { LoginSpotlightGrid } from "@/modules/auth/login/LoginSpotlightGrid";
+import type { LoginStatusPanelStatus } from "@/modules/auth/login/LoginStatusPanel";
+import { LoginStatusPanel } from "@/modules/auth/login/LoginStatusPanel";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 
 function isAuthError(error: unknown): boolean {
   return hasGraphQLCode(error, "UNAUTHENTICATED");
 }
 
+function toLoginStatus(value: string | null): LoginStatusPanelStatus | undefined {
+  return value === "pending" || value === "rejected" ? value : undefined;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { user, loading, error } = useCurrentUser();
   const { safeReturnTo } = useAuthReturnTo();
+  const searchParams = useSearchParams();
+  const status = toLoginStatus(searchParams.get("status"));
 
   useEffect(() => {
     if (!loading && user) {
@@ -61,12 +69,16 @@ export default function LoginPage() {
               "mx-auto max-w-md lg:mx-0 lg:h-full lg:max-w-none lg:justify-center",
             )}
           >
-            <LoginSocialPanel
-              brandName={APP_TITLE}
-              onGoogleClick={handleGoogleLogin}
-              error={isAuthError(error) ? undefined : error?.message}
-              className={cn("shadow-xl")}
-            />
+            {status ? (
+              <LoginStatusPanel status={status} className={cn("shadow-xl")} />
+            ) : (
+              <LoginSocialPanel
+                brandName={APP_TITLE}
+                onGoogleClick={handleGoogleLogin}
+                error={isAuthError(error) ? undefined : error?.message}
+                className={cn("shadow-xl")}
+              />
+            )}
           </div>
           <div className={cn("flex min-w-0 flex-col lg:pb-2 lg:pr-4 xl:pr-6")}>
             <LoginSpotlightGrid className={cn("py-2 lg:py-0")} />

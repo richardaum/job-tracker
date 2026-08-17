@@ -1,5 +1,8 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { ApolloNextAppProvider } from "@apollo/client-integration-nextjs";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { createApolloClient } from "@/lib/make-apollo-client";
 
 import LoginPage from "./page";
 
@@ -16,13 +19,21 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/hooks/useCurrentUser", () => ({ useCurrentUser: () => useCurrentUserMock() }));
 
+function renderPage() {
+  return render(
+    <ApolloNextAppProvider makeClient={createApolloClient}>
+      <LoginPage />
+    </ApolloNextAppProvider>,
+  );
+}
+
 describe("LoginPage", () => {
   it("renders Google login button", () => {
     usePathnameMock.mockReturnValue("/login");
     useSearchParamsMock.mockReturnValue(new URLSearchParams("returnTo=%2Fjobs%2F123"));
     useCurrentUserMock.mockReturnValue({ user: null, loading: false, error: undefined });
 
-    render(<LoginPage />);
+    renderPage();
 
     expect(screen.getByRole("heading", { name: /get started/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /continue with google/i })).toBeInTheDocument();
@@ -34,7 +45,7 @@ describe("LoginPage", () => {
     useSearchParamsMock.mockReturnValue(new URLSearchParams("returnTo=%2Fjobs%2F123"));
     useCurrentUserMock.mockReturnValue({ user: { id: "user-1" }, loading: false, error: undefined });
 
-    render(<LoginPage />);
+    renderPage();
 
     expect(replaceMock).toHaveBeenCalledWith("/jobs/123");
   });
@@ -44,8 +55,73 @@ describe("LoginPage", () => {
     useSearchParamsMock.mockReturnValue(new URLSearchParams("returnTo=https%3A%2F%2Fevil.example"));
     useCurrentUserMock.mockReturnValue({ user: { id: "user-1" }, loading: false, error: undefined });
 
-    render(<LoginPage />);
+    renderPage();
 
     expect(replaceMock).toHaveBeenCalledWith("/");
+  });
+
+  it("renders the pending message and hides the login CTA when status=pending", () => {
+    usePathnameMock.mockReturnValue("/login");
+    useSearchParamsMock.mockReturnValue(new URLSearchParams("status=pending"));
+    useCurrentUserMock.mockReturnValue({ user: null, loading: false, error: undefined });
+
+    renderPage();
+
+    expect(screen.getByRole("heading", { name: /access requested/i })).toBeInTheDocument();
+    expect(screen.getByText(/pending admin approval/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /continue with google/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /log out/i })).toBeInTheDocument();
+  });
+
+  it("renders the rejected message and hides the login CTA when status=rejected", () => {
+    usePathnameMock.mockReturnValue("/login");
+    useSearchParamsMock.mockReturnValue(new URLSearchParams("status=rejected"));
+    useCurrentUserMock.mockReturnValue({ user: null, loading: false, error: undefined });
+
+    renderPage();
+
+    expect(screen.getByRole("heading", { name: /access not granted/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /continue with google/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /log out/i })).toBeInTheDocument();
+  });
+
+  it("falls back to the default login CTA for an unrecognized status value", () => {
+    usePathnameMock.mockReturnValue("/login");
+    useSearchParamsMock.mockReturnValue(new URLSearchParams("status=something-else"));
+    useCurrentUserMock.mockReturnValue({ user: null, loading: false, error: undefined });
+
+    renderPage();
+
+    expect(screen.getByRole("button", { name: /continue with google/i })).toBeInTheDocument();
+  });
+
+  describe("logging out from the pending screen", () => {
+    const fetchMock = vi.fn();
+
+    beforeEach(() => {
+      usePathnameMock.mockReturnValue("/login");
+      useSearchParamsMock.mockReturnValue(new URLSearchParams("status=pending"));
+      useCurrentUserMock.mockReturnValue({ user: null, loading: false, error: undefined });
+      fetchMock.mockResolvedValue(new Response(null, { status: 200 }));
+      vi.stubGlobal("fetch", fetchMock);
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it("calls the logout endpoint and redirects to /login", async () => {
+      renderPage();
+
+      fireEvent.click(screen.getByRole("button", { name: /log out/i }));
+
+      await waitFor(() => {
+        expect(fetchMock).toHaveBeenCalledWith(
+          expect.stringContaining("/auth/logout"),
+          expect.objectContaining({ method: "POST", credentials: "include" }),
+        );
+        expect(replaceMock).toHaveBeenCalledWith("/login");
+      });
+    });
   });
 });
