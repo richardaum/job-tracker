@@ -4,7 +4,6 @@ import { cn } from "@job-tracker/ui";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import { LoginV2SideTile } from "@/modules/auth/login/LoginV2SideTile";
-import type { LoginSpotlightIconKey } from "@/modules/auth/login/mockLoginSpotlightTiles";
 
 // Matches LoginV2SideTile's `w-48` size.
 const TILE_WIDTH = 192;
@@ -17,11 +16,11 @@ const FALLBACK_CARD_HEIGHT = 340;
 
 const ORBIT_DURATION_S = 36;
 
-const ORBIT_TILES: ReadonlyArray<{ icon: LoginSpotlightIconKey; title: string }> = [
-  { icon: "briefcase", title: "Every job in one place" },
-  { icon: "chartLineUp", title: "Pipeline at a glance" },
-  { icon: "calculator", title: "Know your number" },
-  { icon: "target", title: "See your fit before you apply" },
+const ORBIT_TILES: ReadonlyArray<{ title: string }> = [
+  { title: "Paste a link, get a draft" },
+  { title: "AI scores your fit" },
+  { title: "Never miss a follow-up" },
+  { title: "Compare offers instantly" },
 ];
 
 type Track = { containerWidth: number; containerHeight: number; path: string };
@@ -83,7 +82,7 @@ export function LoginV2Orbit({ children, className }: LoginV2OrbitProps) {
             animationDelay: `${-(index / ORBIT_TILES.length) * ORBIT_DURATION_S}s`,
           }}
         >
-          <LoginV2SideTile icon={tile.icon} title={tile.title} />
+          <LoginV2SideTile title={tile.title} />
         </div>
       ))}
     </div>
