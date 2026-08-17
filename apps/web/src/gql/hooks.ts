@@ -409,6 +409,7 @@ export enum MatchVerdict {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  approveRegistration: UserType;
   askAiQuestion: AskQuestionPayloadType;
   clearSourceRuns: Scalars['Boolean']['output'];
   clearSourceTemplateRuns: Scalars['Int']['output'];
@@ -434,6 +435,7 @@ export type Mutation = {
   detachJobsFromSourceRun: Scalars['Int']['output'];
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
+  rejectRegistration: UserType;
   removeJobTag: JobType;
   removeOpenAiKey: UserSetting;
   reportExtensionActivity: ExtensionActivityEvent;
@@ -454,6 +456,11 @@ export type Mutation = {
   updateSourceRunStatus: SourceRunType;
   updateSourceTemplate: SourceTemplateType;
   updateWorkPreferences: Array<PreferenceType>;
+};
+
+
+export type MutationApproveRegistrationArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -572,6 +579,11 @@ export type MutationFillJobAutomaticallyArgs = {
 
 export type MutationGenerateJobMatchArgs = {
   input: GenerateMatchInput;
+};
+
+
+export type MutationRejectRegistrationArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -738,6 +750,7 @@ export type Query = {
   plan?: Maybe<PlanType>;
   plans: Array<PlanType>;
   quickFilterCounts: Array<FilterCountType>;
+  registrations: Array<UserType>;
   restructureJobDescriptionWithAI: Scalars['String']['output'];
   resume: ResumeType;
   resumes: Array<ResumeType>;
@@ -851,6 +864,11 @@ export type QueryPlanArgs = {
 export type QueryQuickFilterCountsArgs = {
   company?: InputMaybe<Scalars['String']['input']>;
   runId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryRegistrationsArgs = {
+  status?: InputMaybe<UserStatus>;
 };
 
 
@@ -1128,14 +1146,23 @@ export type UserSetting = {
   userId: Scalars['String']['output'];
 };
 
+export enum UserStatus {
+  Active = 'Active',
+  Deactivated = 'Deactivated',
+  Pending = 'Pending',
+  Rejected = 'Rejected'
+}
+
 export type UserType = {
   __typename?: 'UserType';
   accounts: Array<AuthAccount>;
   avatarUrl?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   role: Role;
+  status: UserStatus;
 };
 
 export enum Weight {
@@ -1164,6 +1191,25 @@ export type AdminExtensionActivityEventsSubscriptionVariables = Exact<{ [key: st
 
 
 export type AdminExtensionActivityEventsSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, sourceRunId?: string | null, occurredAt: any } };
+
+export type AdminRegistrationsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AdminRegistrationsQuery = { __typename?: 'Query', registrations: Array<{ __typename?: 'UserType', id: string, email: string, name: string, avatarUrl?: string | null, status: UserStatus, createdAt: any }> };
+
+export type ApproveRegistrationMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type ApproveRegistrationMutation = { __typename?: 'Mutation', approveRegistration: { __typename?: 'UserType', id: string, status: UserStatus } };
+
+export type RejectRegistrationMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type RejectRegistrationMutation = { __typename?: 'Mutation', rejectRegistration: { __typename?: 'UserType', id: string, status: UserStatus } };
 
 export type AdminUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1893,6 +1939,112 @@ export function useAdminExtensionActivityEventsSubscription(baseOptions?: Apollo
         return ApolloReactHooks.useSubscription<AdminExtensionActivityEventsSubscription, AdminExtensionActivityEventsSubscriptionVariables>(AdminExtensionActivityEventsDocument, options);
       }
 export type AdminExtensionActivityEventsSubscriptionHookResult = ReturnType<typeof useAdminExtensionActivityEventsSubscription>;
+
+export const AdminRegistrationsDocument = gql`
+    query AdminRegistrations {
+  registrations {
+    id
+    email
+    name
+    avatarUrl
+    status
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useAdminRegistrationsQuery__
+ *
+ * To run a query within a React component, call `useAdminRegistrationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAdminRegistrationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAdminRegistrationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAdminRegistrationsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<AdminRegistrationsQuery, AdminRegistrationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<AdminRegistrationsQuery, AdminRegistrationsQueryVariables>(AdminRegistrationsDocument, options);
+      }
+export function useAdminRegistrationsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AdminRegistrationsQuery, AdminRegistrationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<AdminRegistrationsQuery, AdminRegistrationsQueryVariables>(AdminRegistrationsDocument, options);
+        }
+
+export type AdminRegistrationsQueryHookResult = ReturnType<typeof useAdminRegistrationsQuery>;
+export type AdminRegistrationsLazyQueryHookResult = ReturnType<typeof useAdminRegistrationsLazyQuery>;
+
+export const ApproveRegistrationDocument = gql`
+    mutation ApproveRegistration($userId: ID!) {
+  approveRegistration(userId: $userId) {
+    id
+    status
+  }
+}
+    `;
+
+
+/**
+ * __useApproveRegistrationMutation__
+ *
+ * To run a mutation, you first call `useApproveRegistrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApproveRegistrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [approveRegistrationMutation, { data, loading, error }] = useApproveRegistrationMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useApproveRegistrationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ApproveRegistrationMutation, ApproveRegistrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ApproveRegistrationMutation, ApproveRegistrationMutationVariables>(ApproveRegistrationDocument, options);
+      }
+
+
+export const RejectRegistrationDocument = gql`
+    mutation RejectRegistration($userId: ID!) {
+  rejectRegistration(userId: $userId) {
+    id
+    status
+  }
+}
+    `;
+
+
+/**
+ * __useRejectRegistrationMutation__
+ *
+ * To run a mutation, you first call `useRejectRegistrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRejectRegistrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [rejectRegistrationMutation, { data, loading, error }] = useRejectRegistrationMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useRejectRegistrationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RejectRegistrationMutation, RejectRegistrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RejectRegistrationMutation, RejectRegistrationMutationVariables>(RejectRegistrationDocument, options);
+      }
+
 
 export const AdminUsersDocument = gql`
     query AdminUsers {
