@@ -11,7 +11,7 @@ export class ContextMenuService {
     await chrome.contextMenus.removeAll();
     await chrome.contextMenus.create({
       id: CONTEXT_MENU_PARENT_ID,
-      title: "Job Tracker",
+      title: "NewJobTracker",
       contexts: ["page", "selection"],
     });
     await chrome.contextMenus.create({

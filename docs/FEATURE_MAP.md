@@ -1,4 +1,4 @@
-# Feature Map — Job Tracker
+# Feature Map — NewJobTracker
 
 > User-facing features only. Each entry references the spec and describes the feature in one sentence.
 

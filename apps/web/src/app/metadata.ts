@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const APP_TITLE = "Job Tracker";
+export const APP_TITLE = "NewJobTracker";
 export const APP_DESCRIPTION = "Track your job applications";
 export const TITLE_TEMPLATE = `%s | ${APP_TITLE}`;
 

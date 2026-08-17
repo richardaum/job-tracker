@@ -2,6 +2,7 @@
 
 import { cn } from "@job-tracker/ui";
 import { GoogleLogoIcon } from "@phosphor-icons/react";
+import Link from "next/link";
 
 import { APP_TITLE } from "@/app/metadata";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
@@ -42,7 +43,15 @@ export function LoginV2WelcomeCard({ onGoogleClick, error, className }: LoginV2W
       </button>
 
       <p className={cn("mt-8 text-xs text-text-muted")}>
-        By continuing you agree to follow this app&apos;s terms and privacy practices for authentication data.
+        By continuing you agree to our{" "}
+        <Link className={cn("text-text-brand underline underline-offset-2")} href="/terms">
+          Terms
+        </Link>{" "}
+        and{" "}
+        <Link className={cn("text-text-brand underline underline-offset-2")} href="/privacy">
+          Privacy Policy
+        </Link>
+        .
       </p>
     </div>
   );

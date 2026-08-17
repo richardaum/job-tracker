@@ -2,6 +2,7 @@
 
 import { cn, Heading } from "@job-tracker/ui";
 import { AppleLogoIcon, FacebookLogoIcon, GoogleLogoIcon } from "@phosphor-icons/react";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 /**
@@ -89,7 +90,15 @@ export function LoginSocialPanel({ brandName, onGoogleClick, error, className }:
       </div>
 
       <p className={cn("mt-8 text-center text-xs text-text-muted")}>
-        By continuing you agree to follow this app&apos;s terms and privacy practices for authentication data.
+        By continuing you agree to our{" "}
+        <Link className={cn("text-text-brand underline underline-offset-2")} href="/terms">
+          Terms
+        </Link>{" "}
+        and{" "}
+        <Link className={cn("text-text-brand underline underline-offset-2")} href="/privacy">
+          Privacy Policy
+        </Link>
+        .
       </p>
     </div>
   );

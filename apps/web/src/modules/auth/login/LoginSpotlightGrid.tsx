@@ -87,7 +87,7 @@ type LoginSpotlightGridProps = { className?: string };
 export function LoginSpotlightGrid({ className }: LoginSpotlightGridProps) {
   return (
     <section
-      aria-label="Job Tracker highlights"
+      aria-label="NewJobTracker highlights"
       className={cn("flex flex-col gap-3 text-text-inverted lg:gap-5", className)}
     >
       <div className={cn("min-w-0")}>

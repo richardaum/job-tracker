@@ -1,4 +1,4 @@
-# AGENTS.md — Job Tracker
+# AGENTS.md — NewJobTracker
 
 ## Monorepo
 

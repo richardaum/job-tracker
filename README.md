@@ -1,4 +1,4 @@
-# Job tracker
+# NewJobTracker
 
 pnpm monorepo: `apps/web` (Next.js), `apps/api` (NestJS GraphQL), `packages/ui`, `packages/logger`.
 

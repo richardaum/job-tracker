@@ -2,7 +2,7 @@
 
 ## Overview
 
-Provides a mechanism to export all user data from a Job Tracker instance and import it into another instance. The primary use case is **instance migration** — moving a local deployment to a cloud provider (e.g., Supabase) as a one-time or low-frequency operation. Export produces a single structured JSON file; import reads that file and upserts all entities into the target database.
+Provides a mechanism to export all user data from a NewJobTracker instance and import it into another instance. The primary use case is **instance migration** — moving a local deployment to a cloud provider (e.g., Supabase) as a one-time or low-frequency operation. Export produces a single structured JSON file; import reads that file and upserts all entities into the target database.
 
 ## Goals
 

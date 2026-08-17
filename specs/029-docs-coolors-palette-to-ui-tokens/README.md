@@ -11,7 +11,7 @@ tags:
 
 # Coolors palette → UI tokens (workflow)
 
-**Scope:** Practical workflow to move palettes from [Coolors](https://coolors.co/) into the Job Tracker UI **without losing consistency or accessibility**. Defines semantic roles, contrast validation, export paths, rollout order for a first theme pass, surface-aware checks, and follow-on token decisions.
+**Scope:** Practical workflow to move palettes from [Coolors](https://coolors.co/) into the NewJobTracker UI **without losing consistency or accessibility**. Defines semantic roles, contrast validation, export paths, rollout order for a first theme pass, surface-aware checks, and follow-on token decisions.
 
 **Canonical code alignment:** Semantic tokens and Tailwind/CSS variables live primarily in **`packages/ui`** (**`tokens.css`**, **`theme.css`**) — see **`specs/002-technical-design-system-and-visual-identity/README.md`** (archived baseline for three-tier tokens).
 

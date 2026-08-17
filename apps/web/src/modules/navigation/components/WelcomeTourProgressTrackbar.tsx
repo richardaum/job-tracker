@@ -53,7 +53,7 @@ export function WelcomeTourProgressTrackbar({ onResetComplete }: WelcomeTourProg
           <InfoTooltip
             size={12}
             maxWidth={200}
-            content="Track the guided tour through Job Tracker. Resetting clears only tutorial data and restarts at step one."
+            content="Track the guided tour through NewJobTracker. Resetting clears only tutorial data and restarts at step one."
           />
         </div>
       </div>

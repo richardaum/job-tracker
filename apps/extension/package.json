@@ -1,9 +1,9 @@
 {
   "name": "@job-tracker/extension",
-  "displayName": "Job Tracker",
+  "displayName": "NewJobTracker",
   "version": "0.0.3",
   "private": true,
-  "description": "Job Tracker browser extension (MV3 / WXT + Vite).",
+  "description": "NewJobTracker browser extension (MV3 / WXT + Vite).",
   "type": "module",
   "scripts": {
     "prepare": "wxt prepare",

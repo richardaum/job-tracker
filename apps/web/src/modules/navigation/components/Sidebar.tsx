@@ -120,7 +120,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
       <div className={cn("flex items-center gap-2 p-5 ")}>
         <AppBrandMark size={22} />
         <Text as="span" size="base" weight="bold">
-          Job Tracker
+          NewJobTracker
         </Text>
       </div>
 

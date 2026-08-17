@@ -46,7 +46,7 @@ const WELCOME_TOUR_STEPS: Record<WelcomeTourStepId, WelcomeTourStepContent> = {
     placement: "center",
     content: (
       <p>
-        Welcome to Job Tracker! This welcome tour will guide you through the main features of the application. <br />
+        Welcome to NewJobTracker! This welcome tour will guide you through the main features of the application. <br />
         Don't worry about using real data—everything you enter is just for this tutorial.
       </p>
     ),

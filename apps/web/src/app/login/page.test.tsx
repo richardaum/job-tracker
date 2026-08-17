@@ -37,7 +37,7 @@ describe("LoginPage", () => {
 
     expect(screen.getByRole("heading", { name: /get started/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /continue with google/i })).toBeInTheDocument();
-    expect(screen.getByRole("region", { name: /job tracker highlights/i })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: /newjobtracker highlights/i })).toBeInTheDocument();
   });
 
   it("redirects authenticated users to returnTo from query param", () => {

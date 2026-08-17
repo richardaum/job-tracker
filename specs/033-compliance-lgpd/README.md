@@ -16,7 +16,7 @@ tags:
 
 ## Motivation
 
-Job Tracker collects and stores users' personal data — name, email, full resumes, salary preferences, application history, and browsing data from the Chrome extension. Brazil's General Data Protection Law (LGPD — Lei nº 13.709/2018) requires applications that process personal data in Brazil to provide:
+NewJobTracker collects and stores users' personal data — name, email, full resumes, salary preferences, application history, and browsing data from the Chrome extension. Brazil's General Data Protection Law (LGPD — Lei nº 13.709/2018) requires applications that process personal data in Brazil to provide:
 
 - Transparency about which data is collected and for what purposes.
 - Record of legal bases for each processing operation.
@@ -24,7 +24,7 @@ Job Tracker collects and stores users' personal data — name, email, full resum
 - Retention and secure disposal policies.
 - Technical and administrative security measures.
 
-This spec defines what needs to be implemented to bring Job Tracker into LGPD compliance.
+This spec defines what needs to be implemented to bring NewJobTracker into LGPD compliance.
 
 ## Data inventory
 
@@ -54,7 +54,7 @@ On the signup/login flow, display a **consent banner** with individual checkboxe
 
 ```
 ┌──────────────────────────────────────────────┐
-│  Job Tracker needs your consent               │
+│  NewJobTracker needs your consent               │
 │  for some operations with your data:          │
 │                                                │
 │  ☑ Store resumes for fit analysis             │

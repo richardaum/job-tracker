@@ -6,7 +6,7 @@ Move match analysis from a standalone page (`/matches/[id]`) into a tab inside t
 
 **Problem:** Match analysis is siloed in its own page, disconnected from the job it analyzes. Users must remember a separate URL and sidebar entry point.
 
-**Who it's for:** Job Tracker users reviewing job matches — they want full match details without leaving the job context.
+**Who it's for:** NewJobTracker users reviewing job matches — they want full match details without leaving the job context.
 
 **Why valuable:** Reduces navigation friction, removes a top-level sidebar item, consolidates related information into one view.
 
