@@ -4,6 +4,7 @@ import { UserAccountEntity } from "@api/database/entities/user-account.entity";
 import { AUTH_ACTION_HEADER, AUTH_ACTION_VALUE } from "@api/domains/auth/auth-mutation.util";
 import { AuthUserAccessService } from "@api/domains/auth/auth-user-access.service";
 import { RoleEnum } from "@api/domains/users/role.enum";
+import { UserStatusEnum } from "@api/domains/users/user-status.enum";
 import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
 import { apiEnv } from "@api/env/server";
@@ -12,7 +13,7 @@ import { Test } from "@nestjs/testing";
 import { ThrottlerGuard } from "@nestjs/throttler";
 import cookieParser from "cookie-parser";
 import request from "supertest";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
@@ -25,7 +26,7 @@ const mockUser: User = {
   name: "Test User",
   avatarUrl: null,
   role: RoleEnum.User,
-  active: true,
+  status: UserStatusEnum.Active,
   tokenVersion: 0,
   refreshJti: null,
   createdAt: new Date(),
@@ -45,8 +46,10 @@ describe("AuthController (integration)", () => {
   let setRefreshJti: ReturnType<typeof vi.fn>;
   let findById: ReturnType<typeof vi.fn>;
   let verifyRefreshToken: ReturnType<typeof vi.fn>;
+  let googleAuthUser: Pick<User, "id" | "tokenVersion" | "status">;
 
   beforeAll(async () => {
+    googleAuthUser = mockUser;
     incrementTokenVersion = vi.fn().mockResolvedValue(undefined);
     setRefreshJti = vi.fn().mockResolvedValue(undefined);
     findById = vi
@@ -71,7 +74,9 @@ describe("AuthController (integration)", () => {
         {
           provide: UserService,
           useValue: {
-            validateActiveUser: vi.fn().mockResolvedValue({ ...mockUser, active: true, tokenVersion: 0 }),
+            validateActiveUser: vi
+              .fn()
+              .mockResolvedValue({ ...mockUser, status: UserStatusEnum.Active, tokenVersion: 0 }),
             incrementTokenVersion,
             setRefreshJti,
             findById,
@@ -80,7 +85,9 @@ describe("AuthController (integration)", () => {
         {
           provide: AuthUserAccessService,
           useValue: {
-            assertAuthenticatedUser: vi.fn().mockResolvedValue({ ...mockUser, active: true, tokenVersion: 0 }),
+            assertAuthenticatedUser: vi
+              .fn()
+              .mockResolvedValue({ ...mockUser, status: UserStatusEnum.Active, tokenVersion: 0 }),
           },
         },
         { provide: DevAuthBypassService, useValue: { isEnabled: () => false } },
@@ -89,7 +96,7 @@ describe("AuthController (integration)", () => {
       .overrideGuard(GoogleAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
-          ctx.switchToHttp().getRequest().user = mockUser;
+          ctx.switchToHttp().getRequest().user = googleAuthUser;
           return true;
         },
       })
@@ -104,6 +111,10 @@ describe("AuthController (integration)", () => {
 
   afterAll(async () => {
     await app?.close();
+  });
+
+  afterEach(() => {
+    googleAuthUser = mockUser;
   });
 
   it("GET /auth/google/callback sets cookies and redirects to login", async () => {
@@ -146,6 +157,41 @@ describe("AuthController (integration)", () => {
 
     expect(res.statusCode).toBe(302);
     expect(res.headers.location).toBe(loginUrl);
+  });
+
+  it("GET /auth/google/callback redirects to /login?status=pending with no cookies for a pending user", async () => {
+    googleAuthUser = { ...mockUser, status: UserStatusEnum.Pending };
+    setRefreshJti.mockClear();
+
+    const res = await request(app.getHttpServer()).get("/auth/google/callback").set("Host", host);
+
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe(`${loginUrl}?status=pending`);
+    expect(res.headers["set-cookie"]).toBeUndefined();
+    expect(setRefreshJti).not.toHaveBeenCalled();
+  });
+
+  it("GET /auth/google/callback redirects to /login?status=rejected with no cookies for a rejected user", async () => {
+    googleAuthUser = { ...mockUser, status: UserStatusEnum.Rejected };
+    setRefreshJti.mockClear();
+
+    const res = await request(app.getHttpServer()).get("/auth/google/callback").set("Host", host);
+
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe(`${loginUrl}?status=rejected`);
+    expect(res.headers["set-cookie"]).toBeUndefined();
+    expect(setRefreshJti).not.toHaveBeenCalled();
+  });
+
+  it("GET /auth/google/callback does not append returnTo to a pending redirect", async () => {
+    googleAuthUser = { ...mockUser, status: UserStatusEnum.Pending };
+
+    const res = await request(app.getHttpServer())
+      .get("/auth/google/callback?state=%2Fapplications%2F123")
+      .set("Host", host);
+
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.location).toBe(`${loginUrl}?status=pending`);
   });
 
   it("POST /auth/logout clears auth cookies and increments tokenVersion", async () => {
@@ -226,6 +272,35 @@ describe("AuthController (integration)", () => {
 
   it("POST /auth/refresh returns 401 without refresh cookie", async () => {
     const res = await request(app.getHttpServer()).post("/auth/refresh").set(authMutationHeader);
+    expect(res.statusCode).toBe(401);
+  });
+
+  it("POST /auth/refresh returns 401 when the current user is not active", async () => {
+    findById.mockResolvedValueOnce({ ...mockUser, status: UserStatusEnum.Pending, refreshJti: currentJti });
+
+    const res = await request(app.getHttpServer())
+      .post("/auth/refresh")
+      .set(authMutationHeader)
+      .set("Cookie", ["refresh_token=valid-refresh"]);
+
+    expect(res.statusCode).toBe(401);
+  });
+
+  it("POST /auth/refresh returns 401 when the user becomes inactive after rotation", async () => {
+    findById
+      .mockResolvedValueOnce({ ...mockUser, refreshJti: currentJti, tokenVersion: mockUser.tokenVersion })
+      .mockResolvedValueOnce({
+        ...mockUser,
+        status: UserStatusEnum.Deactivated,
+        refreshJti: currentJti,
+        tokenVersion: 1,
+      });
+
+    const res = await request(app.getHttpServer())
+      .post("/auth/refresh")
+      .set(authMutationHeader)
+      .set("Cookie", ["refresh_token=valid-refresh"]);
+
     expect(res.statusCode).toBe(401);
   });
 

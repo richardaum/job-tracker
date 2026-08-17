@@ -1,4 +1,5 @@
 import { getSafeReturnTo } from "@api/domains/auth/auth-return-to.util";
+import type { UserStatusEnum } from "@api/domains/users/user-status.enum";
 import { ExecutionContext, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import type { Request } from "express";
@@ -27,9 +28,11 @@ export class GoogleAuthGuard extends AuthGuard("google") {
 
   override async canActivate(context: ExecutionContext): Promise<boolean> {
     if (this.devAuthBypassService.isEnabled()) {
-      const request = context.switchToHttp().getRequest<Request & { user?: { id: string; tokenVersion: number } }>();
+      const request = context
+        .switchToHttp()
+        .getRequest<Request & { user?: { id: string; tokenVersion: number; status: UserStatusEnum } }>();
       const user = await this.devAuthBypassService.getBypassUser();
-      request.user = { id: user.id, tokenVersion: user.tokenVersion };
+      request.user = { id: user.id, tokenVersion: user.tokenVersion, status: user.status };
       return true;
     }
 

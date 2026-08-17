@@ -1,3 +1,4 @@
+import { UserStatusEnum } from "@api/domains/users/user-status.enum";
 import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
 import { apiEnv } from "@api/env/server";
@@ -23,7 +24,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
       name: profile.displayName,
       avatarUrl: profile.photos?.[0]?.value ?? null,
     });
-    if (!user.active) {
+    if (user.status === UserStatusEnum.Deactivated) {
       throw new UnauthorizedException();
     }
     return user;

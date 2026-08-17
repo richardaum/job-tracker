@@ -1,4 +1,5 @@
 import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
+import { RegistrationsResolver } from "@api/domains/users/registrations.resolver";
 import { UsersModule } from "@api/domains/users/users.module";
 import { Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
@@ -28,6 +29,7 @@ import { RolesGuard } from "./roles.guard";
     DevAuthBypassService,
     RoleService,
     AuthResolver,
+    RegistrationsResolver,
   ],
   controllers: [AuthController],
   exports: [

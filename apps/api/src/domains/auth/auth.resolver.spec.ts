@@ -2,6 +2,7 @@ import "reflect-metadata";
 
 import { UserAccountEntity } from "@api/database/entities/user-account.entity";
 import { RoleEnum } from "@api/domains/users/role.enum";
+import { UserStatusEnum } from "@api/domains/users/user-status.enum";
 import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
@@ -24,7 +25,7 @@ const mockUser: User = {
   name: "Test User",
   avatarUrl: null,
   role: RoleEnum.User,
-  active: true,
+  status: UserStatusEnum.Active,
   tokenVersion: 0,
   refreshJti: null,
   createdAt: new Date(),

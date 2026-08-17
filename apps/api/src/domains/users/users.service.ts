@@ -1,12 +1,18 @@
 import { randomUUID } from "node:crypto";
 
-import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
+
+import { PostHogService } from "@api/domains/feature-flags/posthog.service";
 
 import { ActiveUserCacheService } from "./active-user-cache.service";
 import { AuthProviderEnum } from "./auth-provider.enum";
 import { RoleEnum } from "./role.enum";
+import { UserStatusEnum } from "./user-status.enum";
 import { UserRepository } from "./users.repository";
 import type { NewUser, User } from "./users.schema";
+
+const AUTO_ACCEPT_REGISTER_FLAG = "auto-accept-register-enabled";
+const AUTO_ACCEPT_REGISTER_DISTINCT_ID = "system";
 
 @Injectable()
 export class UserService {
@@ -15,10 +21,34 @@ export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly activeUserCache: ActiveUserCacheService,
+    private readonly postHogService: PostHogService,
   ) {}
 
   async listAllUsers(): Promise<User[]> {
     return this.userRepository.findAll();
+  }
+
+  async listRegistrations(status?: UserStatusEnum): Promise<User[]> {
+    const users = await this.userRepository.findAll();
+    return status ? users.filter((user) => user.status === status) : users;
+  }
+
+  async approveRegistration(userId: string): Promise<User> {
+    return this.transitionRegistration(userId, UserStatusEnum.Active);
+  }
+
+  async rejectRegistration(userId: string): Promise<User> {
+    return this.transitionRegistration(userId, UserStatusEnum.Rejected);
+  }
+
+  private async transitionRegistration(userId: string, nextStatus: UserStatusEnum): Promise<User> {
+    const user = await this.userRepository.findById(userId);
+    if (!user || user.status !== UserStatusEnum.Pending) {
+      throw new BadRequestException("Only pending registrations can be approved or rejected.");
+    }
+
+    await this.userRepository.setStatus(userId, nextStatus);
+    return { ...user, status: nextStatus };
   }
 
   async findById(id: string): Promise<User | null> {
@@ -61,6 +91,7 @@ export class UserService {
       }
 
       const userId = randomUUID();
+      const status = await this.resolveNewUserStatus(profile.email);
       const user = await this.userRepository.insertUser(
         {
           id: userId,
@@ -68,6 +99,7 @@ export class UserService {
           name: profile.name,
           avatarUrl: profile.avatarUrl,
           role: profile.role ?? RoleEnum.User,
+          status,
         },
         em,
       );
@@ -77,6 +109,23 @@ export class UserService {
       );
       return user;
     });
+  }
+
+  private async resolveNewUserStatus(email: string): Promise<UserStatusEnum> {
+    const autoAcceptEnabled = await this.postHogService.isFeatureEnabled(
+      AUTO_ACCEPT_REGISTER_FLAG,
+      AUTO_ACCEPT_REGISTER_DISTINCT_ID,
+    );
+    if (autoAcceptEnabled) {
+      return UserStatusEnum.Active;
+    }
+
+    const previouslyApproved = await this.userRepository.findByEmail(email);
+    if (previouslyApproved?.status === UserStatusEnum.Active) {
+      return UserStatusEnum.Active;
+    }
+
+    return UserStatusEnum.Pending;
   }
 
   async incrementTokenVersion(id: string): Promise<void> {
@@ -90,7 +139,7 @@ export class UserService {
   }
 
   async deactivateUser(id: string): Promise<void> {
-    await this.userRepository.setActive(id, false);
+    await this.userRepository.setStatus(id, UserStatusEnum.Deactivated);
     await this.userRepository.incrementTokenVersion(id);
     this.activeUserCache.invalidate(id);
   }
@@ -106,7 +155,7 @@ export class UserService {
       this.logger.warn(`auth denied userId=${userId} reason=user_not_found`);
       throw new UnauthorizedException();
     }
-    if (!user.active) {
+    if (user.status !== UserStatusEnum.Active) {
       this.logger.warn(`auth denied userId=${userId} reason=user_inactive`);
       throw new UnauthorizedException();
     }

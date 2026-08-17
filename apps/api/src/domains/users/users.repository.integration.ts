@@ -1,6 +1,7 @@
 import { UserEntity } from "@api/database/entities/user.entity";
 import { UserAccountEntity } from "@api/database/entities/user-account.entity";
 import { createTestDataSource } from "@api/database/test-db";
+import { PostHogService } from "@api/domains/feature-flags/posthog.service";
 import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -21,7 +22,7 @@ describe.skipIf(!hasDb)("UserRepository (integration)", () => {
   beforeAll(async () => {
     dataSource = await createTestDataSource();
     repo = new UserRepository(dataSource.getRepository(UserEntity), dataSource.getRepository(UserAccountEntity));
-    service = new UserService(repo, new ActiveUserCacheService());
+    service = new UserService(repo, new ActiveUserCacheService(), new PostHogService());
   });
 
   afterAll(async () => {

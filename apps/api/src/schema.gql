@@ -24,12 +24,21 @@ type UserType {
   name: String!
   avatarUrl: String
   role: Role!
+  status: UserStatus!
+  createdAt: DateTime!
   accounts: [AuthAccount!]!
 }
 
 enum Role {
   User
   Admin
+}
+
+enum UserStatus {
+  Pending
+  Active
+  Rejected
+  Deactivated
 }
 
 type AiUsageChangedEventType {
@@ -474,6 +483,7 @@ enum TourProgressStatus {
 type Query {
   users: [UserType!]!
   me: UserType!
+  registrations(status: UserStatus): [UserType!]!
   jobs(filter: ApplicationQuickFilter, company: String, runId: ID): [JobType!]!
   quickFilterCounts(company: String, runId: ID): [FilterCountType!]!
   job(id: ID!): JobType!
@@ -511,6 +521,8 @@ type Query {
 
 type Mutation {
   deactivateAccount: Boolean!
+  approveRegistration(userId: ID!): UserType!
+  rejectRegistration(userId: ID!): UserType!
   createJob(input: CreateJobInput!): JobType!
   fillJobAutomatically(jobId: ID!): JobType!
   updateJob(id: ID!, input: UpdateJobInput!): JobType!

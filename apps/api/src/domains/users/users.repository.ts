@@ -5,6 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import type { EntityManager, Repository } from "typeorm";
 
 import { AuthProviderEnum } from "./auth-provider.enum";
+import type { UserStatusEnum } from "./user-status.enum";
 import type { InsertAccountRepoDto, InsertUserRepoDto, SaveUserRepoDto } from "./users.repository.schema";
 import type { User } from "./users.schema";
 
@@ -78,7 +79,7 @@ export class UserRepository {
     await this.usersRepo.update({ id }, { refreshJti: jti });
   }
 
-  async setActive(id: string, active: boolean): Promise<void> {
-    await this.usersRepo.update({ id }, { active });
+  async setStatus(id: string, status: UserStatusEnum): Promise<void> {
+    await this.usersRepo.update({ id }, { status });
   }
 }

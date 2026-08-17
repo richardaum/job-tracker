@@ -4,6 +4,7 @@ import { assertAuthMutation } from "@api/domains/auth/auth-mutation.util";
 import { getSafeReturnTo } from "@api/domains/auth/auth-return-to.util";
 import { AuthUserAccessService } from "@api/domains/auth/auth-user-access.service";
 import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
+import { UserStatusEnum } from "@api/domains/users/user-status.enum";
 import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
 import { apiEnv } from "@api/env/server";
@@ -44,7 +45,10 @@ export class AuthController {
   @Get("google")
   @UseGuards(ThrottlerGuard, GoogleAuthGuard)
   @Throttle({ default: { ttl: 60_000, limit: 5 } })
-  googleLogin(@Req() req: Request & { user?: Pick<User, "id" | "tokenVersion"> }, @Res() res: Response): void {
+  googleLogin(
+    @Req() req: Request & { user?: Pick<User, "id" | "tokenVersion" | "status"> },
+    @Res() res: Response,
+  ): void {
     if (!this.devAuthBypassService.isEnabled() || !req.user) {
       return;
     }
@@ -55,7 +59,10 @@ export class AuthController {
   @Get("google/callback")
   @UseGuards(ThrottlerGuard, GoogleAuthGuard)
   @Throttle({ default: { ttl: 60_000, limit: 5 } })
-  googleCallback(@Req() req: Request & { user: Pick<User, "id" | "tokenVersion"> }, @Res() res: Response): void {
+  googleCallback(
+    @Req() req: Request & { user: Pick<User, "id" | "tokenVersion" | "status"> },
+    @Res() res: Response,
+  ): void {
     void this.finishLogin(req.user, req.query.state, req, res);
   }
 
@@ -100,7 +107,7 @@ export class AuthController {
     await this.authUserAccessService.assertAuthenticatedUser(payload.userId, payload.tokenVersion);
 
     const freshUser = await this.userService.findById(payload.userId);
-    if (!freshUser?.active) {
+    if (freshUser?.status !== UserStatusEnum.Active) {
       throw new UnauthorizedException();
     }
 
@@ -118,7 +125,7 @@ export class AuthController {
     await this.userService.setRefreshJti(payload.userId, newJti);
     await this.userService.incrementTokenVersion(payload.userId);
     const rotatedUser = await this.userService.findById(payload.userId);
-    if (!rotatedUser?.active) {
+    if (rotatedUser?.status !== UserStatusEnum.Active) {
       throw new UnauthorizedException();
     }
 
@@ -142,11 +149,20 @@ export class AuthController {
   }
 
   private async finishLogin(
-    user: Pick<User, "id" | "tokenVersion">,
+    user: Pick<User, "id" | "tokenVersion" | "status">,
     returnToQueryValue: Request["query"][string],
     req: Request,
     res: Response,
   ): Promise<void> {
+    const runtimeWebUrl = this.resolveRuntimeWebUrl(req);
+    const redirectUrl = new URL(DEFAULT_AFTER_LOGIN_PATH, runtimeWebUrl);
+
+    if (user.status === UserStatusEnum.Pending || user.status === UserStatusEnum.Rejected) {
+      redirectUrl.searchParams.set("status", user.status === UserStatusEnum.Pending ? "pending" : "rejected");
+      res.redirect(302, redirectUrl.toString());
+      return;
+    }
+
     const jti = randomUUID();
     await this.userService.setRefreshJti(user.id, jti);
 
@@ -163,20 +179,20 @@ export class AuthController {
     });
 
     const returnTo = getSafeReturnTo(returnToQueryValue);
-    const originHeader = req.headers.origin;
-    const forwardedHostHeader = req.headers["x-forwarded-host"];
-    const forwardedHost = Array.isArray(forwardedHostHeader) ? forwardedHostHeader[0] : forwardedHostHeader;
-    const forwardedProto = req.headers["x-forwarded-proto"];
-    const protocol = Array.isArray(forwardedProto) ? forwardedProto[0] : (forwardedProto ?? req.protocol);
-    const runtimeWebUrl =
-      (originHeader && originHeader.trim()) || (forwardedHost ? `${protocol}://${forwardedHost}` : apiEnv.WEB_URL);
-    const redirectUrl = new URL(DEFAULT_AFTER_LOGIN_PATH, runtimeWebUrl);
-
     if (returnTo) {
       redirectUrl.searchParams.set("returnTo", returnTo);
     }
 
     res.redirect(302, redirectUrl.toString());
+  }
+
+  private resolveRuntimeWebUrl(req: Request): string {
+    const originHeader = req.headers.origin;
+    const forwardedHostHeader = req.headers["x-forwarded-host"];
+    const forwardedHost = Array.isArray(forwardedHostHeader) ? forwardedHostHeader[0] : forwardedHostHeader;
+    const forwardedProto = req.headers["x-forwarded-proto"];
+    const protocol = Array.isArray(forwardedProto) ? forwardedProto[0] : (forwardedProto ?? req.protocol);
+    return (originHeader && originHeader.trim()) || (forwardedHost ? `${protocol}://${forwardedHost}` : apiEnv.WEB_URL);
   }
 
   private async revokeSessionFromCookies(req: Request): Promise<void> {

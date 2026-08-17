@@ -1,4 +1,5 @@
 import { RoleEnum } from "@api/domains/users/role.enum";
+import { UserStatusEnum } from "@api/domains/users/user-status.enum";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 import { UserAccountEntity } from "./user-account.entity";
@@ -23,8 +24,8 @@ export class UserEntity {
   @Column({ type: "enum", enum: RoleEnum, enumName: "role", default: RoleEnum.User })
   role!: RoleEnum;
 
-  @Column({ type: "boolean", default: true })
-  active!: boolean;
+  @Column({ type: "enum", enum: UserStatusEnum, enumName: "user_status", default: UserStatusEnum.Active })
+  status!: UserStatusEnum;
 
   @Column({ name: "token_version", type: "integer", default: 0 })
   tokenVersion!: number;

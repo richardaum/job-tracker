@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ActiveUserCacheService } from "./active-user-cache.service";
 import { RoleEnum } from "./role.enum";
+import { UserStatusEnum } from "./user-status.enum";
 import type { User } from "./users.schema";
 
 const mockUser: User = {
@@ -10,7 +11,7 @@ const mockUser: User = {
   name: "Test User",
   avatarUrl: null,
   role: RoleEnum.User,
-  active: true,
+  status: UserStatusEnum.Active,
   tokenVersion: 0,
   refreshJti: null,
   createdAt: new Date("2024-01-01"),
