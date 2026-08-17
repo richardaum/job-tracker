@@ -10,47 +10,27 @@ import { BackToLink } from "@/components/back-to-link";
 import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHeader";
 import { Role } from "@/gql/graphql";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { AdminHeaderActions } from "@/modules/admin/layout/admin-header.slots";
+import { AdminHeaderActions, AdminSubtabsSlot } from "@/modules/admin/layout/admin-header.slots";
 
 const NON_ADMIN_REDIRECT_ROUTE: Route = "/jobs";
 
 function deriveTab(pathname: string): string {
   if (pathname.startsWith("/admin/overview")) return "overview";
   if (pathname.startsWith("/admin/users")) return "users";
+  if (pathname.startsWith("/admin/registrations")) return "registrations";
   return "extension";
-}
-
-function deriveExtensionSubTab(pathname: string): string {
-  if (pathname.startsWith("/admin/extension/events")) return "events";
-  return "status";
 }
 
 const TAB_ROUTES: Record<string, Route> = {
   extension: "/admin/extension/status",
   overview: "/admin/overview",
   users: "/admin/users",
+  registrations: "/admin/registrations",
 };
 
-const EXTENSION_SUB_TAB_ROUTES: Record<string, Route> = {
-  status: "/admin/extension/status",
-  events: "/admin/extension/events",
-};
+type AdminTabBarProps = { currentTab: string; onPrimaryTabChange: (value: string) => void };
 
-const extensionSubTabTriggerClass = cn("data-[state=active]:bg-bg-info-subtle data-[state=active]:text-text-brand");
-
-type AdminTabBarProps = {
-  currentTab: string;
-  currentExtensionSubTab: string;
-  onPrimaryTabChange: (value: string) => void;
-  onExtensionSubTabChange: (value: string) => void;
-};
-
-function AdminTabBar({
-  currentTab,
-  currentExtensionSubTab,
-  onPrimaryTabChange,
-  onExtensionSubTabChange,
-}: AdminTabBarProps) {
+function AdminTabBar({ currentTab, onPrimaryTabChange }: AdminTabBarProps) {
   return (
     <div className={cn("flex w-full shrink-0 flex-wrap items-center gap-x-4 gap-y-2")}>
       <Tabs value={currentTab} onValueChange={onPrimaryTabChange} className={cn("w-fit")}>
@@ -58,21 +38,12 @@ function AdminTabBar({
           <TabsTrigger value="extension">Extension</TabsTrigger>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="registrations">Registrations</TabsTrigger>
         </TabsList>
       </Tabs>
 
-      {currentTab === "extension" ? (
-        <Tabs value={currentExtensionSubTab} onValueChange={onExtensionSubTabChange} className={cn("w-fit")}>
-          <TabsList className={cn("border-border-brand/40")}>
-            <TabsTrigger value="status" className={extensionSubTabTriggerClass}>
-              Status
-            </TabsTrigger>
-            <TabsTrigger value="events" className={extensionSubTabTriggerClass}>
-              Events
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      ) : null}
+      {/* Tab-owned sub-navigation (e.g. Extension's Status/Events, Registrations' status filter) fills this. */}
+      <AdminSubtabsSlot.Slot className={cn("flex w-fit items-center empty:hidden")} />
     </div>
   );
 }
@@ -85,7 +56,6 @@ export function AdminShell({ children }: AdminShellProps) {
   const { user, loading } = useCurrentUser();
   const isAdmin = user?.role === Role.Admin;
   const currentTab = deriveTab(pathname);
-  const currentExtensionSubTab = deriveExtensionSubTab(pathname);
 
   useEffect(() => {
     if (!loading && !isAdmin) {
@@ -95,11 +65,6 @@ export function AdminShell({ children }: AdminShellProps) {
 
   function navigateToTab(value: string) {
     const route = TAB_ROUTES[value] ?? "/admin/extension/status";
-    router.push(route);
-  }
-
-  function navigateToExtensionSubTab(value: string) {
-    const route = EXTENSION_SUB_TAB_ROUTES[value] ?? "/admin/extension/status";
     router.push(route);
   }
 
@@ -125,12 +90,7 @@ export function AdminShell({ children }: AdminShellProps) {
           </Heading>
         </DetailPageHeader>
         <div className={cn("flex flex-1 min-h-0 flex-col gap-4 p-4 sm:p-6")}>
-          <AdminTabBar
-            currentTab={currentTab}
-            currentExtensionSubTab={currentExtensionSubTab}
-            onPrimaryTabChange={navigateToTab}
-            onExtensionSubTabChange={navigateToExtensionSubTab}
-          />
+          <AdminTabBar currentTab={currentTab} onPrimaryTabChange={navigateToTab} />
           <div className={cn("flex min-h-0 min-w-0 flex-1 flex-col items-stretch overflow-auto pe-2 pb-1 text-start")}>
             {children}
           </div>
