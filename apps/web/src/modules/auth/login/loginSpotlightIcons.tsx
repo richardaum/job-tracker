@@ -43,3 +43,22 @@ export function LoginSpotlightGlyph({ icon, className, variant = "tile" }: Login
     </span>
   );
 }
+
+/** Icon chip for spotlight tiles on a light card background (brand-facing, not inverted). */
+
+type LoginSpotlightGlyphOnLightProps = { icon: LoginSpotlightIconKey; className?: string };
+
+export function LoginSpotlightGlyphOnLight({ icon, className }: LoginSpotlightGlyphOnLightProps) {
+  const Cmp = MAP[icon];
+  return (
+    <span
+      className={cn(
+        "inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-bg-brand-subtle",
+        className,
+      )}
+      aria-hidden
+    >
+      <Cmp className={cn("size-5 text-text-brand")} weight="duotone" />
+    </span>
+  );
+}

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createApolloClient } from "@/lib/make-apollo-client";
 
-import LoginPage from "./page";
+import { LoginPageClient } from "./LoginPageClient";
 
 const replaceMock = vi.fn();
 const useCurrentUserMock = vi.fn();
@@ -22,7 +22,7 @@ vi.mock("@/hooks/useCurrentUser", () => ({ useCurrentUser: () => useCurrentUserM
 function renderPage() {
   return render(
     <ApolloNextAppProvider makeClient={createApolloClient}>
-      <LoginPage />
+      <LoginPageClient loginV2Enabled={false} />
     </ApolloNextAppProvider>,
   );
 }

@@ -30,3 +30,31 @@
     ),
     var(--primitive-color-neutral-900);
 }
+
+/**
+ * LoginV2 orbit ([LoginV2]): tiles glide along a rectangular `offset-path` traced around the card
+ * at a fixed clearance (the Minkowski sum of the card and tile boxes — a plain rectangle, no
+ * curve math needed) so they can never overlap it. `offset-rotate: 0deg` keeps tile content
+ * upright automatically; 4 wrappers share this keyframe, phase-shifted via negative
+ * animation-delay so they stay evenly spaced without any extra per-tile transform.
+ */
+@keyframes login-v2-orbit-track {
+  from {
+    offset-distance: 0%;
+  }
+
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@utility animate-login-v2-orbit-track {
+  offset-rotate: 0deg;
+  animation: login-v2-orbit-track 36s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-login-v2-orbit-track {
+    animation: none;
+  }
+}
