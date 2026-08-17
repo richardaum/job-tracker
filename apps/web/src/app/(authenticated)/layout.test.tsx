@@ -21,6 +21,10 @@ vi.mock("@/modules/welcome-tour/WelcomeTourProvider", () => ({
   WelcomeTourProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
+vi.mock("@/modules/welcome-tour/useWelcomeTour", () => ({
+  useWelcomeTour: () => ({ activePhase: null, reset: vi.fn(), tourStatus: "NotStarted" }),
+}));
+
 vi.mock("posthog-js/react", () => ({ usePostHog: () => ({ identify: vi.fn() }), useFeatureFlagEnabled: () => true }));
 
 vi.mock("@/gql/hooks", async (importOriginal) => {
