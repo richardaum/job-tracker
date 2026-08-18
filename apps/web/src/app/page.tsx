@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { LandingPage } from "@/modules/marketing/landing/LandingPage";
 
 export default function HomePage() {
-  return redirect("/jobs");
+  return <LandingPage />;
 }
