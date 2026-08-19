@@ -9,7 +9,6 @@ import type OpenAI from "openai";
 import { z } from "zod";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
-import { EncryptedColumnTransformer } from "@api/lib/crypto/encrypted-column.transformer";
 import { SettingsEventBus } from "@api/domains/settings/settings-event.bus";
 import { AiAccessService } from "./ai-access.service";
 import { AiBaseService } from "./ai-base.service";
@@ -175,23 +174,14 @@ describe.skipIf(!hasDb)("AiBaseService (integration) — gating enforcement", ()
     });
 
     it("should use personal key if available, skipping trial quota check", async () => {
-      // Arrange: set personal key (encrypted)
+      // Arrange: save the plaintext so TypeORM applies the column transformer once.
       const settingsRepo = dataSource.getRepository(UserSettingEntity);
-      const encryption = new EncryptedColumnTransformer();
-
-      // For this test, we'd need a real OpenAI key, which we don't have
-      // So we'll verify the key resolution path differently
       const personalKeyPlaintext = "sk-test-personal-key-12345";
-      const encrypted = encryption.to(personalKeyPlaintext);
-
-      await settingsRepo.update(
-        { userId: testUserId },
-        {
-          aiEnabled: true,
-          openaiApiKeyEncrypted: encrypted,
-          trialCallsUsed: apiEnv.TRIAL_AI_CALL_LIMIT, // Quota exhausted
-        },
-      );
+      const setting = await settingsRepo.findOneByOrFail({ userId: testUserId });
+      setting.aiEnabled = true;
+      setting.openaiApiKeyEncrypted = personalKeyPlaintext;
+      setting.trialCallsUsed = apiEnv.TRIAL_AI_CALL_LIMIT;
+      await settingsRepo.save(setting);
 
       // Mock getClientFor to capture the key used
       const getClientForSpy = vitest.spyOn(openAIClient, "getClientFor");
