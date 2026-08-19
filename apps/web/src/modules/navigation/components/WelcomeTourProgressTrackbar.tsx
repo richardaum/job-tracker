@@ -22,7 +22,7 @@ export function WelcomeTourProgressTrackbar({ onResetComplete }: WelcomeTourProg
   const { enqueueToast } = useToastQueue();
   const { activePhase, reset, tourStatus } = useWelcomeTour();
 
-  if (welcomeTourEnabled !== true) return null;
+  if (welcomeTourEnabled !== true || tourStatus === TourProgressStatus.Skipped) return null;
 
   const totalSegments = WELCOME_TOUR_PHASES.length;
   const activeSegment = activePhase ? WELCOME_TOUR_PHASES.indexOf(activePhase) + 1 : 0;

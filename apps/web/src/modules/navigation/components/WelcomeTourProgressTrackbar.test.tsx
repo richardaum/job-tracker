@@ -39,6 +39,14 @@ describe("WelcomeTourProgressTrackbar", () => {
     expect(screen.getByRole("progressbar", { name: "Welcome tour progress" })).toHaveAttribute("aria-valuenow", "5");
   });
 
+  it("hides the trackbar when the tour was skipped", () => {
+    useWelcomeTourMock.mockReturnValue({ activePhase: null, reset: resetMock, tourStatus: "Skipped" });
+
+    render(<WelcomeTourProgressTrackbar />);
+
+    expect(screen.queryByText("Welcome tour")).not.toBeInTheDocument();
+  });
+
   it("restarts the tour after confirmation", async () => {
     const user = userEvent.setup();
     render(<WelcomeTourProgressTrackbar />);

@@ -24,14 +24,17 @@ import { useEffect, useState } from "react";
 
 import { Role } from "@/gql/graphql";
 import { useAiUsageChangedSubscription, useSettingsQuery } from "@/gql/hooks";
+import { clientEnv } from "@/env/client";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
+import { areScreenshotFlagsEnabled, screenshotFlags } from "@/lib/screenshot-flags";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
 import { TrialQuotaTrackbar } from "@/modules/navigation/components/TrialQuotaTrackbar";
 import { WelcomeTourProgressTrackbar } from "@/modules/navigation/components/WelcomeTourProgressTrackbar";
 
 const API_URL = getApiBaseUrl();
+const screenshotsEnabled = areScreenshotFlagsEnabled(clientEnv.NODE_ENV);
 
 const navItems: Array<{ href: Route; label: string; icon: typeof BriefcaseIcon }> = [
   { href: "/jobs", label: "Jobs", icon: BriefcaseIcon },
@@ -87,7 +90,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
   const helpCenterEnabled = useFeatureFlagEnabled("help-center-enabled") ?? false;
   const visibleNavItems = [
     ...navItems.filter((item) => item.href !== "/sources" || sourcesEnabled),
-    ...(user.role === Role.Admin ? [adminNavItem] : []),
+    ...(user.role === Role.Admin && !(screenshotsEnabled && screenshotFlags.hideAdminPanel) ? [adminNavItem] : []),
   ];
   const visibleBottomItems = bottomItems.filter((item) => item.label !== "Help Center" || helpCenterEnabled);
 

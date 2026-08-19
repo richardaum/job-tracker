@@ -2,8 +2,10 @@ import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 import { getAllowedDevOrigins } from "./config/dev-network";
+import { screenshotFlags } from "./src/lib/screenshot-flags";
 
 const nextConfig: NextConfig = {
+  devIndicators: screenshotFlags.hideNextDevIndicator ? false : undefined,
   typedRoutes: true,
   experimental: { strictRouteTypes: true },
   // Keep separate dist dirs so `next build` does not conflict with a running `next dev`.
