@@ -1,147 +1,116 @@
-import { Badge, cn } from "@job-tracker/ui";
-import { ClockIcon, CurrencyDollarIcon, LinkIcon, SparkleIcon } from "@phosphor-icons/react";
+"use client";
 
-type Stage = { name: string; content: React.ReactNode };
+import { cn } from "@job-tracker/ui";
+import Image from "next/image";
+import { useState } from "react";
+
+type Stage = { id: string; name: string; imageSrc: string; alt: string };
 
 const stages: Stage[] = [
+  { id: "draft", name: "Draft", imageSrc: "/landing/stage-draft.png", alt: "Job created as a draft, ready for review" },
+  { id: "new", name: "New", imageSrc: "/landing/stage-new.png", alt: "Job enriched and marked New" },
+  { id: "applied", name: "Applied", imageSrc: "/landing/stage-applied.png", alt: "Job marked Applied" },
   {
-    name: "Draft",
-    content: (
-      <>
-        <span className={cn("flex items-center gap-1.5 font-mono text-[11px] break-all text-text-muted")}>
-          <LinkIcon className={cn("size-3 shrink-0")} aria-hidden />
-          nimbusorbital.io/eng
-        </span>
-        <span
-          className={cn(
-            "mt-auto flex w-fit items-center gap-1 rounded-md bg-bg-brand px-2 py-1 text-[11px] font-semibold text-text-inverted",
-          )}
-        >
-          <SparkleIcon className={cn("size-3")} aria-hidden />
-          Generate draft
-        </span>
-      </>
-    ),
-  },
-  {
-    name: "New",
-    content: (
-      <>
-        <p className={cn("text-sm/tight font-semibold text-text-primary")}>Senior Product Engineer</p>
-        <p className={cn("text-xs text-text-secondary")}>Nimbus Orbital Labs</p>
-        <Badge intent="default" className={cn("mt-auto w-fit")}>
-          Ready to review
-        </Badge>
-      </>
-    ),
-  },
-  {
-    name: "Applied",
-    content: (
-      <>
-        <p className={cn("text-sm/tight font-semibold text-text-primary")}>Senior Product Engineer</p>
-        <p className={cn("text-xs text-text-secondary")}>Nimbus Orbital Labs</p>
-        <span
-          className={cn(
-            "mt-auto flex w-fit items-center gap-1.5 rounded-md bg-bg-field px-2 py-1.5 text-[11px] text-text-secondary",
-          )}
-        >
-          <ClockIcon className={cn("size-3 shrink-0 text-text-brand")} aria-hidden />
-          Follow up in 3 days
-        </span>
-      </>
-    ),
-  },
-  {
+    id: "recruiter-screen",
     name: "Recruiter Screen",
-    content: (
-      <>
-        <p className={cn("text-sm/tight font-semibold text-text-primary")}>Recruiter call</p>
-        <p className={cn("text-xs text-text-secondary")}>30 min · scheduled</p>
-        <div className={cn("mt-auto flex flex-wrap gap-1")}>
-          <Badge intent="success">Fit</Badge>
-          <Badge intent="warning">Unclear</Badge>
-        </div>
-      </>
-    ),
+    imageSrc: "/landing/stage-recruiter-screen.png",
+    alt: "Job at the Recruiter Screen stage",
   },
   {
+    id: "technical",
     name: "Technical",
-    content: (
-      <>
-        <Badge intent="success" className={cn("w-fit")}>
-          Strong match · 82%
-        </Badge>
-        <div className={cn("mt-auto flex flex-wrap gap-1")}>
-          <Badge intent="success">React</Badge>
-          <Badge intent="success">TypeScript</Badge>
-          <Badge intent="error">Telemetry</Badge>
-        </div>
-      </>
-    ),
+    imageSrc: "/landing/stage-technical.png",
+    alt: "AI match analysis showing fit against the job requirements",
   },
   {
+    id: "offer",
     name: "Offer",
-    content: (
-      <>
-        <span className={cn("flex items-center gap-1 font-mono text-[11px] whitespace-nowrap text-text-muted")}>
-          <CurrencyDollarIcon className={cn("size-3 shrink-0")} aria-hidden />
-          compare offers
-        </span>
-        <div className={cn("flex items-center gap-2 font-mono text-sm tabular-nums")}>
-          <span className={cn("font-bold text-(--primitive-color-green-700)")}>$142k</span>
-          <span className={cn("text-[10px] text-text-muted")}>vs</span>
-          <span className={cn("text-text-secondary")}>$126k</span>
-        </div>
-        <Badge intent="success" className={cn("mt-auto w-fit")}>
-          Best offer
-        </Badge>
-      </>
-    ),
+    imageSrc: "/landing/stage-offer.png",
+    alt: "Job with salary range set at the Offer stage",
   },
 ];
 
 /**
- * The hero's signature element: the real pipeline stage order (Draft → New → Applied →
- * Recruiter Screen → Technical → Offer) carrying one fictional job through it, so
- * structure encodes an actual sequence rather than decorating one.
+ * The hero's signature element: one job carried through the real pipeline stages.
+ * Each tab reveals the corresponding full-screen product view at its native ratio.
  */
 export function PipelineRail() {
+  const [activeStageId, setActiveStageId] = useState(stages[0].id);
+
   return (
     <div>
       <p className={cn("mb-5 text-xs font-medium tracking-wide text-text-muted uppercase")}>
         The pipeline, stage by stage
       </p>
-      <div className={cn("-mx-6 overflow-x-auto px-6 pb-2 sm:-mx-8 sm:px-8")}>
-        <ol
-          className={cn(
-            "relative flex min-w-max gap-3",
-            "before:absolute before:top-[9px] before:inset-x-20 before:h-px before:bg-border-default",
-          )}
+      <div
+        role="tablist"
+        aria-label="Pipeline stages"
+        className={cn("mb-4 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden")}
+      >
+        {stages.map((stage) => {
+          const isActive = stage.id === activeStageId;
+
+          return (
+            <button
+              key={stage.id}
+              id={`pipeline-tab-${stage.id}`}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`pipeline-panel-${stage.id}`}
+              onClick={() => setActiveStageId(stage.id)}
+              className={cn(
+                "shrink-0 rounded-full border px-3.5 py-2 font-mono text-xs font-semibold transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
+                isActive
+                  ? "border-bg-brand-strong bg-bg-brand-strong text-text-inverted"
+                  : "border-border-default bg-bg-surface text-text-secondary hover:border-border-brand hover:text-text-primary",
+              )}
+            >
+              {stage.name}
+            </button>
+          );
+        })}
+      </div>
+      <div className={cn("overflow-hidden rounded-2xl border border-border-default bg-bg-surface shadow-md")}>
+        <div
+          className={cn("flex items-center gap-1.5 border-b border-border-default bg-bg-surface-hover px-3.5 py-2.5")}
         >
-          {stages.map((stage) => (
-            <li key={stage.name} className={cn("relative flex w-40 shrink-0 flex-col items-center pt-8")}>
-              <span
-                aria-hidden
-                className={cn(
-                  "absolute top-0 left-1/2 flex size-5 -translate-x-1/2 items-center justify-center rounded-full border-2 border-border-brand bg-bg-surface",
-                )}
-              >
-                <span className={cn("size-2 rounded-full bg-bg-brand")} />
-              </span>
-              <p className={cn("mb-3 text-[11px] font-medium tracking-wide text-text-secondary uppercase")}>
-                {stage.name}
-              </p>
+          <span aria-hidden className={cn("size-2 rounded-full bg-border-default")} />
+          <span aria-hidden className={cn("size-2 rounded-full bg-border-default")} />
+          <span aria-hidden className={cn("size-2 rounded-full bg-border-default")} />
+          <span className={cn("ml-2.5 font-mono text-[11px] text-text-muted")}>
+            newjobtracker.app/jobs/84c53920-d222-473e-81c6-24a773a7838f
+          </span>
+        </div>
+        <div className={cn("relative aspect-1512/806 bg-bg-surface")}>
+          {stages.map((stage) => {
+            const isActive = stage.id === activeStageId;
+
+            return (
               <div
+                key={stage.id}
+                id={`pipeline-panel-${stage.id}`}
+                role="tabpanel"
+                aria-labelledby={`pipeline-tab-${stage.id}`}
+                aria-hidden={!isActive}
                 className={cn(
-                  "flex min-h-44 w-full flex-col gap-2.5 rounded-xl border border-border-default bg-bg-surface p-4 shadow-md",
+                  "absolute inset-0 transition-opacity duration-300 motion-reduce:transition-none",
+                  isActive ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
                 )}
               >
-                {stage.content}
+                <Image
+                  src={stage.imageSrc}
+                  alt={isActive ? stage.alt : ""}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 1152px) calc(100vw - 48px), 1104px"
+                  className={cn("object-cover object-top")}
+                />
               </div>
-            </li>
-          ))}
-        </ol>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
