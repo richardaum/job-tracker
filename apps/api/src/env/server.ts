@@ -1,9 +1,8 @@
 import { config as loadDotenv } from "dotenv";
 
-// dotenv does not overwrite variables provided by the runtime environment.
-// Always load it so a partially configured runtime can still use the remaining
-// local defaults (for example, CI supplies DATABASE_URL but keeps OAuth settings in .env).
-loadDotenv();
+if (!process.env.DATABASE_URL) {
+  loadDotenv();
+}
 
 import { z } from "zod";
 

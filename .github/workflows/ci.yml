@@ -25,10 +25,6 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/job_tracker_test
-      DATABASE_INTEGRATION_URL: postgresql://postgres:postgres@localhost:5432/job_tracker_test
-
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -69,6 +65,7 @@ jobs:
         run: |
           cat > apps/api/.env << 'EOF'
           DATABASE_URL=postgresql://postgres:postgres@localhost:5432/job_tracker_test
+          DATABASE_INTEGRATION_URL=postgresql://postgres:postgres@localhost:5432/job_tracker_test
           PORT=3101
           GOOGLE_CLIENT_ID=ci-dummy
           GOOGLE_CLIENT_SECRET=ci-dummy
