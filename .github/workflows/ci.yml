@@ -83,7 +83,8 @@ jobs:
           EOF
 
       - name: Run migrations (seed integration DB)
-        run: pnpm --filter @job-tracker/api run db:migrate
+        working-directory: apps/api
+        run: pnpm run db:migrate
 
       - name: Test
         run: pnpm validate:coverage
