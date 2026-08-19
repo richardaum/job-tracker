@@ -99,6 +99,7 @@ export default function CompaniesPage() {
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search companies..."
           ariaLabel="Search companies"
+          shortcutHint="⌘/"
         />
 
         <Text size="sm" color="muted" className={cn("w-full text-left sm:w-auto")}>

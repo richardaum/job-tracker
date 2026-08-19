@@ -14,6 +14,14 @@ describe("SearchInput", () => {
     expect(screen.getByText("⌘K")).toBeInTheDocument();
   });
 
+  it("focuses the input with Command or Control + /", () => {
+    render(<SearchInput placeholder="Search" shortcutHint="⌘/" />);
+    const input = screen.getByPlaceholderText("Search");
+
+    fireEvent.keyDown(window, { code: "Slash", metaKey: true });
+    expect(input).toHaveFocus();
+  });
+
   it("does not render shortcut hint when null", () => {
     render(<SearchInput placeholder="Search" shortcutHint={null} />);
     expect(screen.queryByText("⌘K")).not.toBeInTheDocument();

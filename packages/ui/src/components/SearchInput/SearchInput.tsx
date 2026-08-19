@@ -3,6 +3,7 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { Input } from "@ui/components/Input/Input";
 import { cn } from "@ui/lib/cn";
+import { useEffect, useRef } from "react";
 import type { ChangeEventHandler } from "react";
 
 export interface SearchInputProps {
@@ -22,7 +23,22 @@ export function SearchInput({
   shortcutHint = null,
   className,
 }: SearchInputProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const isInteractive = value !== undefined && onChange !== undefined;
+
+  useEffect(() => {
+    if (!shortcutHint) return;
+
+    function handleShortcut(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.code === "Slash") {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    }
+
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, [shortcutHint]);
 
   return (
     <div
@@ -39,6 +55,7 @@ export function SearchInput({
         size="sm"
         value={value}
         onChange={onChange}
+        ref={inputRef}
         placeholder={placeholder}
         aria-label={ariaLabel ?? placeholder}
         className={cn(
