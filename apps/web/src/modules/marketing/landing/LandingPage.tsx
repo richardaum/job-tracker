@@ -3,6 +3,7 @@
 import { cn } from "@job-tracker/ui";
 import { ArrowRightIcon, GoogleLogoIcon, LockIcon } from "@phosphor-icons/react";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { APP_TITLE } from "@/app/metadata";
 import { useAuthReturnTo } from "@/hooks/useAuthReturnTo";
@@ -37,6 +38,26 @@ const features = [
 
 type PrimaryCtaProps = { className?: string; dark?: boolean };
 
+function primaryCtaClasses({ className, dark }: PrimaryCtaProps) {
+  return cn(
+    "inline-flex cursor-pointer items-center justify-center gap-3 rounded-full px-6 py-3 text-sm font-semibold shadow-sm transition-colors",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
+    dark
+      ? "bg-bg-surface text-text-primary hover:bg-bg-surface-hover"
+      : "bg-border-brand text-text-inverted hover:opacity-90",
+    className,
+  );
+}
+
+function PrimaryCtaFallback({ className, dark }: PrimaryCtaProps) {
+  return (
+    <Link href="/login" className={primaryCtaClasses({ className, dark })}>
+      <GoogleLogoIcon className={cn("size-5")} weight="regular" aria-hidden />
+      Sign in with Google
+    </Link>
+  );
+}
+
 /** Signed-in visitors get a link straight to their jobs; everyone else gets the Google sign-in button. */
 function PrimaryCta({ className, dark }: PrimaryCtaProps) {
   const { user, loading } = useCurrentUser();
@@ -48,14 +69,7 @@ function PrimaryCta({ className, dark }: PrimaryCtaProps) {
     window.location.assign(`${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent(safeReturnTo)}`);
   };
 
-  const sharedClasses = cn(
-    "inline-flex cursor-pointer items-center justify-center gap-3 rounded-full px-6 py-3 text-sm font-semibold shadow-sm transition-colors",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
-    dark
-      ? "bg-bg-surface text-text-primary hover:bg-bg-surface-hover"
-      : "bg-(--color-border-brand) text-text-inverted hover:opacity-90",
-    className,
-  );
+  const sharedClasses = primaryCtaClasses({ className, dark });
 
   if (!loading && user) {
     return (
@@ -74,6 +88,14 @@ function PrimaryCta({ className, dark }: PrimaryCtaProps) {
   );
 }
 
+function SuspendedPrimaryCta(props: PrimaryCtaProps) {
+  return (
+    <Suspense fallback={<PrimaryCtaFallback {...props} />}>
+      <PrimaryCta {...props} />
+    </Suspense>
+  );
+}
+
 export function LandingPage() {
   return (
     <main className={cn("text-text-primary")}>
@@ -83,7 +105,7 @@ export function LandingPage() {
             <AppBrandMark size={30} className={cn("rounded-lg")} />
             {APP_TITLE}
           </span>
-          <PrimaryCta dark className={cn("border border-border-default px-4 py-2 text-xs")} />
+          <SuspendedPrimaryCta dark className={cn("border border-border-default px-4 py-2 text-xs")} />
         </nav>
       </div>
 
@@ -105,7 +127,7 @@ export function LandingPage() {
             it through every stage to a signed offer — running on your own AI key, not ours.
           </p>
           <div className={cn("mt-8 flex flex-wrap items-center gap-4")}>
-            <PrimaryCta />
+            <SuspendedPrimaryCta />
             <span className={cn("text-xs text-text-muted")}>
               No card. No subscription. Your OpenAI key, your usage.
             </span>
@@ -205,7 +227,7 @@ export function LandingPage() {
               Free to use. Bring your own AI key. Sign in and paste your first link.
             </p>
             <div className={cn("mt-8 flex flex-col items-center gap-3")}>
-              <PrimaryCta dark />
+              <SuspendedPrimaryCta dark />
               <span className={cn("text-xs text-text-inverted/50")}>Takes under a minute.</span>
             </div>
           </div>
