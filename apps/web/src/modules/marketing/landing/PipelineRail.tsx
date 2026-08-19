@@ -79,9 +79,6 @@ export function PipelineRail() {
           <span aria-hidden className={cn("size-2 rounded-full bg-border-default")} />
           <span aria-hidden className={cn("size-2 rounded-full bg-border-default")} />
           <span aria-hidden className={cn("size-2 rounded-full bg-border-default")} />
-          <span className={cn("ml-2.5 font-mono text-[11px] text-text-muted")}>
-            newjobtracker.app/jobs/84c53920-d222-473e-81c6-24a773a7838f
-          </span>
         </div>
         <div className={cn("relative aspect-1512/806 bg-bg-surface")}>
           {stages.map((stage) => {
