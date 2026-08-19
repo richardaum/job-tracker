@@ -82,7 +82,7 @@ jobs:
           EOF
 
       - name: Test
-        run: pnpm turbo test -- --coverage --coverage.thresholds.lines=80
+        run: pnpm validate:coverage
 
       - name: Build
         run: pnpm turbo build

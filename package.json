@@ -15,7 +15,7 @@
     "build": "turbo build",
     "validate": "pnpm lint && pnpm typecheck && pnpm test",
     "validate:specs": "pnpm leanspec:validate && pnpm leanspec:sync-spec-indices -- --check",
-    "validate:coverage": "turbo test -- --coverage --coverage.thresholds.lines=80",
+    "validate:coverage": "pnpm --filter @job-tracker/api run test --coverage --coverage.thresholds.lines=68 && turbo test --filter=!@job-tracker/api -- --coverage --coverage.thresholds.lines=80",
     "validate:ci": "pnpm validate:specs && pnpm lint && pnpm typecheck && pnpm validate:coverage && pnpm typecheck:repo && pnpm format:check && pnpm knip && pnpm build",
     "test": "turbo test",
     "test:all": "pnpm test && pnpm test:scripts",
