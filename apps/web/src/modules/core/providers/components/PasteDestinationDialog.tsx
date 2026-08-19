@@ -138,6 +138,7 @@ export function PasteDestinationDialog({
           <Input
             id="paste-url"
             type="url"
+            autoComplete="off"
             value={url}
             onChange={(event) => {
               setUrl(event.target.value);
