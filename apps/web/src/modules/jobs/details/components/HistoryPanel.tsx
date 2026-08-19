@@ -36,8 +36,6 @@ import {
 } from "@/modules/jobs/details/utils/scheduled-at";
 import { StageTimeline } from "@/modules/jobs/shared/components/StageTimeline";
 
-import { UpdateStatusDialog } from "./UpdateStatusDialog";
-
 const stageOptions: Array<{ value: ApplicationStage; label: string }> = [
   { value: ApplicationStage.Draft, label: "Draft" },
   { value: ApplicationStage.New, label: "New" },
@@ -59,7 +57,7 @@ const quickScheduleOptions = [
 type HistoryPanelProps = { jobId: string };
 
 export function HistoryPanel({ jobId }: HistoryPanelProps) {
-  const { stageEvents, currentStage, readOnly } = useJobHistoryViewModel(jobId);
+  const { stageEvents, readOnly } = useJobHistoryViewModel(jobId);
   const { enqueueToast } = useToastQueue();
   const handleSuccess = useCallback(
     (message: string) => enqueueToast({ title: message, intent: "success" }),
@@ -149,19 +147,6 @@ export function HistoryPanel({ jobId }: HistoryPanelProps) {
   return (
     <>
       <div className={cn("h-full min-h-0 overflow-auto pr-1")}>
-        <div className={cn("mb-2")}>
-          <UpdateStatusDialog
-            jobId={jobId}
-            currentStage={currentStage}
-            trigger={
-              <Button intent="secondary" size="md" className={cn("w-full")}>
-                Update status
-              </Button>
-            }
-          />
-          <div className={cn("mt-2 border-t border-border-subtle")} />
-        </div>
-
         {stageEvents.length === 0 ? (
           <EmptyState variant="panel" message="No stage events yet." />
         ) : (

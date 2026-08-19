@@ -11,7 +11,6 @@ import {
   DownloadSimpleIcon,
   GaugeIcon,
   GearIcon,
-  MagnifyingGlassIcon,
   QuestionIcon,
   SignOutIcon,
 } from "@phosphor-icons/react";
@@ -125,21 +124,6 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
         <Text as="span" size="base" weight="bold">
           NewJobTracker
         </Text>
-      </div>
-
-      {/* Search */}
-      <div className={cn("px-3 pb-4")}>
-        <div
-          className={cn(
-            "flex items-center gap-2 rounded-md border border-border-default bg-bg-surface px-3 py-2 shadow-sm",
-          )}
-        >
-          <MagnifyingGlassIcon size={14} weight="regular" className={cn("shrink-0 text-text-muted")} />
-          <Text as="span" size="sm" color="muted" className={cn("flex-1")}>
-            Search here...
-          </Text>
-          <span className={cn("rounded border border-border-subtle px-1.5 py-0.5 text-xs text-text-muted")}>⌘/</span>
-        </div>
       </div>
 
       {/* Nav */}
