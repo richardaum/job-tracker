@@ -13,6 +13,7 @@ import { Controller, Get, HttpCode, Logger, Post, Req, Res, UnauthorizedExceptio
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 import type { Request, Response } from "express";
 
+import { ACCESS_TOKEN_COOKIE_MAX_AGE_MS, REFRESH_TOKEN_COOKIE_MAX_AGE_MS } from "./auth-token.constants";
 import { AuthService } from "./auth.service";
 import { DevAuthBypassService } from "./dev-auth-bypass.service";
 
@@ -138,11 +139,11 @@ export class AuthController {
 
     const cookies = this.devAuthBypassService.isEnabled() ? cookieBaseDev : cookieBase;
 
-    res.cookie("access_token", accessToken, { ...cookies, maxAge: 15 * 60 * 1000 });
+    res.cookie("access_token", accessToken, { ...cookies, maxAge: ACCESS_TOKEN_COOKIE_MAX_AGE_MS });
     res.cookie("refresh_token", newRefreshToken, {
       ...cookies,
       path: REFRESH_COOKIE_PATH,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE_MS,
     });
     this.logger.log(`refresh succeeded userId=${rotatedUser.id}`);
     res.json({ ok: true });
@@ -171,11 +172,11 @@ export class AuthController {
 
     const cookies = this.devAuthBypassService.isEnabled() ? cookieBaseDev : cookieBase;
 
-    res.cookie("access_token", accessToken, { ...cookies, maxAge: 15 * 60 * 1000 });
+    res.cookie("access_token", accessToken, { ...cookies, maxAge: ACCESS_TOKEN_COOKIE_MAX_AGE_MS });
     res.cookie("refresh_token", refreshToken, {
       ...cookies,
       path: REFRESH_COOKIE_PATH,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE_MS,
     });
 
     const returnTo = getSafeReturnTo(returnToQueryValue);
