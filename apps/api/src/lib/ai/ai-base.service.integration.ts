@@ -41,7 +41,12 @@ describe.skipIf(!hasDb)("AiBaseService (integration) — gating enforcement", ()
     const userRepo = dataSource.getRepository(UserEntity);
     const settingsRepo = dataSource.getRepository(UserSettingEntity);
 
-    await userRepo.save({ id: testUserId, email: `${testUserId}@example.com`, googleId: testUserId });
+    await userRepo.save({
+      id: testUserId,
+      email: `${testUserId}@example.com`,
+      name: "AI Base Test User",
+      googleId: testUserId,
+    });
 
     await settingsRepo.save({
       userId: testUserId,

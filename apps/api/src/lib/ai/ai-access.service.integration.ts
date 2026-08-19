@@ -29,7 +29,12 @@ describe("AiAccessService (integration) — concurrent quota consumption", () =>
     const userRepo = dataSource.getRepository(UserEntity);
     const settingsRepo = dataSource.getRepository(UserSettingEntity);
 
-    await userRepo.save({ id: testUserId, email: `${testUserId}@example.com`, googleId: testUserId });
+    await userRepo.save({
+      id: testUserId,
+      email: `${testUserId}@example.com`,
+      name: "Concurrent Test User",
+      googleId: testUserId,
+    });
 
     await settingsRepo.save({
       userId: testUserId,
@@ -90,7 +95,12 @@ describe("AiAccessService (integration) — concurrent quota consumption", () =>
     const testUser2 = "quota-refund-test-" + Date.now();
 
     const userRepo = dataSource.getRepository(UserEntity);
-    await userRepo.save({ id: testUser2, email: `${testUser2}@example.com`, googleId: testUser2 });
+    await userRepo.save({
+      id: testUser2,
+      email: `${testUser2}@example.com`,
+      name: "Quota Refund Test User",
+      googleId: testUser2,
+    });
 
     await settingsRepo.save({
       userId: testUser2,
