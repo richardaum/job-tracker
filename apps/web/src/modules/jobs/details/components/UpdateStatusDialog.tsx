@@ -47,8 +47,8 @@ type UpdateStatusDialogProps = {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   dismissible?: boolean;
-  selectedStage?: ApplicationStage;
-  onSelectedStageChange?: (stage: ApplicationStage | undefined) => void;
+  selectedStage?: ApplicationStage | null;
+  onSelectedStageChange?: (stage: ApplicationStage | null) => void;
   scheduledEnabled?: boolean;
   onScheduledEnabledChange?: (enabled: boolean) => void;
   onQuickScheduleOptionSelect?: (label: string) => void;
@@ -101,9 +101,9 @@ export function UpdateStatusDialog({
     });
   }
   const [resolvedOpen, setResolvedOpen] = useControlledState(open, false, onOpenChange);
-  const [resolvedSelectedStage, handleSelectedStageChange] = useControlledState<ApplicationStage | undefined>(
+  const [resolvedSelectedStage, handleSelectedStageChange] = useControlledState<ApplicationStage | null>(
     selectedStage,
-    undefined,
+    null,
     onSelectedStageChange,
   );
   const [resolvedScheduledEnabled, handleScheduledEnabledChange] = useControlledState(
@@ -129,14 +129,16 @@ export function UpdateStatusDialog({
   const isReasonFieldInert = isInert(restrictInteractionTo, "reason");
   const isSaveFieldInert = isInert(restrictInteractionTo, "save");
 
+  function resetDialogData() {
+    handleSelectedStageChange(null);
+    handleScheduledEnabledChange(false);
+    setScheduledAtDraft("");
+    setReasonDraft("");
+  }
+
   function handleOpenChange(nextOpen: boolean) {
     setResolvedOpen(nextOpen);
-    if (nextOpen) {
-      handleSelectedStageChange(undefined);
-      handleScheduledEnabledChange(false);
-      setScheduledAtDraft("");
-      setReasonDraft("");
-    }
+    resetDialogData();
   }
 
   useImperativeHandle(ref, () => ({
@@ -173,7 +175,6 @@ export function UpdateStatusDialog({
       return;
     }
     handleOpenChange(false);
-    handleSelectedStageChange(undefined);
     onSaved?.();
     handleToast(
       "Status update saved.",
@@ -197,7 +198,7 @@ export function UpdateStatusDialog({
         <div inert={isStatusFieldInert} data-welcome-tour-step="update-status-applied">
           <FormField label="Status" htmlFor={`history-status-${jobId}`}>
             <Select
-              value={resolvedSelectedStage}
+              value={resolvedSelectedStage ?? undefined}
               onValueChange={(value) => handleSelectedStageChange(value as ApplicationStage)}
               options={selectOptions}
               placeholder={`Current: ${formatStage(currentStage)}`}

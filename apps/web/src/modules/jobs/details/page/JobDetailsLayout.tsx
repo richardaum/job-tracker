@@ -196,7 +196,7 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
 
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedStatusStage, setSelectedStatusStage] = useState<ApplicationStage | undefined>(undefined);
+  const [selectedStatusStage, setSelectedStatusStage] = useState<ApplicationStage | null>(null);
   const [statusDialogRestrictInteractionTo, setStatusDialogRestrictInteractionTo] = useState<
     UpdateStatusDialogRestrictedTarget | undefined
   >(undefined);
@@ -211,6 +211,22 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
 
   useJobPageTitle(viewModel.job, activeTab);
 
+  function resetStatusDialogData() {
+    setSelectedStatusStage(null);
+    setStatusDialogScheduledEnabled(false);
+    setStatusDialogQuickScheduleOption(undefined);
+  }
+
+  function handleStatusDialogOpenChange(nextOpen: boolean) {
+    setStatusDialogOpen(nextOpen);
+    if (!nextOpen) resetStatusDialogData();
+  }
+
+  function openStatusDialog() {
+    resetStatusDialogData();
+    setStatusDialogOpen(true);
+  }
+
   if (needsRedirect) return null;
 
   return (
@@ -220,8 +236,8 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
           <JobDetailsProvider
             job={viewModel.job}
             sourcePrimaryText={viewModel.sourcePrimaryText}
-            openStatusDialog={() => setStatusDialogOpen(true)}
-            closeStatusDialog={() => setStatusDialogOpen(false)}
+            openStatusDialog={openStatusDialog}
+            closeStatusDialog={() => handleStatusDialogOpenChange(false)}
             selectedStatusStage={selectedStatusStage}
             onSelectedStatusStageChange={setSelectedStatusStage}
             requestStatusDialogSave={() => statusDialogRef.current?.save()}
@@ -262,7 +278,7 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
               layout={{ isDesktop, fullWidth, onToggleFullWidth: toggleFullWidth }}
               statusDialog={{
                 open: statusDialogOpen,
-                onOpenChange: setStatusDialogOpen,
+                onOpenChange: handleStatusDialogOpenChange,
                 selectedStage: selectedStatusStage,
                 onSelectedStageChange: setSelectedStatusStage,
                 dismissible: updateStatusDialogDismissible,

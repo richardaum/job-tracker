@@ -11,8 +11,8 @@ export interface JobDetailsContextValue {
   sourcePrimaryText: string | null;
   openStatusDialog: () => void;
   closeStatusDialog: () => void;
-  selectedStatusStage: ApplicationStage | undefined;
-  onSelectedStatusStageChange: (stage: ApplicationStage | undefined) => void;
+  selectedStatusStage: ApplicationStage | null;
+  onSelectedStatusStageChange: (stage: ApplicationStage | null) => void;
   requestStatusDialogSave: () => void;
   requestStatusDialogScheduleInThreeDays: () => void;
   statusDialogRestrictInteractionTo: UpdateStatusDialogRestrictedTarget | undefined;

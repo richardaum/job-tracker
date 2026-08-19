@@ -35,8 +35,8 @@ export interface JobDetailsViewProps {
   statusDialog: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    selectedStage: ApplicationStage | undefined;
-    onSelectedStageChange: (stage: ApplicationStage | undefined) => void;
+    selectedStage: ApplicationStage | null;
+    onSelectedStageChange: (stage: ApplicationStage | null) => void;
     dismissible: boolean;
     restrictInteractionTo: UpdateStatusDialogRestrictedTarget | undefined;
     freezeSuccessToast: boolean;
