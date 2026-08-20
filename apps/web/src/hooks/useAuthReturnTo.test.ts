@@ -30,12 +30,21 @@ describe("useAuthReturnTo", () => {
     expect(result.current.safeReturnTo).toBe("/jobs/123");
   });
 
-  it("falls back to home for unsafe returnTo", () => {
+  it("falls back to jobs when returnTo is missing", () => {
+    usePathnameMock.mockReturnValue("/login");
+    useSearchParamsMock.mockReturnValue(new URLSearchParams());
+
+    const { result } = renderHook(() => useAuthReturnTo());
+
+    expect(result.current.safeReturnTo).toBe("/jobs");
+  });
+
+  it("falls back to jobs for an unsafe returnTo", () => {
     usePathnameMock.mockReturnValue("/login");
     useSearchParamsMock.mockReturnValue(new URLSearchParams("returnTo=https%3A%2F%2Fevil.example"));
 
     const { result } = renderHook(() => useAuthReturnTo());
 
-    expect(result.current.safeReturnTo).toBe("/");
+    expect(result.current.safeReturnTo).toBe("/jobs");
   });
 });

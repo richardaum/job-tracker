@@ -50,14 +50,14 @@ describe("LoginPage", () => {
     expect(replaceMock).toHaveBeenCalledWith("/jobs/123");
   });
 
-  it("falls back to home for unsafe returnTo", () => {
+  it("falls back to jobs for an unsafe returnTo", () => {
     usePathnameMock.mockReturnValue("/login");
     useSearchParamsMock.mockReturnValue(new URLSearchParams("returnTo=https%3A%2F%2Fevil.example"));
     useCurrentUserMock.mockReturnValue({ user: { id: "user-1" }, loading: false, error: undefined });
 
     renderPage();
 
-    expect(replaceMock).toHaveBeenCalledWith("/");
+    expect(replaceMock).toHaveBeenCalledWith("/jobs");
   });
 
   it("renders the pending message and hides the login CTA when status=pending", () => {

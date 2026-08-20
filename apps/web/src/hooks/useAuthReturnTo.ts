@@ -6,11 +6,11 @@ import { useMemo } from "react";
 
 function sanitizeReturnTo(value: string | null): Route {
   if (!value || !value.startsWith("/")) {
-    return "/";
+    return "/jobs";
   }
 
   if (value.startsWith("//")) {
-    return "/";
+    return "/jobs";
   }
 
   return value as Route;
