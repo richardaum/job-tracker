@@ -60,7 +60,7 @@ export function PipelineRail() {
               aria-controls={`pipeline-panel-${stage.id}`}
               onClick={() => setActiveStageId(stage.id)}
               className={cn(
-                "shrink-0 rounded-full border px-3.5 py-2 font-mono text-xs font-semibold transition-colors",
+                "shrink-0 cursor-pointer rounded-full border px-3.5 py-2 font-mono text-xs font-semibold transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
                 isActive
                   ? "border-bg-brand-strong bg-bg-brand-strong text-text-inverted"
