@@ -1,12 +1,26 @@
 import { isTipTapDocumentString } from "@job-tracker/tiptap";
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { ResumeRepository } from "./resumes.repository";
 import { NewResume, Resume } from "./resumes.schema";
 
+type ResumeRepositoryPort = Pick<
+  ResumeRepository,
+  | "findAllByUserId"
+  | "findOneById"
+  | "findDefaultByUserId"
+  | "countByUserId"
+  | "unsetDefaultByUserId"
+  | "create"
+  | "update"
+  | "delete"
+>;
+
+type CreateResumeInput = Omit<NewResume, "userId">;
+
 @Injectable()
 export class ResumeService {
-  constructor(private readonly repo: ResumeRepository) {}
+  constructor(@Inject(ResumeRepository) private readonly repo: ResumeRepositoryPort) {}
 
   async findAll(userId: string): Promise<Resume[]> {
     return this.repo.findAllByUserId(userId);
@@ -24,7 +38,7 @@ export class ResumeService {
     return this.repo.findDefaultByUserId(userId);
   }
 
-  async create(userId: string, dto: NewResume): Promise<Resume> {
+  async create(userId: string, dto: CreateResumeInput): Promise<Resume> {
     if (dto.content && !isTipTapDocumentString(dto.content)) {
       throw new BadRequestException("content must be valid TipTap document JSON");
     }

@@ -1,12 +1,23 @@
 import { isTipTapDocumentString } from "@job-tracker/tiptap";
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { CompanyRepository } from "./companies.repository";
 import { Company, NewCompany } from "./companies.schema";
 
+type CompanyRepositoryPort = Pick<
+  CompanyRepository,
+  | "findAllByUserId"
+  | "findOneById"
+  | "findOneByNameInsensitiveTrimmed"
+  | "findOrCreateByName"
+  | "update"
+  | "countJobs"
+  | "delete"
+>;
+
 @Injectable()
 export class CompanyService {
-  constructor(private readonly repo: CompanyRepository) {}
+  constructor(@Inject(CompanyRepository) private readonly repo: CompanyRepositoryPort) {}
 
   async findAll(userId: string): Promise<Company[]> {
     return this.repo.findAllByUserId(userId);

@@ -1,6 +1,6 @@
 import path from "path";
 import swc from "unplugin-swc";
-import { defineConfig } from "vitest/config";
+import { coverageConfigDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig({
   // Keep SWC in Vitest to preserve NestJS decorator metadata during test transforms.
@@ -13,5 +13,18 @@ export default defineConfig({
     include: ["src/**/*.spec.ts", "src/**/*.integration.ts"],
     setupFiles: ["./vitest.setup.ts"],
     fileParallelism: false,
+    coverage: {
+      // Schema/decorator modules are exercised through integration and build checks; line coverage targets runtime behavior.
+      exclude: [
+        ...coverageConfigDefaults.exclude,
+        "src/database/embeddeds/**",
+        "src/database/entities/**",
+        "src/database/migrations/**",
+        "src/**/*.input.ts",
+        "src/**/*.type.ts",
+        "src/**/*.event.ts",
+        "src/**/*.events.ts",
+      ],
+    },
   },
 });

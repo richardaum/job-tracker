@@ -1,14 +1,16 @@
 import { PlanEntity } from "@api/database/entities/plan.entity";
 import { type ExecutorPlanDocument } from "@api/domains/sources/plan.types";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { type CreatePlanInput } from "./create-plan.input";
 import { PlanRepository } from "./plan.repository";
 import { type UpdatePlanInput } from "./update-plan.input";
 
+type PlanRepositoryPort = Pick<PlanRepository, "findAll" | "findById" | "create" | "update" | "delete">;
+
 @Injectable()
 export class PlanService {
-  constructor(private readonly repo: PlanRepository) {}
+  constructor(@Inject(PlanRepository) private readonly repo: PlanRepositoryPort) {}
 
   async findAll(userId: string): Promise<PlanEntity[]> {
     return this.repo.findAll(userId);

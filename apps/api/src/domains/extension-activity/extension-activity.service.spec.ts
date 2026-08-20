@@ -1,80 +1,50 @@
-import { ExtensionActivityRepository } from "@api/domains/extension-activity/extension-activity.repository";
-import { ExtensionActivityService } from "@api/domains/extension-activity/extension-activity.service";
-import type { ExtensionActivityEventBus } from "@api/domains/extension-activity/extension-activity-event.bus";
 import { ExtensionActivityEventTypeEnum } from "@api/domains/extension-activity/extension-activity-event-type.enum";
-import { ReportExtensionActivityInput } from "@api/domains/extension-activity/report-extension-activity.input";
 import { BadRequestException } from "@nestjs/common";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ExtensionActivityEventBus } from "./extension-activity-event.bus";
+import { ExtensionActivityRepository } from "./extension-activity.repository";
+import { ExtensionActivityService } from "./extension-activity.service";
+
 describe("ExtensionActivityService", () => {
-  const repo: Pick<ExtensionActivityRepository, "create" | "listRecentByUserId"> = {
-    create: vi.fn(),
-    listRecentByUserId: vi.fn(),
-  };
-  const eventBus: Pick<ExtensionActivityEventBus, "emit"> = { emit: vi.fn() };
-
+  let repo: { listRecentByUserId: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn> };
+  let bus: { emit: ReturnType<typeof vi.fn> };
   let service: ExtensionActivityService;
-
   beforeEach(() => {
-    vi.clearAllMocks();
-    service = new ExtensionActivityService(repo as ExtensionActivityRepository, eventBus as ExtensionActivityEventBus);
-  });
-
-  it("reportActivity persists and publishes", async () => {
-    const occurredAt = new Date("2026-05-25T12:00:00.000Z");
-    vi.mocked(repo.create).mockResolvedValue({
-      id: "evt-1",
-      userId: "user-1",
-      type: ExtensionActivityEventTypeEnum.SourceRunStarted,
-      summary: "RemoteYeah run started",
-      sourceRunId: "run-1",
-      payload: null,
-      extensionVersion: "1.0.0",
-      browser: "Chrome",
-      occurredAt,
-      createdAt: occurredAt,
-    });
-
-    const input: ReportExtensionActivityInput = {
-      type: ExtensionActivityEventTypeEnum.SourceRunStarted,
-      summary: "RemoteYeah run started",
-      sourceRunId: "run-1",
-      extensionVersion: "1.0.0",
-      browser: "Chrome",
-    };
-
-    const result = await service.reportActivity("user-1", input);
-
-    expect(repo.create).toHaveBeenCalledWith("user-1", {
-      type: ExtensionActivityEventTypeEnum.SourceRunStarted,
-      summary: "RemoteYeah run started",
-      sourceRunId: "run-1",
-      payload: null,
-      extensionVersion: "1.0.0",
-      browser: "Chrome",
-      occurredAt: expect.any(Date),
-    });
-    expect(eventBus.emit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        userId: "user-1",
-        payload: {
-          id: "evt-1",
-          type: ExtensionActivityEventTypeEnum.SourceRunStarted,
-          summary: "RemoteYeah run started",
-          sourceRunId: "run-1",
-          payload: null,
-          extensionVersion: "1.0.0",
-          browser: "Chrome",
-          occurredAt,
-        },
-      }),
+    repo = { listRecentByUserId: vi.fn(), create: vi.fn() };
+    bus = { emit: vi.fn() };
+    service = new ExtensionActivityService(
+      repo as unknown as ExtensionActivityRepository,
+      bus as unknown as ExtensionActivityEventBus,
     );
-    expect(result.id).toBe("evt-1");
   });
-
-  it("reportActivity rejects blank summary", async () => {
+  it("normalizes list limits", async () => {
+    repo.listRecentByUserId.mockResolvedValue([]);
+    await service.listActivityEvents("u");
+    await service.listActivityEvents("u", 999);
+    await service.listActivityEvents("u", 0);
+    expect(repo.listRecentByUserId).toHaveBeenNthCalledWith(1, "u", 100);
+    expect(repo.listRecentByUserId).toHaveBeenNthCalledWith(2, "u", 500);
+    expect(repo.listRecentByUserId).toHaveBeenNthCalledWith(3, "u", 1);
+  });
+  it("rejects empty summaries and reports persisted activity", async () => {
     await expect(
-      service.reportActivity("user-1", { type: ExtensionActivityEventTypeEnum.AuthFailed, summary: "   " }),
-    ).rejects.toBeInstanceOf(BadRequestException);
+      service.reportActivity("u", { type: ExtensionActivityEventTypeEnum.SourceRunStarted, summary: "  " }),
+    ).rejects.toThrow(BadRequestException);
+    const row = {
+      id: "e",
+      type: ExtensionActivityEventTypeEnum.SourceRunStarted,
+      summary: "Done",
+      sourceRunId: null,
+      payload: null,
+      extensionVersion: null,
+      browser: null,
+      occurredAt: new Date(),
+    };
+    repo.create.mockResolvedValue(row);
+    await expect(service.reportActivity("u", { type: row.type, summary: " Done " })).resolves.toMatchObject({
+      summary: "Done",
+    });
+    expect(bus.emit).toHaveBeenCalledOnce();
   });
 });

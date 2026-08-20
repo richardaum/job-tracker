@@ -30,7 +30,7 @@ export class ResumeResolver {
 
   @Mutation(() => ResumeType)
   createResume(@Args("input") input: CreateResumeInput, @CurrentUser() user: { userId: string }): Promise<ResumeType> {
-    return this.service.create(user.userId, { ...input, userId: user.userId });
+    return this.service.create(user.userId, input);
   }
 
   @Mutation(() => ResumeType)
