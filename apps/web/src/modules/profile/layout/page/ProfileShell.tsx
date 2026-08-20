@@ -10,8 +10,9 @@ import { DetailPageHeader } from "@/components/detail-page-header/DetailPageHead
 import { ProfileHeaderActions, ProfileSubTabs } from "@/modules/profile/layout/profile-header.slots";
 
 function deriveTab(pathname: string): string {
-  if (pathname.startsWith("/profile/blocked-keywords")) return "blocked-keywords";
+  if (pathname.startsWith("/profile/ai")) return "ai-usage";
   if (pathname.startsWith("/profile/settings")) return "settings";
+  if (pathname.startsWith("/profile/blocked-keywords")) return "blocked-keywords";
   if (pathname.startsWith("/profile/resumes")) return "resumes";
   if (pathname.startsWith("/profile/preferences")) return "preferences";
   return "identity";
@@ -20,6 +21,7 @@ function deriveTab(pathname: string): string {
 const TAB_ROUTES: Record<string, Route> = {
   identity: "/profile",
   settings: "/profile/settings",
+  "ai-usage": "/profile/ai-usage",
   resumes: "/profile/resumes",
   preferences: "/profile/preferences",
   "blocked-keywords": "/profile/blocked-keywords",
@@ -53,6 +55,7 @@ export function ProfileShell({ children }: ProfileShellProps) {
               <TabsList className={cn("w-full justify-start sm:w-fit")}>
                 <TabsTrigger value="identity">Identity</TabsTrigger>
                 <TabsTrigger value="settings">Settings</TabsTrigger>
+                <TabsTrigger value="ai-usage">AI Usage</TabsTrigger>
                 <TabsTrigger value="resumes">Resumes</TabsTrigger>
                 <TabsTrigger value="preferences">Work Preferences</TabsTrigger>
                 <TabsTrigger value="blocked-keywords">Blocked Keywords</TabsTrigger>

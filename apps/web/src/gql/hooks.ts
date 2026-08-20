@@ -69,6 +69,22 @@ export type AiUsageChangedEventType = {
   trialCallsUsed: Scalars['Int']['output'];
 };
 
+export type AiUsageSummary = {
+  __typename?: 'AiUsageSummary';
+  personalKey: AiUsageTotals;
+  trial: AiUsageTotals;
+  trialCallsLimit: Scalars['Int']['output'];
+  trialCallsUsed: Scalars['Int']['output'];
+};
+
+export type AiUsageTotals = {
+  __typename?: 'AiUsageTotals';
+  calls: Scalars['Int']['output'];
+  inputTokens: Scalars['Int']['output'];
+  outputTokens: Scalars['Int']['output'];
+  totalTokens: Scalars['Int']['output'];
+};
+
 export enum ApplicationQuickFilter {
   Active = 'Active',
   Applied = 'Applied',
@@ -729,6 +745,7 @@ export type Query = {
   __typename?: 'Query';
   aiConversations: Array<AiConversationType>;
   aiMessages: Array<AiMessageType>;
+  aiUsage: AiUsageSummary;
   companies: Array<CompanyType>;
   company: CompanyType;
   companyJobsCount: Scalars['Int']['output'];
@@ -1264,6 +1281,11 @@ export type AiMessageStreamedSubscriptionVariables = Exact<{
 
 
 export type AiMessageStreamedSubscription = { __typename?: 'Subscription', aiMessageStreamed: { __typename?: 'AiMessageStreamEventType', conversationId: string, phase: AiMessageStreamPhase, token?: string | null, userMessageId?: string | null, aiMessageId?: string | null, error?: string | null } };
+
+export type AiUsageQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AiUsageQuery = { __typename?: 'Query', aiUsage: { __typename?: 'AiUsageSummary', trialCallsUsed: number, trialCallsLimit: number, personalKey: { __typename?: 'AiUsageTotals', inputTokens: number, outputTokens: number, totalTokens: number, calls: number }, trial: { __typename?: 'AiUsageTotals', inputTokens: number, outputTokens: number, totalTokens: number, calls: number } }, settings: { __typename?: 'UserSetting', hasOpenAiKey: boolean } };
 
 export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2284,6 +2306,57 @@ export function useAiMessageStreamedSubscription(baseOptions: ApolloReactHooks.S
         return ApolloReactHooks.useSubscription<AiMessageStreamedSubscription, AiMessageStreamedSubscriptionVariables>(AiMessageStreamedDocument, options);
       }
 export type AiMessageStreamedSubscriptionHookResult = ReturnType<typeof useAiMessageStreamedSubscription>;
+
+export const AiUsageDocument = gql`
+    query AiUsage {
+  aiUsage {
+    personalKey {
+      inputTokens
+      outputTokens
+      totalTokens
+      calls
+    }
+    trial {
+      inputTokens
+      outputTokens
+      totalTokens
+      calls
+    }
+    trialCallsUsed
+    trialCallsLimit
+  }
+  settings {
+    hasOpenAiKey
+  }
+}
+    `;
+
+/**
+ * __useAiUsageQuery__
+ *
+ * To run a query within a React component, call `useAiUsageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAiUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAiUsageQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAiUsageQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<AiUsageQuery, AiUsageQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<AiUsageQuery, AiUsageQueryVariables>(AiUsageDocument, options);
+      }
+export function useAiUsageLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AiUsageQuery, AiUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<AiUsageQuery, AiUsageQueryVariables>(AiUsageDocument, options);
+        }
+
+export type AiUsageQueryHookResult = ReturnType<typeof useAiUsageQuery>;
+export type AiUsageLazyQueryHookResult = ReturnType<typeof useAiUsageLazyQuery>;
 
 export const AuthenticatedShellDocument = gql`
     query AuthenticatedShell {

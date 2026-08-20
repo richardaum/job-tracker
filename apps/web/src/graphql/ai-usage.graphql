@@ -1,0 +1,21 @@
+query AiUsage {
+  aiUsage {
+    personalKey {
+      inputTokens
+      outputTokens
+      totalTokens
+      calls
+    }
+    trial {
+      inputTokens
+      outputTokens
+      totalTokens
+      calls
+    }
+    trialCallsUsed
+    trialCallsLimit
+  }
+  settings {
+    hasOpenAiKey
+  }
+}

@@ -68,6 +68,22 @@ export type AiUsageChangedEventType = {
   trialCallsUsed: Scalars['Int']['output'];
 };
 
+export type AiUsageSummary = {
+  __typename?: 'AiUsageSummary';
+  personalKey: AiUsageTotals;
+  trial: AiUsageTotals;
+  trialCallsLimit: Scalars['Int']['output'];
+  trialCallsUsed: Scalars['Int']['output'];
+};
+
+export type AiUsageTotals = {
+  __typename?: 'AiUsageTotals';
+  calls: Scalars['Int']['output'];
+  inputTokens: Scalars['Int']['output'];
+  outputTokens: Scalars['Int']['output'];
+  totalTokens: Scalars['Int']['output'];
+};
+
 export enum ApplicationQuickFilter {
   Active = 'Active',
   Applied = 'Applied',
@@ -728,6 +744,7 @@ export type Query = {
   __typename?: 'Query';
   aiConversations: Array<AiConversationType>;
   aiMessages: Array<AiMessageType>;
+  aiUsage: AiUsageSummary;
   companies: Array<CompanyType>;
   company: CompanyType;
   companyJobsCount: Scalars['Int']['output'];
@@ -1263,6 +1280,11 @@ export type AiMessageStreamedSubscriptionVariables = Exact<{
 
 
 export type AiMessageStreamedSubscription = { __typename?: 'Subscription', aiMessageStreamed: { __typename?: 'AiMessageStreamEventType', conversationId: string, phase: AiMessageStreamPhase, token?: string | null, userMessageId?: string | null, aiMessageId?: string | null, error?: string | null } };
+
+export type AiUsageQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AiUsageQuery = { __typename?: 'Query', aiUsage: { __typename?: 'AiUsageSummary', trialCallsUsed: number, trialCallsLimit: number, personalKey: { __typename?: 'AiUsageTotals', inputTokens: number, outputTokens: number, totalTokens: number, calls: number }, trial: { __typename?: 'AiUsageTotals', inputTokens: number, outputTokens: number, totalTokens: number, calls: number } }, settings: { __typename?: 'UserSetting', hasOpenAiKey: boolean } };
 
 export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1920,6 +1942,29 @@ export const AiMessageStreamedDocument = gql`
   }
 }
     ${AiMessageStreamEventFieldsFragmentDoc}`;
+export const AiUsageDocument = gql`
+    query AiUsage {
+  aiUsage {
+    personalKey {
+      inputTokens
+      outputTokens
+      totalTokens
+      calls
+    }
+    trial {
+      inputTokens
+      outputTokens
+      totalTokens
+      calls
+    }
+    trialCallsUsed
+    trialCallsLimit
+  }
+  settings {
+    hasOpenAiKey
+  }
+}
+    `;
 export const AuthenticatedShellDocument = gql`
     query AuthenticatedShell {
   me {
@@ -2972,6 +3017,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     AiMessageStreamed(variables: AiMessageStreamedSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AiMessageStreamedSubscription> {
       return withWrapper((wrappedRequestHeaders) => client.request<AiMessageStreamedSubscription>({ document: AiMessageStreamedDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AiMessageStreamed', 'subscription', variables);
+    },
+    AiUsage(variables?: AiUsageQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AiUsageQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AiUsageQuery>({ document: AiUsageDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AiUsage', 'query', variables);
     },
     AuthenticatedShell(variables?: AuthenticatedShellQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AuthenticatedShellQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<AuthenticatedShellQuery>({ document: AuthenticatedShellDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AuthenticatedShell', 'query', variables);
