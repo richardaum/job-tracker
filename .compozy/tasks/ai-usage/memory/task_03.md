@@ -17,6 +17,7 @@ Keep only task-local execution context here. Do not duplicate facts that are obv
 
 - Focused web tests use `pnpm --filter @job-tracker/web exec vitest ...` because the workspace exposes Vitest through its `test` script rather than a `vitest` script.
 - Task coverage is above target: AI Usage module 100%; combined AI Usage/ProfileShell surface 97.91% statements and 96.29% branches.
+- Fresh full-web verification passes: 90 test files / 508 tests, lint, typecheck, and the Next production build including `/profile/ai-usage`.
 
 ## Files / Surfaces
 
@@ -31,6 +32,7 @@ Keep only task-local execution context here. Do not duplicate facts that are obv
 - Replaced a direct Phosphor refresh-icon import with the canonical `conceptIcon.refresh` mapping.
 - Reconciled overlapping navigation/settings edits, scoped duplicate tab-name assertions to the secondary tablist, and verified the stabilized split with the full web suite.
 - Repository `knip` still fails on the known unrelated dead-code backlog; no AI Usage file or export appears in its findings.
+- `pnpm validate:ci` passes specs, repository lint/typecheck, coverage, repo typecheck, and formatting before stopping at that known `knip` backlog; the web build passes when run separately, and the web PM2 error tail is empty.
 
 ## Ready for Next Run
 
