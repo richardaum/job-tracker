@@ -1,5 +1,6 @@
 import { TemplateModule } from "@api/domains/shared/template/template.module";
 import { SettingsModule } from "@api/domains/settings/settings.module";
+import { AiUsageModule } from "@api/domains/ai-usage/ai-usage.module";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
@@ -13,7 +14,7 @@ import { RestructureJDService } from "./restructure-jd.service";
 import { RewriteTextService } from "./rewrite-text.service";
 
 @Module({
-  imports: [TemplateModule, TypeOrmModule.forFeature([UserSettingEntity]), SettingsModule],
+  imports: [TemplateModule, TypeOrmModule.forFeature([UserSettingEntity]), SettingsModule, AiUsageModule],
   providers: [
     OpenAIClient,
     PromptRendererService,
@@ -24,6 +25,7 @@ import { RewriteTextService } from "./rewrite-text.service";
     LocationInferenceService,
   ],
   exports: [
+    AiUsageModule,
     OpenAIClient,
     PromptRendererService,
     AiBaseService,

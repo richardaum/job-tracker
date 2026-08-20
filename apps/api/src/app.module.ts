@@ -10,6 +10,7 @@ import { join } from "path";
 import { AppController } from "./app.controller";
 import { DatabaseModule } from "./database/database.module";
 import { AiChatModule } from "./domains/ai-chat/ai-chat.module";
+import { AiUsageModule } from "./domains/ai-usage/ai-usage.module";
 import { AiModule } from "./domains/ai/ai.module";
 import { AuthModule } from "./domains/auth/auth.module";
 import { CompaniesModule } from "./domains/companies/companies.module";
@@ -49,6 +50,7 @@ import { parseWsCookies } from "./graphql/parse-ws-cookies";
     WelcomeTourModule,
     MatchAnalysisModule,
     AiChatModule,
+    AiUsageModule,
     AiModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

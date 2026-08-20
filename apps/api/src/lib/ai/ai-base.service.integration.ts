@@ -1,4 +1,5 @@
 // integration
+import type { AiUsageService } from "@api/domains/ai-usage/ai-usage.service";
 import { apiEnv } from "@api/env/server";
 import { UserSettingEntity } from "@api/database/entities/user-setting.entity";
 import { UserEntity } from "@api/database/entities/user.entity";
@@ -35,7 +36,7 @@ describe.skipIf(!hasDb)("AiBaseService (integration) — gating enforcement", ()
     aiAccessService = new AiAccessService(dataSource.getRepository(UserSettingEntity), new SettingsEventBus());
     openAIClient = new OpenAIClient();
     promptRenderer = {} as PromptRendererService;
-    aiBaseService = new AiBaseService(openAIClient, promptRenderer, aiAccessService);
+    aiBaseService = new AiBaseService(openAIClient, promptRenderer, aiAccessService, {} as AiUsageService);
 
     const userRepo = dataSource.getRepository(UserEntity);
     const settingsRepo = dataSource.getRepository(UserSettingEntity);

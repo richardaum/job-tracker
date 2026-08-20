@@ -2,6 +2,7 @@ import { NOTE_AI_STRUCTURED_RESPONSE_SCHEMA } from "@api/domains/shared/tiptap.s
 import { AiAccessService, AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import type { StructuredNoteOutput, TipTapDocument } from "@job-tracker/tiptap";
 import { isTipTapDocumentString, parseTipTapDocument, structuredNoteToTipTapDocument } from "@job-tracker/tiptap";
+import { AiUsageService } from "@api/domains/ai-usage/ai-usage.service";
 import { Injectable } from "@nestjs/common";
 import { z } from "zod";
 
@@ -12,8 +13,13 @@ const rewriteSchema = z.object({ rewritten: z.string() });
 
 @Injectable()
 export class NoteGenerationService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService, aiAccess: AiAccessService) {
-    super(openAIClient, promptRenderer, aiAccess);
+  constructor(
+    openAIClient: OpenAIClient,
+    promptRenderer: PromptRendererService,
+    aiAccess: AiAccessService,
+    aiUsage: AiUsageService,
+  ) {
+    super(openAIClient, promptRenderer, aiAccess, aiUsage);
   }
 
   async generateNote(userId: string, input: GenerateNoteInput): Promise<TipTapDocument> {

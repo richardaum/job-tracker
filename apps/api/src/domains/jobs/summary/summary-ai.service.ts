@@ -1,3 +1,4 @@
+import { AiUsageService } from "@api/domains/ai-usage/ai-usage.service";
 import { apiEnv } from "@api/env/server";
 import { AiAccessService, AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { Injectable } from "@nestjs/common";
@@ -33,8 +34,13 @@ const SUMMARY_SYSTEM_PROMPT = [
 
 @Injectable()
 export class SummaryAiService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService, aiAccess: AiAccessService) {
-    super(openAIClient, promptRenderer, aiAccess);
+  constructor(
+    openAIClient: OpenAIClient,
+    promptRenderer: PromptRendererService,
+    aiAccess: AiAccessService,
+    aiUsage: AiUsageService,
+  ) {
+    super(openAIClient, promptRenderer, aiAccess, aiUsage);
   }
 
   async generateSummary(userId: string, context: string): Promise<string> {

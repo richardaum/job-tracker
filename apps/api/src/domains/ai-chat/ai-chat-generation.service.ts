@@ -2,6 +2,7 @@ import { JobStageEventsRepository } from "@api/domains/jobs/job-stage-events.rep
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { MatchAnalysisRepository } from "@api/domains/match-analysis/match-analysis.repository";
 import { NoteRepository } from "@api/domains/notes/notes.repository";
+import { AiUsageService } from "@api/domains/ai-usage/ai-usage.service";
 import { apiEnv } from "@api/env/server";
 import { AiAccessService, AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { Injectable, Logger } from "@nestjs/common";
@@ -18,13 +19,14 @@ export class AiChatGenerationService extends AiBaseService {
     openAIClient: OpenAIClient,
     promptRenderer: PromptRendererService,
     aiAccess: AiAccessService,
+    aiUsage: AiUsageService,
     private readonly jobsRepo: JobsRepository,
     private readonly matchAnalysisRepo: MatchAnalysisRepository,
     private readonly notesRepo: NoteRepository,
     private readonly stageEventsRepo: JobStageEventsRepository,
     private readonly pubSub: AiChatPubSub,
   ) {
-    super(openAIClient, promptRenderer, aiAccess);
+    super(openAIClient, promptRenderer, aiAccess, aiUsage);
   }
 
   async generateAnswer(conversationId: string, userId: string, jobId: string, question: string): Promise<string> {
@@ -44,8 +46,8 @@ export class AiChatGenerationService extends AiBaseService {
 
     const systemPrompt = this.buildSystemPrompt(job, matchAnalysis, notes, stageEvents);
 
-    const key = await this.aiAccess.resolveClientKey(userId);
-    const client = this.openAIClient.getClientFor(key);
+    const access = await this.aiAccess.resolveClientAccess(userId);
+    const client = this.openAIClient.getClientFor(access.key);
     const model = apiEnv.OPENAI_MODEL;
     const stream = await client.chat.completions.create({
       model,
@@ -55,10 +57,20 @@ export class AiChatGenerationService extends AiBaseService {
       ],
       temperature: 0.1,
       stream: true,
+      stream_options: { include_usage: true },
     });
 
     let fullContent = "";
+    let finalUsage: { inputTokens: number; outputTokens: number; totalTokens: number } | undefined;
     for await (const chunk of stream) {
+      if (chunk.usage) {
+        finalUsage = {
+          inputTokens: chunk.usage.prompt_tokens,
+          outputTokens: chunk.usage.completion_tokens,
+          totalTokens: chunk.usage.total_tokens,
+        };
+      }
+
       const token = chunk.choices[0]?.delta?.content ?? "";
       if (!token) continue;
 
@@ -70,13 +82,14 @@ export class AiChatGenerationService extends AiBaseService {
       });
     }
 
+    await this.recordUsage(userId, access.source, finalUsage, "chat-stream");
     this.logger.log(`AI stream completed: conversationId=${conversationId}, tokens=${fullContent.length}`);
     return fullContent;
   }
 
   async generateTitle(userId: string, question: string): Promise<string> {
-    const key = await this.aiAccess.resolveClientKey(userId);
-    const client = this.openAIClient.getClientFor(key);
+    const access = await this.aiAccess.resolveClientAccess(userId);
+    const client = this.openAIClient.getClientFor(access.key);
     const model = apiEnv.OPENAI_MODEL;
     const response = await client.chat.completions.create({
       model,
@@ -91,6 +104,19 @@ export class AiChatGenerationService extends AiBaseService {
       temperature: 0.3,
       max_tokens: 30,
     });
+
+    await this.recordUsage(
+      userId,
+      access.source,
+      response.usage
+        ? {
+            inputTokens: response.usage.prompt_tokens,
+            outputTokens: response.usage.completion_tokens,
+            totalTokens: response.usage.total_tokens,
+          }
+        : undefined,
+      "chat-title",
+    );
 
     return response.choices[0]?.message?.content?.trim() || "New conversation";
   }

@@ -4,6 +4,8 @@ import type OpenAI from "openai";
 import { describe, it, expect, beforeEach, vitest } from "vitest";
 import { z } from "zod";
 
+import { AiUsageSourceEnum } from "@api/domains/ai-usage/ai-usage-source.enum";
+import { AiUsageService } from "@api/domains/ai-usage/ai-usage.service";
 import { AiAccessService } from "./ai-access.service";
 import { AiBaseService, type CallAiOptions } from "./ai-base.service";
 import { OpenAIClient } from "./openai.client";
@@ -13,26 +15,31 @@ describe("AiBaseService", () => {
   let service: AiBaseService;
   let openAIClient: OpenAIClient;
   let aiAccess: AiAccessService;
+  let aiUsage: AiUsageService;
   let promptRenderer: PromptRendererService;
 
   beforeEach(() => {
     openAIClient = { getClientFor: vitest.fn() } as unknown as OpenAIClient;
 
-    aiAccess = { resolveClientKey: vitest.fn() } as unknown as AiAccessService;
+    aiAccess = { resolveClientAccess: vitest.fn() } as unknown as AiAccessService;
+
+    aiUsage = { record: vitest.fn().mockResolvedValue(undefined) } as unknown as AiUsageService;
 
     promptRenderer = {} as unknown as PromptRendererService;
 
-    service = new AiBaseService(openAIClient, promptRenderer, aiAccess);
+    service = new AiBaseService(openAIClient, promptRenderer, aiAccess, aiUsage);
   });
 
   describe("callAi()", () => {
     describe("gating enforcement", () => {
-      it("should call resolveClientKey before constructing the client", async () => {
+      it("should call resolveClientAccess before constructing the client", async () => {
         const userId = "user-123";
         const resolvedKey = "test-api-key";
         const schema = z.object({ test: z.string() });
 
-        vitest.spyOn(aiAccess, "resolveClientKey").mockResolvedValue(resolvedKey);
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: resolvedKey, source: AiUsageSourceEnum.PersonalKey });
         vitest
           .spyOn(openAIClient, "getClientFor")
           .mockReturnValue({
@@ -55,17 +62,19 @@ describe("AiBaseService", () => {
 
         await service.callAi(opts);
 
-        // Verify resolveClientKey was called first
-        expect(aiAccess.resolveClientKey).toHaveBeenCalledWith(userId);
+        // Verify resolveClientAccess was called first
+        expect(aiAccess.resolveClientAccess).toHaveBeenCalledWith(userId);
         expect(openAIClient.getClientFor).toHaveBeenCalledWith(resolvedKey);
       });
 
-      it("should use the key returned by resolveClientKey", async () => {
+      it("should use the key returned by resolveClientAccess", async () => {
         const userId = "user-456";
         const resolvedKey = "personal-key-12345";
         const schema = z.object({ test: z.string() });
 
-        vitest.spyOn(aiAccess, "resolveClientKey").mockResolvedValue(resolvedKey);
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: resolvedKey, source: AiUsageSourceEnum.PersonalKey });
         const getClientForSpy = vitest.spyOn(openAIClient, "getClientFor");
         getClientForSpy.mockReturnValue({
           chat: {
@@ -90,13 +99,13 @@ describe("AiBaseService", () => {
         expect(getClientForSpy).toHaveBeenCalledWith(resolvedKey);
       });
 
-      it("should allow GraphQLError from resolveClientKey to propagate unmodified", async () => {
+      it("should allow GraphQLError from resolveClientAccess to propagate unmodified", async () => {
         const userId = "user-disabled";
         const gatingError = new GraphQLError("AI is turned off for your account.", {
           extensions: { code: "AI_DISABLED_BY_USER" },
         });
 
-        vitest.spyOn(aiAccess, "resolveClientKey").mockRejectedValue(gatingError);
+        vitest.spyOn(aiAccess, "resolveClientAccess").mockRejectedValue(gatingError);
 
         const schema = z.object({ test: z.string() });
         const opts: CallAiOptions = {
@@ -117,7 +126,7 @@ describe("AiBaseService", () => {
           extensions: { code: "AI_KEY_REQUIRED" },
         });
 
-        vitest.spyOn(aiAccess, "resolveClientKey").mockRejectedValue(quotaError);
+        vitest.spyOn(aiAccess, "resolveClientAccess").mockRejectedValue(quotaError);
 
         const schema = z.object({ test: z.string() });
         const opts: CallAiOptions = {
@@ -139,7 +148,9 @@ describe("AiBaseService", () => {
         const testSchema = z.object({ result: z.string() });
         const expectedResult = { result: "success" };
 
-        vitest.spyOn(aiAccess, "resolveClientKey").mockResolvedValue(resolvedKey);
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: resolvedKey, source: AiUsageSourceEnum.PersonalKey });
         const mockClient = {
           chat: {
             completions: {
@@ -171,7 +182,9 @@ describe("AiBaseService", () => {
         const schemaJson = { type: "object", properties: { name: { type: "string" } } };
         const responseText = JSON.stringify({ name: "John" });
 
-        vitest.spyOn(aiAccess, "resolveClientKey").mockResolvedValue(resolvedKey);
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: resolvedKey, source: AiUsageSourceEnum.PersonalKey });
         const mockClient = {
           responses: { create: vitest.fn().mockResolvedValue({ output_text: responseText }) },
         } as unknown as OpenAI;
@@ -197,7 +210,9 @@ describe("AiBaseService", () => {
         const schemaJson = { type: "object", properties: { search: { type: "string" } } };
         const responseText = JSON.stringify({ search: "result" });
 
-        vitest.spyOn(aiAccess, "resolveClientKey").mockResolvedValue(resolvedKey);
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: resolvedKey, source: AiUsageSourceEnum.PersonalKey });
         const createSpy = vitest.fn().mockResolvedValue({ output_text: responseText });
         const mockClient = { responses: { create: createSpy } } as unknown as OpenAI;
         vitest.spyOn(openAIClient, "getClientFor").mockReturnValue(mockClient);
@@ -218,10 +233,131 @@ describe("AiBaseService", () => {
       });
     });
 
+    describe("usage accounting", () => {
+      it("records exact Chat Completions usage for a personal key", async () => {
+        const schema = z.object({ result: z.string() });
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: "personal-key", source: AiUsageSourceEnum.PersonalKey });
+        vitest
+          .spyOn(openAIClient, "getClientFor")
+          .mockReturnValue({
+            chat: {
+              completions: {
+                parse: vitest
+                  .fn()
+                  .mockResolvedValue({
+                    choices: [{ message: { parsed: { result: "ok" }, refusal: null } }],
+                    usage: { prompt_tokens: 17, completion_tokens: 9, total_tokens: 26 },
+                  }),
+              },
+            },
+          } as unknown as OpenAI);
+
+        await service.callAi({
+          userId: "user-personal",
+          systemMessage: "System",
+          userMessage: "User",
+          responseFormat: "zod-response",
+          schema,
+        });
+
+        expect(aiUsage.record).toHaveBeenCalledWith("user-personal", AiUsageSourceEnum.PersonalKey, {
+          inputTokens: 17,
+          outputTokens: 9,
+          totalTokens: 26,
+        });
+      });
+
+      it("records exact Responses usage for trial access", async () => {
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: "trial-key", source: AiUsageSourceEnum.Trial });
+        vitest
+          .spyOn(openAIClient, "getClientFor")
+          .mockReturnValue({
+            responses: {
+              create: vitest
+                .fn()
+                .mockResolvedValue({
+                  output_text: '{"result":"ok"}',
+                  usage: { input_tokens: 23, output_tokens: 11, total_tokens: 34 },
+                }),
+            },
+          } as unknown as OpenAI);
+
+        await service.callAi({
+          userId: "user-trial",
+          systemMessage: "System",
+          userMessage: "User",
+          responseFormat: "json-schema",
+          schemaJson: { type: "object" },
+        });
+
+        expect(aiUsage.record).toHaveBeenCalledWith("user-trial", AiUsageSourceEnum.Trial, {
+          inputTokens: 23,
+          outputTokens: 11,
+          totalTokens: 34,
+        });
+      });
+
+      it("does not record when a successful response omits usage", async () => {
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: "personal-key", source: AiUsageSourceEnum.PersonalKey });
+        vitest
+          .spyOn(openAIClient, "getClientFor")
+          .mockReturnValue({
+            responses: { create: vitest.fn().mockResolvedValue({ output_text: '{"result":"ok"}' }) },
+          } as unknown as OpenAI);
+
+        await service.callAi({
+          userId: "user-personal",
+          systemMessage: "System",
+          userMessage: "User",
+          responseFormat: "json-schema",
+          schemaJson: { type: "object" },
+        });
+
+        expect(aiUsage.record).not.toHaveBeenCalled();
+      });
+
+      it("returns the successful AI result when usage persistence fails", async () => {
+        vitest.mocked(aiUsage.record).mockRejectedValue(new Error("database unavailable"));
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: "personal-key", source: AiUsageSourceEnum.PersonalKey });
+        vitest
+          .spyOn(openAIClient, "getClientFor")
+          .mockReturnValue({
+            responses: {
+              create: vitest
+                .fn()
+                .mockResolvedValue({
+                  output_text: '{"result":"ok"}',
+                  usage: { input_tokens: 3, output_tokens: 2, total_tokens: 5 },
+                }),
+            },
+          } as unknown as OpenAI);
+
+        await expect(
+          service.callAi({
+            userId: "user-personal",
+            systemMessage: "System",
+            userMessage: "User",
+            responseFormat: "json-schema",
+            schemaJson: { type: "object" },
+          }),
+        ).resolves.toEqual({ result: "ok" });
+      });
+    });
+
     describe("error handling", () => {
       it("should throw BadRequestException on OpenAI API failure for zod-response", async () => {
         const userId = "user-123";
-        vitest.spyOn(aiAccess, "resolveClientKey").mockResolvedValue("test-key");
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: "test-key", source: AiUsageSourceEnum.PersonalKey });
         const mockClient = {
           chat: { completions: { parse: vitest.fn().mockRejectedValue(new Error("OpenAI API error")) } },
         } as unknown as OpenAI;
@@ -237,11 +373,14 @@ describe("AiBaseService", () => {
         };
 
         await expect(service.callAi(opts)).rejects.toThrow(BadRequestException);
+        expect(aiUsage.record).not.toHaveBeenCalled();
       });
 
       it("should throw BadRequestException on OpenAI API failure for json-schema", async () => {
         const userId = "user-456";
-        vitest.spyOn(aiAccess, "resolveClientKey").mockResolvedValue("test-key");
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: "test-key", source: AiUsageSourceEnum.PersonalKey });
         const mockClient = {
           responses: { create: vitest.fn().mockRejectedValue(new Error("OpenAI API error")) },
         } as unknown as OpenAI;
@@ -256,11 +395,14 @@ describe("AiBaseService", () => {
         };
 
         await expect(service.callAi(opts)).rejects.toThrow(BadRequestException);
+        expect(aiUsage.record).not.toHaveBeenCalled();
       });
 
       it("should throw BadRequestException when AI response is missing message", async () => {
         const userId = "user-123";
-        vitest.spyOn(aiAccess, "resolveClientKey").mockResolvedValue("test-key");
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: "test-key", source: AiUsageSourceEnum.PersonalKey });
         const mockClient = {
           chat: {
             completions: {
@@ -286,7 +428,9 @@ describe("AiBaseService", () => {
 
       it("should throw BadRequestException when AI refuses to respond", async () => {
         const userId = "user-123";
-        vitest.spyOn(aiAccess, "resolveClientKey").mockResolvedValue("test-key");
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: "test-key", source: AiUsageSourceEnum.PersonalKey });
         const mockClient = {
           chat: {
             completions: {
@@ -312,7 +456,9 @@ describe("AiBaseService", () => {
 
       it("should throw BadRequestException when JSON response cannot be parsed", async () => {
         const userId = "user-456";
-        vitest.spyOn(aiAccess, "resolveClientKey").mockResolvedValue("test-key");
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: "test-key", source: AiUsageSourceEnum.PersonalKey });
         const mockClient = {
           responses: { create: vitest.fn().mockResolvedValue({ output_text: "{ invalid json }" }) },
         } as unknown as OpenAI;
@@ -335,7 +481,7 @@ describe("AiBaseService", () => {
         const userId = "user-denied";
         const gatingError = new GraphQLError("AI is turned off", { extensions: { code: "AI_DISABLED_BY_USER" } });
 
-        vitest.spyOn(aiAccess, "resolveClientKey").mockRejectedValue(gatingError);
+        vitest.spyOn(aiAccess, "resolveClientAccess").mockRejectedValue(gatingError);
         const getClientSpy = vitest.spyOn(openAIClient, "getClientFor");
 
         const schema = z.object({ test: z.string() });
@@ -362,7 +508,9 @@ describe("AiBaseService", () => {
         const resolvedKey = "test-key";
         const schema = z.object({ test: z.string() });
 
-        vitest.spyOn(aiAccess, "resolveClientKey").mockResolvedValue(resolvedKey);
+        vitest
+          .spyOn(aiAccess, "resolveClientAccess")
+          .mockResolvedValue({ key: resolvedKey, source: AiUsageSourceEnum.PersonalKey });
         const getClientSpy = vitest.spyOn(openAIClient, "getClientFor");
         getClientSpy.mockReturnValue({
           chat: {

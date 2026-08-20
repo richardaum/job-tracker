@@ -1,3 +1,4 @@
+import { AiUsageService } from "@api/domains/ai-usage/ai-usage.service";
 import { Injectable } from "@nestjs/common";
 import { z } from "zod";
 
@@ -10,8 +11,13 @@ const rewriteSchema = z.object({ rewritten: z.string() });
 
 @Injectable()
 export class RewriteTextService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService, aiAccess: AiAccessService) {
-    super(openAIClient, promptRenderer, aiAccess);
+  constructor(
+    openAIClient: OpenAIClient,
+    promptRenderer: PromptRendererService,
+    aiAccess: AiAccessService,
+    aiUsage: AiUsageService,
+  ) {
+    super(openAIClient, promptRenderer, aiAccess, aiUsage);
   }
 
   async rewriteTextAsSingleParagraph(userId: string, text: string): Promise<string> {

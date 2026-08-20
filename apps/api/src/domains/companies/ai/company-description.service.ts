@@ -1,3 +1,4 @@
+import { AiUsageService } from "@api/domains/ai-usage/ai-usage.service";
 import { AiAccessService, AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { isTipTapDocumentString, plainTextToTipTap } from "@job-tracker/tiptap";
 import { BadRequestException, Injectable } from "@nestjs/common";
@@ -15,8 +16,13 @@ const COMPANY_DESCRIPTION_SCHEMA: Record<string, unknown> = {
 
 @Injectable()
 export class CompanyDescriptionService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService, aiAccess: AiAccessService) {
-    super(openAIClient, promptRenderer, aiAccess);
+  constructor(
+    openAIClient: OpenAIClient,
+    promptRenderer: PromptRendererService,
+    aiAccess: AiAccessService,
+    aiUsage: AiUsageService,
+  ) {
+    super(openAIClient, promptRenderer, aiAccess, aiUsage);
   }
 
   async generateCompanyDescription(userId: string, input: GenerateCompanyDescriptionInput): Promise<string> {

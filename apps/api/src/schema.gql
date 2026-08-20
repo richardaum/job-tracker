@@ -78,6 +78,20 @@ type UserSetting {
   id: ID!
 }
 
+type AiUsageTotals {
+  inputTokens: Int!
+  outputTokens: Int!
+  totalTokens: Int!
+  calls: Int!
+}
+
+type AiUsageSummary {
+  personalKey: AiUsageTotals!
+  trial: AiUsageTotals!
+  trialCallsUsed: Int!
+  trialCallsLimit: Int!
+}
+
 type DeleteMutationPayloadType {
   success: Boolean!
   deletedId: ID!
@@ -496,6 +510,7 @@ type Query {
   company(id: ID!): CompanyType!
   companyJobsCount(id: ID!): Int!
   settings: UserSetting!
+  aiUsage: AiUsageSummary!
   jobNotes(jobId: ID!): [NoteType!]!
   generateJobNoteWithAI(jobId: ID!, note: String!): String!
   exchangeRates(base: String!, currencies: [String!]!): CurrencyRates!

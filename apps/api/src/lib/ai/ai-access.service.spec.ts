@@ -6,6 +6,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 
 import { apiEnv } from "@api/env/server";
 import { SettingsEventBus } from "@api/domains/settings/settings-event.bus";
+import { AiUsageSourceEnum } from "@api/domains/ai-usage/ai-usage-source.enum";
 import { AiAccessService } from "./ai-access.service";
 import { AI_ERROR_CODES } from "./ai-errors.constants";
 
@@ -221,6 +222,51 @@ describe("AiAccessService", () => {
             expect(err.extensions.code).toBe(AI_ERROR_CODES.AI_DISABLED_BY_USER);
           }
         }
+      });
+    });
+  });
+
+  describe("resolveClientAccess", () => {
+    const userId = "test-user-123";
+
+    it("identifies a personal key without mutating trial quota", async () => {
+      mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+        userId,
+        aiEnabled: true,
+        openaiApiKeyEncrypted: "personal-key",
+        trialCallsUsed: 4,
+        trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
+      });
+
+      await expect(service.resolveClientAccess(userId)).resolves.toEqual({
+        key: "personal-key",
+        source: AiUsageSourceEnum.PersonalKey,
+      });
+      expect(mockSettingsRepo.createQueryBuilder).not.toHaveBeenCalled();
+    });
+
+    it("identifies trial access while retaining the atomic quota update", async () => {
+      mockSettingsRepo.findOneByOrFail.mockResolvedValue({
+        userId,
+        aiEnabled: true,
+        openaiApiKeyEncrypted: null,
+        trialCallsUsed: 4,
+        trialCallsLimit: apiEnv.TRIAL_AI_CALL_LIMIT,
+      });
+      const queryBuilder = {
+        update: vi.fn().mockReturnThis(),
+        set: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        execute: vi.fn().mockResolvedValue({ affected: 1 }),
+      };
+      mockSettingsRepo.createQueryBuilder.mockReturnValue(queryBuilder);
+
+      await expect(service.resolveClientAccess(userId)).resolves.toEqual({
+        key: apiEnv.OPENAI_API_KEY,
+        source: AiUsageSourceEnum.Trial,
+      });
+      expect(queryBuilder.where).toHaveBeenCalledWith("user_id = :userId AND trial_calls_used < trial_calls_limit", {
+        userId,
       });
     });
   });

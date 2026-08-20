@@ -1,3 +1,5 @@
+import { AiUsageSourceEnum } from "@api/domains/ai-usage/ai-usage-source.enum";
+import type { AiUsageService } from "@api/domains/ai-usage/ai-usage.service";
 import { AiAccessService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -14,9 +16,13 @@ describe("CompanyDescriptionService", () => {
 
     promptRenderer = { render: vi.fn().mockReturnValue("rendered prompt") } as unknown as PromptRendererService;
 
-    aiAccess = { resolveClientKey: vi.fn() } as unknown as AiAccessService;
+    aiAccess = {
+      resolveClientAccess: vi.fn().mockResolvedValue({ key: "test-key", source: AiUsageSourceEnum.PersonalKey }),
+    } as unknown as AiAccessService;
 
-    service = new CompanyDescriptionService(openAIClient, promptRenderer, aiAccess);
+    service = new CompanyDescriptionService(openAIClient, promptRenderer, aiAccess, {
+      record: vi.fn(),
+    } as unknown as AiUsageService);
   });
 
   describe("generateCompanyDescription", () => {

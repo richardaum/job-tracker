@@ -1,6 +1,9 @@
 import { apiEnv } from "@api/env/server";
+import type { AiTokenUsage } from "@api/domains/ai-usage/ai-usage.schema";
+import type { AiUsageSourceEnum } from "@api/domains/ai-usage/ai-usage-source.enum";
+import { AiUsageService } from "@api/domains/ai-usage/ai-usage.service";
 import { tryRun } from "@job-tracker/try-run";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { zodResponseFormat } from "openai/helpers/zod";
 import type { ZodType } from "zod";
 
@@ -21,15 +24,18 @@ export type CallAiOptions = (
 
 @Injectable()
 export class AiBaseService {
+  private readonly usageLogger = new Logger(AiBaseService.name);
+
   constructor(
     protected readonly openAIClient: OpenAIClient,
     protected readonly promptRenderer: PromptRendererService,
     protected readonly aiAccess: AiAccessService,
+    private readonly aiUsage: AiUsageService,
   ) {}
 
   async callAi(opts: CallAiOptions): Promise<unknown> {
-    const key = await this.aiAccess.resolveClientKey(opts.userId);
-    const client = this.openAIClient.getClientFor(key);
+    const access = await this.aiAccess.resolveClientAccess(opts.userId);
+    const client = this.openAIClient.getClientFor(access.key);
     const model = opts.model ?? apiEnv.OPENAI_MODEL;
 
     switch (opts.responseFormat) {
@@ -52,6 +58,19 @@ export class AiBaseService {
         if (!response) {
           throw new BadRequestException("AI returned no response.");
         }
+
+        await this.recordUsage(
+          opts.userId,
+          access.source,
+          response.usage
+            ? {
+                inputTokens: response.usage.prompt_tokens,
+                outputTokens: response.usage.completion_tokens,
+                totalTokens: response.usage.total_tokens,
+              }
+            : undefined,
+          "chat-completions",
+        );
 
         const message = response.choices[0]?.message;
         if (!message) {
@@ -89,6 +108,19 @@ export class AiBaseService {
           throw new BadRequestException("AI returned no response.");
         }
 
+        await this.recordUsage(
+          opts.userId,
+          access.source,
+          response.usage
+            ? {
+                inputTokens: response.usage.input_tokens,
+                outputTokens: response.usage.output_tokens,
+                totalTokens: response.usage.total_tokens,
+              }
+            : undefined,
+          "responses",
+        );
+
         const [parseError, parsed] = await tryRun(Promise.resolve().then(() => JSON.parse(response.output_text)));
         if (parseError) {
           throw new BadRequestException("AI returned a response that could not be parsed as JSON.");
@@ -100,6 +132,23 @@ export class AiBaseService {
         throw new BadRequestException(
           `Unknown response format: ${(opts as { responseFormat: string }).responseFormat}`,
         );
+    }
+  }
+
+  protected async recordUsage(
+    userId: string,
+    source: AiUsageSourceEnum,
+    usage: AiTokenUsage | undefined,
+    requestPath: string,
+  ): Promise<void> {
+    if (!usage) {
+      this.usageLogger.warn(`OpenAI response missing usage: source=${source}, requestPath=${requestPath}`);
+      return;
+    }
+
+    const [error] = await tryRun(this.aiUsage.record(userId, source, usage));
+    if (error) {
+      this.usageLogger.error(`Failed to persist OpenAI usage: source=${source}, requestPath=${requestPath}`);
     }
   }
 }

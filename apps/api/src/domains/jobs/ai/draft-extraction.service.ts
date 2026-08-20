@@ -1,4 +1,5 @@
 import { htmlToPlainText } from "@api/domains/shared/html-plain-text.util";
+import { AiUsageService } from "@api/domains/ai-usage/ai-usage.service";
 import { AiAccessService, AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { BadRequestException, Injectable } from "@nestjs/common";
 
@@ -18,9 +19,10 @@ export class DraftExtractionService extends AiBaseService {
     openAIClient: OpenAIClient,
     promptRenderer: PromptRendererService,
     aiAccess: AiAccessService,
+    aiUsage: AiUsageService,
     private readonly normalizationService: DraftExtractionNormalizationService,
   ) {
-    super(openAIClient, promptRenderer, aiAccess);
+    super(openAIClient, promptRenderer, aiAccess, aiUsage);
   }
 
   async extract(

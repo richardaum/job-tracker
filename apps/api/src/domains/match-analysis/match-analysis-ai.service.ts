@@ -1,4 +1,5 @@
 import type { PreferenceItem } from "@api/database/entities/work-preferences.entity";
+import { AiUsageService } from "@api/domains/ai-usage/ai-usage.service";
 import { AiAccessService, AiBaseService, OpenAIClient, PromptRendererService } from "@api/lib/ai";
 import { Injectable } from "@nestjs/common";
 
@@ -13,8 +14,13 @@ import {
 
 @Injectable()
 export class MatchAnalysisAiService extends AiBaseService {
-  constructor(openAIClient: OpenAIClient, promptRenderer: PromptRendererService, aiAccess: AiAccessService) {
-    super(openAIClient, promptRenderer, aiAccess);
+  constructor(
+    openAIClient: OpenAIClient,
+    promptRenderer: PromptRendererService,
+    aiAccess: AiAccessService,
+    aiUsage: AiUsageService,
+  ) {
+    super(openAIClient, promptRenderer, aiAccess, aiUsage);
   }
 
   async extractResumeMatchItems(userId: string, jdText: string, resumeText: string): Promise<ResumeMatchItemParsed[]> {

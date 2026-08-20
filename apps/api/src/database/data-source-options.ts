@@ -2,6 +2,7 @@ import type { DataSourceOptions } from "typeorm";
 
 import { AiConversationEntity } from "./entities/ai-conversation.entity";
 import { AiMessageEntity } from "./entities/ai-message.entity";
+import { AiUsageRecordEntity } from "./entities/ai-usage-record.entity";
 import { CompanyEntity } from "./entities/company.entity";
 import { ExchangeRateEntity } from "./entities/exchange-rate.entity";
 import { ExtensionActivityEventEntity } from "./entities/extension-activity-event.entity";
@@ -25,6 +26,7 @@ import { UuidGenerateSubscriber } from "./subscribers/uuid-generate.subscriber";
 export const apiEntities = [
   AiConversationEntity,
   AiMessageEntity,
+  AiUsageRecordEntity,
   UserEntity,
   UserAccountEntity,
   JobEntity,

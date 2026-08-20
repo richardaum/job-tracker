@@ -1,5 +1,6 @@
 import { apiEnv } from "@api/env/server";
 import { UserSettingEntity } from "@api/database/entities/user-setting.entity";
+import { AiUsageSourceEnum } from "@api/domains/ai-usage/ai-usage-source.enum";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { GraphQLError } from "graphql";
@@ -8,6 +9,8 @@ import { Repository } from "typeorm";
 import { SettingsEventBus } from "@api/domains/settings/settings-event.bus";
 import { AiUsageChanged } from "@api/domains/settings/settings.events";
 import { AI_ERROR_CODES } from "./ai-errors.constants";
+
+export type AiAccess = { key: string; source: AiUsageSourceEnum };
 
 /**
  * Resolves the effective OpenAI API key for a user, enforcing access gating:
@@ -48,7 +51,7 @@ export class AiAccessService {
     }
   }
 
-  async resolveClientKey(userId: string): Promise<string> {
+  async resolveClientAccess(userId: string): Promise<AiAccess> {
     const setting = await this.settings.findOneByOrFail({ userId });
 
     if (!setting.aiEnabled) {
@@ -58,7 +61,7 @@ export class AiAccessService {
     }
 
     if (setting.openaiApiKeyEncrypted) {
-      return setting.openaiApiKeyEncrypted;
+      return { key: setting.openaiApiKeyEncrypted, source: AiUsageSourceEnum.PersonalKey };
     }
 
     const { affected } = await this.settings
@@ -75,6 +78,11 @@ export class AiAccessService {
     }
 
     this.eventBus.emit(new AiUsageChanged(userId, setting.trialCallsUsed + 1, false));
-    return apiEnv.OPENAI_API_KEY!;
+    return { key: apiEnv.OPENAI_API_KEY!, source: AiUsageSourceEnum.Trial };
+  }
+
+  async resolveClientKey(userId: string): Promise<string> {
+    const access = await this.resolveClientAccess(userId);
+    return access.key;
   }
 }
