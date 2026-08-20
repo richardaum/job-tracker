@@ -14,7 +14,7 @@ export function LoginV2WelcomeCard({ onGoogleClick, error, className }: LoginV2W
   return (
     <div
       className={cn(
-        "flex flex-col items-center rounded-3xl border border-border-default bg-(--color-border-brand) p-10 text-center text-text-inverted shadow-sm",
+        "flex flex-col items-center rounded-3xl border border-border-default bg-border-brand p-10 text-center text-text-inverted shadow-sm",
         className,
       )}
     >

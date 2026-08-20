@@ -160,7 +160,7 @@ export function LandingPage() {
             </p>
           </div>
 
-          <div className={cn("rounded-2xl bg-(--color-border-brand) p-7 text-text-inverted shadow-sm")}>
+          <div className={cn("rounded-2xl bg-border-brand p-7 text-text-inverted shadow-sm")}>
             <p
               className={cn(
                 "mb-4 flex items-center gap-1.5 text-xs font-medium tracking-wide text-text-inverted/60 uppercase",
