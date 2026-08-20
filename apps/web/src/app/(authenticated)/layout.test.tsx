@@ -1,13 +1,17 @@
 import { ApolloNextAppProvider } from "@apollo/client-integration-nextjs";
 import { render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createApolloClient } from "@/lib/make-apollo-client";
 import { AuthenticatedLayout } from "@/modules/navigation/layouts/AuthenticatedLayout";
 
 const replaceMock = vi.fn();
 const useCurrentUserMock = vi.fn();
+const { posthogCaptureMock, posthogGetSurveysMock } = vi.hoisted(() => ({
+  posthogCaptureMock: vi.fn(),
+  posthogGetSurveysMock: vi.fn(),
+}));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: replaceMock }),
@@ -25,7 +29,10 @@ vi.mock("@/modules/welcome-tour/useWelcomeTour", () => ({
   useWelcomeTour: () => ({ activePhase: null, reset: vi.fn(), tourStatus: "NotStarted" }),
 }));
 
-vi.mock("posthog-js/react", () => ({ usePostHog: () => ({ identify: vi.fn() }), useFeatureFlagEnabled: () => true }));
+vi.mock("posthog-js/react", () => ({
+  usePostHog: () => ({ capture: posthogCaptureMock, getSurveys: posthogGetSurveysMock, identify: vi.fn() }),
+  useFeatureFlagEnabled: () => true,
+}));
 
 vi.mock("@/gql/hooks", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/gql/hooks")>();
@@ -45,6 +52,13 @@ function renderAuthenticatedLayout(children: ReactNode) {
 }
 
 describe("AuthenticatedLayout", () => {
+  beforeEach(() => {
+    posthogCaptureMock.mockClear();
+    posthogGetSurveysMock.mockReset();
+    posthogGetSurveysMock.mockImplementation((callback) => callback([], { isLoaded: true }));
+    replaceMock.mockClear();
+  });
+
   it("redirects unauthenticated users to /login with returnTo", () => {
     useCurrentUserMock.mockReturnValue({ user: null, loading: false, error: undefined });
 
@@ -63,5 +77,6 @@ describe("AuthenticatedLayout", () => {
     renderAuthenticatedLayout(<div>Private Area</div>);
 
     expect(screen.getByText("Private Area")).toBeInTheDocument();
+    expect(posthogCaptureMock).toHaveBeenCalledWith("nps_survey_eligible");
   });
 });

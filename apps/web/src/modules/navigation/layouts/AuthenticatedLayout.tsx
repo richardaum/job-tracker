@@ -2,11 +2,14 @@
 
 import { cn, Text } from "@job-tracker/ui";
 import { useRouter } from "next/navigation";
-import { type ReactNode, useEffect, useState } from "react";
+import { usePostHog } from "posthog-js/react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { useAuthReturnTo } from "@/hooks/useAuthReturnTo";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Sidebar } from "@/modules/navigation/components/Sidebar";
+
+const NPS_SURVEY_ELIGIBLE_EVENT = "nps_survey_eligible";
 
 function AuthenticatedFullscreenLoadingScreen() {
   return (
@@ -42,6 +45,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   return (
     <div className={cn("flex h-screen bg-bg-shell")}>
       <Sidebar user={user} open={isNavOpen} onClose={() => setIsNavOpen(false)} />
+      <NpsSurveyEligibilityTrigger userId={user.id} />
 
       <div className={cn("flex flex-1 overflow-hidden p-2 md:pl-0")}>
         <div className={cn("flex flex-1 flex-col overflow-hidden rounded-xl bg-bg-surface")}>
@@ -61,4 +65,30 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
       </div>
     </div>
   );
+}
+
+type NpsSurveyEligibilityTriggerProps = { userId: string };
+
+function NpsSurveyEligibilityTrigger({ userId }: NpsSurveyEligibilityTriggerProps) {
+  const posthog = usePostHog();
+  const triggeredUserIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!posthog || triggeredUserIdRef.current === userId) return;
+
+    let isCurrentUser = true;
+
+    posthog.getSurveys((_surveys, context) => {
+      if (!isCurrentUser || !context?.isLoaded || triggeredUserIdRef.current === userId) return;
+
+      triggeredUserIdRef.current = userId;
+      posthog.capture(NPS_SURVEY_ELIGIBLE_EVENT);
+    });
+
+    return () => {
+      isCurrentUser = false;
+    };
+  }, [posthog, userId]);
+
+  return null;
 }
