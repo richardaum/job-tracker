@@ -33,6 +33,8 @@ function buildOptimisticSettings(
     duplicateWindowDays: settings.duplicateWindowDays,
     trialCallsUsed: settings.trialCallsUsed,
     trialCallsLimit: settings.trialCallsLimit,
+    lastQuickTipId: settings.lastQuickTipId,
+    dismissedQuickTipIds: settings.dismissedQuickTipIds,
     blockedKeywords: null,
     blockedCompanies: null,
   };

@@ -47,6 +47,8 @@ function buildOptimisticSettings(
     duplicateWindowDays: settings.duplicateWindowDays,
     trialCallsUsed: settings.trialCallsUsed,
     trialCallsLimit: settings.trialCallsLimit,
+    lastQuickTipId: settings.lastQuickTipId,
+    dismissedQuickTipIds: settings.dismissedQuickTipIds,
     blockedKeywords: input.blockedKeywords ?? settings.blockedKeywords ?? null,
     blockedCompanies: input.blockedCompanies ?? settings.blockedCompanies ?? null,
   };

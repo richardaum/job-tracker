@@ -1,6 +1,8 @@
+import type { Route } from "next";
+
 export type QuickTipPresentation = "paste-shortcut" | "ai-settings";
 
-export type QuickTipAction = { label: string; href: string };
+export type QuickTipAction = { label: string; href: Route };
 
 export const QUICK_TIPS_FEATURE_FLAG = "quick-tips-enabled";
 
