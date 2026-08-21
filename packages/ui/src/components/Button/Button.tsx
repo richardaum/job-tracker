@@ -1,9 +1,10 @@
 "use client";
 
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, Ref, ReactNode } from "react";
 import { CircleNotchIcon } from "@phosphor-icons/react";
 import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@ui/lib/cn";
+import { mergeRefs } from "@ui/lib/mergeRefs";
 
 export type ButtonIntent = "primary" | "secondary" | "ghost" | "outlined" | "destructive";
 export type ButtonSize = "xs" | "sm" | "md" | "lg";
@@ -19,6 +20,7 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   rightIcon?: ReactNode;
   asChild?: boolean;
   onElementChange?: (element: HTMLButtonElement | null) => void;
+  ref?: Ref<HTMLButtonElement>;
 }
 
 const defaultScheme: Record<ButtonIntent, ButtonScheme> = {
@@ -63,6 +65,7 @@ export function Button({
   onElementChange,
   className,
   disabled,
+  ref,
   ...props
 }: ButtonProps) {
   const isLoading = state === "loading";
@@ -81,7 +84,7 @@ export function Button({
     <Component
       {...(asChild ? {} : { type: "button" as const })}
       {...props}
-      ref={asChild ? undefined : onElementChange}
+      ref={mergeRefs(ref, onElementChange)}
       disabled={isDisabled}
       aria-busy={isLoading ? true : undefined}
       className={classes}

@@ -1,5 +1,7 @@
+import type { Ref } from "react";
 import * as RadixCheckbox from "@radix-ui/react-checkbox";
 import { cn } from "@ui/lib/cn";
+import { mergeRefs } from "@ui/lib/mergeRefs";
 
 export interface CheckboxProps {
   checked?: boolean;
@@ -14,6 +16,7 @@ export interface CheckboxProps {
   state?: "default" | "error";
   size?: "sm" | "md";
   onElementChange?: (element: HTMLButtonElement | null) => void;
+  ref?: Ref<HTMLButtonElement>;
 }
 
 const sizeClasses: Record<NonNullable<CheckboxProps["size"]>, string> = { sm: "size-4", md: "size-5" };
@@ -40,10 +43,11 @@ export function Checkbox({
   state = "default",
   size = "md",
   onElementChange,
+  ref,
 }: CheckboxProps) {
   return (
     <RadixCheckbox.Root
-      ref={onElementChange}
+      ref={mergeRefs(ref, onElementChange)}
       id={id}
       tabIndex={tabIndex}
       name={name}
