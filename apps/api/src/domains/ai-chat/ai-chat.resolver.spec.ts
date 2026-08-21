@@ -2,6 +2,8 @@ import "reflect-metadata";
 
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
+import { FeatureFlagGuard } from "@api/domains/feature-flags/feature-flag.guard";
+import { PostHogService } from "@api/domains/feature-flags/posthog.service";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
 import { ApolloDriver } from "@nestjs/apollo";
 import type { ExecutionContext, INestApplication } from "@nestjs/common";
@@ -40,6 +42,7 @@ describe("AiChatResolver (integration)", () => {
     listMessages: ReturnType<typeof vi.fn>;
     askQuestion: ReturnType<typeof vi.fn>;
   };
+  let postHogService: { isFeatureEnabled: ReturnType<typeof vi.fn> };
 
   beforeAll(async () => {
     service = {
@@ -49,12 +52,15 @@ describe("AiChatResolver (integration)", () => {
       listMessages: vi.fn().mockResolvedValue([mockMessage]),
       askQuestion: vi.fn().mockResolvedValue({ success: true }),
     };
+    postHogService = { isFeatureEnabled: vi.fn().mockResolvedValue(true) };
 
     const moduleRef = await Test.createTestingModule({
       imports: [GraphQLModule.forRoot<ApolloDriverConfig>({ driver: ApolloDriver, autoSchemaFile: true })],
       providers: [
         AiChatResolver,
+        FeatureFlagGuard,
         { provide: AiChatService, useValue: service },
+        { provide: PostHogService, useValue: postHogService },
         { provide: "PUB_SUB", useValue: { asyncIterableIterator: vi.fn() } },
       ],
     })
@@ -76,7 +82,9 @@ describe("AiChatResolver (integration)", () => {
     await app.init();
   });
 
-  afterAll(() => app.close());
+  afterAll(async () => {
+    await app?.close();
+  });
 
   const auth = { Authorization: "Bearer mock-token" };
 
@@ -98,6 +106,19 @@ describe("AiChatResolver (integration)", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.data.aiConversations).toHaveLength(1);
+    expect(postHogService.isFeatureEnabled).toHaveBeenCalledWith("ai-chat-enabled", "user-1");
+  });
+
+  it("rejects requests when the AI Chat feature flag is disabled", async () => {
+    postHogService.isFeatureEnabled.mockResolvedValueOnce(false);
+
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({ query: `{ aiConversations(jobId: "job-1") { id } }` });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.errors[0].message).toBe('Feature "ai-chat-enabled" is not enabled for this user.');
   });
 
   it("aiMessages query returns messages", async () => {

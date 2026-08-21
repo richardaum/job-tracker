@@ -2,6 +2,8 @@ import { CurrentUser } from "@api/domains/auth/current-user.decorator";
 import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
+import { FeatureFlag } from "@api/domains/feature-flags/feature-flag.decorator";
+import { FeatureFlagGuard } from "@api/domains/feature-flags/feature-flag.guard";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import { UseGuards } from "@nestjs/common";
@@ -14,8 +16,9 @@ import { AiMessageType } from "./ai-message.type";
 import { AskQuestionPayloadType } from "./ask-question-payload.type";
 
 @Resolver(() => AiConversationType)
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, FeatureFlagGuard)
 @Roles(RoleEnum.User)
+@FeatureFlag("ai-chat-enabled")
 export class AiChatResolver {
   constructor(private readonly service: AiChatService) {}
 

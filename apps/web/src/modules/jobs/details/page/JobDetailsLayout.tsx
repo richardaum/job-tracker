@@ -4,6 +4,7 @@ import { SlotsProvider } from "@job-tracker/react-slots";
 import { cn, Tabs, TabsList, Text } from "@job-tracker/ui";
 import type { ReactNode } from "react";
 import { use, useRef, useState } from "react";
+import { useFeatureFlagEnabled } from "posthog-js/react";
 
 import { EntityNotFound } from "@/components/entity-not-found";
 import type { ApplicationStage } from "@/gql/hooks";
@@ -13,6 +14,7 @@ import { ActivitySidePanelTabs } from "@/modules/jobs/details/components/Activit
 import { AiChatSideTabTrigger } from "@/modules/jobs/details/components/AiChatSideTabTrigger";
 import { AiChatTab } from "@/modules/jobs/details/components/AiChatTab";
 import { AiChatTabPanel } from "@/modules/jobs/details/components/AiChatTabPanel";
+import { AI_CHAT_FEATURE_FLAG } from "@/modules/jobs/details/ai-chat-feature-flag";
 import { DescriptionTab } from "@/modules/jobs/details/components/DescriptionTab";
 import { HistoryTabPanel } from "@/modules/jobs/details/components/HistoryPanel";
 import { HistorySideTabTrigger } from "@/modules/jobs/details/components/HistorySideTabTrigger";
@@ -92,6 +94,7 @@ type JobDetailsMainContentProps = {
   sidePanelFromQuery: string | null;
   fullWidth: boolean;
   isDesktop: boolean;
+  aiChatEnabled: boolean;
   onSidePanelChange: (sidePanel: string) => void;
   children: ReactNode;
 };
@@ -103,6 +106,7 @@ function JobDetailsMainContent({
   sidePanelFromQuery,
   fullWidth,
   isDesktop,
+  aiChatEnabled,
   onSidePanelChange,
   children,
 }: JobDetailsMainContentProps) {
@@ -138,7 +142,7 @@ function JobDetailsMainContent({
             <MatchTab jobId={job.id} />
             <NotesTab jobId={job.id} fullWidth={fullWidth} />
             <HistoryTab jobId={job.id} fullWidth={fullWidth} />
-            <AiChatTab jobId={job.id} fullWidth={fullWidth} />
+            {aiChatEnabled ? <AiChatTab jobId={job.id} fullWidth={fullWidth} /> : null}
           </TabsList>
         }
       >
@@ -171,10 +175,14 @@ function JobDetailsMainContent({
               trigger: <HistorySideTabTrigger />,
               content: <HistoryTabPanel jobId={job.id} className={cn("mt-3")} />,
             },
-            chat: {
-              trigger: <AiChatSideTabTrigger />,
-              content: <AiChatTabPanel jobId={job.id} className={cn("mt-3")} />,
-            },
+            ...(aiChatEnabled
+              ? {
+                  chat: {
+                    trigger: <AiChatSideTabTrigger />,
+                    content: <AiChatTabPanel jobId={job.id} className={cn("mt-3")} />,
+                  },
+                }
+              : {}),
           }}
         />
       }
@@ -190,6 +198,8 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
   const router = useRouter();
   const isDesktop = useBreakpoint("(min-width: 1024px)");
   const viewModel = useJobDetails(id);
+  const aiChatFeatureFlag = useFeatureFlagEnabled(AI_CHAT_FEATURE_FLAG);
+  const aiChatEnabled = aiChatFeatureFlag === true;
 
   const { activeTab, sidePanelFromQuery, fullWidth, toggleFullWidth, setSidePanel, needsRedirect } =
     useJobDetailsRouteState(id, isDesktop);
@@ -268,9 +278,10 @@ export default function JobDetailsLayout({ params, children }: JobDetailsLayoutP
                   sidePanelFromQuery={sidePanelFromQuery}
                   fullWidth={fullWidth}
                   isDesktop={isDesktop}
+                  aiChatEnabled={aiChatEnabled}
                   onSidePanelChange={setSidePanel}
                 >
-                  {children}
+                  {aiChatEnabled || activeTab !== "chat" ? children : null}
                 </JobDetailsMainContent>
               }
               readOnly={isLocalJob}

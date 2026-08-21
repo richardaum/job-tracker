@@ -26,6 +26,7 @@ const gqlMocks = vi.hoisted(() => ({
 
 const replaceMock = vi.hoisted(() => vi.fn());
 const updateStatusDialogMock = vi.hoisted(() => vi.fn());
+const useFeatureFlagEnabledMock = vi.hoisted(() => vi.fn());
 const useSelectedLayoutSegmentMock = vi.hoisted(() => vi.fn<() => string | null>(() => null));
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
@@ -101,6 +102,8 @@ vi.mock("@/modules/jobs/shared/hooks/useJobDataSource", () => ({ useJobDataSourc
 
 vi.mock("@/modules/welcome-tour/useWelcomeTour", () => ({ useWelcomeTour: () => ({ activePhase: null }) }));
 
+vi.mock("posthog-js/react", () => ({ useFeatureFlagEnabled: (flagKey: string) => useFeatureFlagEnabledMock(flagKey) }));
+
 vi.mock("@/modules/jobs/details/page/JobOverviewPage", () => ({
   JobOverviewPage: () => <div data-testid="overview-tab-mock" />,
 }));
@@ -150,6 +153,7 @@ describe("JobDetailsLayout", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useSelectedLayoutSegmentMock.mockImplementation(() => null);
+    useFeatureFlagEnabledMock.mockReturnValue(true);
     gqlMocks.useJobMatchQuery.mockReset();
     gqlMocks.useJobQuery.mockReset();
     gqlMocks.useGenerateJobMatchMutation.mockReset();
@@ -217,6 +221,20 @@ describe("JobDetailsLayout", () => {
     expect(await screen.findByRole("tab", { name: "Match" })).toBeInTheDocument();
 
     expect(await screen.findByRole("tab", { name: "Overview" })).toBeInTheDocument();
+  });
+
+  it("hides AI Chat when its feature flag is disabled", async () => {
+    useFeatureFlagEnabledMock.mockReturnValue(false);
+
+    render(
+      <JobDetailsLayout params={syncParamsResolved({ id: "job-1" })}>
+        <div data-testid="child-content" />
+      </JobDetailsLayout>,
+    );
+
+    expect(await screen.findByRole("tab", { name: "Match" })).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "AI Chat" })).toBeNull();
+    expect(useFeatureFlagEnabledMock).toHaveBeenCalledWith("ai-chat-enabled");
   });
 
   it("selects Match tab when route is /jobs/[id]/match", async () => {
