@@ -19,6 +19,12 @@ export class UpdateSettingsInput {
   @Field(() => Int, { nullable: true })
   duplicateWindowDays?: number;
 
+  @Field(() => String, { nullable: true })
+  lastQuickTipId?: string | null;
+
+  @Field(() => [String], { nullable: true })
+  dismissedQuickTipIds?: string[];
+
   @Field(() => [BlockedKeywordInput], { nullable: true })
   blockedKeywords?: BlockedKeywordInput[];
 

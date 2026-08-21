@@ -37,6 +37,8 @@ export class SettingsService {
     assignIfDefined(settings, "autoMatchEnabled", input.autoMatchEnabled);
     assignIfDefined(settings, "aiEnabled", input.aiEnabled);
     assignIfDefined(settings, "duplicateWindowDays", input.duplicateWindowDays);
+    assignIfDefined(settings, "lastQuickTipId", input.lastQuickTipId);
+    assignIfDefined(settings, "dismissedQuickTipIds", input.dismissedQuickTipIds);
     assignIfDefined(settings, "blockedKeywords", input.blockedKeywords);
     assignIfDefined(settings, "blockedCompanies", input.blockedCompanies);
     return this.repo.save(settings);

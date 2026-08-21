@@ -1132,7 +1132,9 @@ export type UpdateSettingsInput = {
   autoSummaryEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   blockedCompanies?: InputMaybe<Array<Scalars['String']['input']>>;
   blockedKeywords?: InputMaybe<Array<BlockedKeywordInput>>;
+  dismissedQuickTipIds?: InputMaybe<Array<Scalars['String']['input']>>;
   duplicateWindowDays?: InputMaybe<Scalars['Int']['input']>;
+  lastQuickTipId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateSourceRunInput = {
@@ -1154,9 +1156,11 @@ export type UserSetting = {
   autoSummaryEnabled: Scalars['Boolean']['output'];
   blockedCompanies?: Maybe<Array<Scalars['String']['output']>>;
   blockedKeywords?: Maybe<Array<BlockedKeyword>>;
+  dismissedQuickTipIds: Array<Scalars['String']['output']>;
   duplicateWindowDays: Scalars['Int']['output'];
   hasOpenAiKey: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
+  lastQuickTipId?: Maybe<Scalars['String']['output']>;
   trialCallsLimit: Scalars['Int']['output'];
   trialCallsUsed: Scalars['Int']['output'];
   userId: Scalars['String']['output'];
@@ -1612,14 +1616,14 @@ export type DeleteResumeMutation = { __typename?: 'Mutation', deleteResume: { __
 export type SettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SettingsQuery = { __typename?: 'Query', settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, aiEnabled: boolean, hasOpenAiKey: boolean, duplicateWindowDays: number, trialCallsUsed: number, trialCallsLimit: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
+export type SettingsQuery = { __typename?: 'Query', settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, aiEnabled: boolean, hasOpenAiKey: boolean, duplicateWindowDays: number, trialCallsUsed: number, trialCallsLimit: number, lastQuickTipId?: string | null, dismissedQuickTipIds: Array<string>, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
 
 export type UpdateSettingsMutationVariables = Exact<{
   input: UpdateSettingsInput;
 }>;
 
 
-export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, aiEnabled: boolean, hasOpenAiKey: boolean, duplicateWindowDays: number, trialCallsUsed: number, trialCallsLimit: number, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
+export type UpdateSettingsMutation = { __typename?: 'Mutation', updateSettings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, aiEnabled: boolean, hasOpenAiKey: boolean, duplicateWindowDays: number, trialCallsUsed: number, trialCallsLimit: number, lastQuickTipId?: string | null, dismissedQuickTipIds: Array<string>, blockedCompanies?: Array<string> | null, blockedKeywords?: Array<{ __typename?: 'BlockedKeyword', keyword: string, scope: KeywordScope, matchMode: MatchMode }> | null } };
 
 export type SaveOpenAiKeyMutationVariables = Exact<{
   key: Scalars['String']['input'];
@@ -2649,6 +2653,8 @@ export const SettingsDocument = gql`
     duplicateWindowDays
     trialCallsUsed
     trialCallsLimit
+    lastQuickTipId
+    dismissedQuickTipIds
     blockedKeywords {
       keyword
       scope
@@ -2670,6 +2676,8 @@ export const UpdateSettingsDocument = gql`
     duplicateWindowDays
     trialCallsUsed
     trialCallsLimit
+    lastQuickTipId
+    dismissedQuickTipIds
     blockedKeywords {
       keyword
       scope

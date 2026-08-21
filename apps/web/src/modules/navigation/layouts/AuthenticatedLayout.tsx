@@ -21,8 +21,8 @@ function AuthenticatedFullscreenLoadingScreen() {
   );
 }
 
-type AuthenticatedLayoutProps = { children: ReactNode };
-export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
+type AuthenticatedLayoutProps = { children: ReactNode; quickTipsEnabled?: boolean };
+export function AuthenticatedLayout({ children, quickTipsEnabled = false }: AuthenticatedLayoutProps) {
   const router = useRouter();
   const { user, loading } = useCurrentUser();
   const { loginRedirectUrl } = useAuthReturnTo();
@@ -44,7 +44,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
 
   return (
     <div className={cn("flex h-screen bg-bg-shell")}>
-      <Sidebar user={user} open={isNavOpen} onClose={() => setIsNavOpen(false)} />
+      <Sidebar user={user} quickTipsEnabled={quickTipsEnabled} open={isNavOpen} onClose={() => setIsNavOpen(false)} />
       <NpsSurveyEligibilityTrigger userId={user.id} />
 
       <div className={cn("flex flex-1 overflow-hidden p-2 md:pl-0")}>

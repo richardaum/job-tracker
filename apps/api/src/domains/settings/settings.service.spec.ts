@@ -180,6 +180,36 @@ describe("SettingsService", () => {
     expect(result.duplicateWindowDays).toBe(30);
   });
 
+  it("updateSettings persists quick-tip rotation and dismissals", async () => {
+    const existing = {
+      userId: "user-1",
+      autoFillEnabled: false,
+      autoSummaryEnabled: false,
+      autoMatchEnabled: false,
+      aiEnabled: true,
+      duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
+      lastQuickTipId: null,
+      dismissedQuickTipIds: [],
+    };
+    repo.findOne.mockResolvedValue(existing);
+    repo.save.mockImplementation((entity) => Promise.resolve(entity));
+
+    const result = await service.updateSettings("user-1", {
+      lastQuickTipId: "paste-to-draft:v1",
+      dismissedQuickTipIds: ["extension-import:v1"],
+    });
+
+    expect(repo.save).toHaveBeenCalledWith({
+      ...existing,
+      lastQuickTipId: "paste-to-draft:v1",
+      dismissedQuickTipIds: ["extension-import:v1"],
+    });
+    expect(result.lastQuickTipId).toBe("paste-to-draft:v1");
+    expect(result.dismissedQuickTipIds).toEqual(["extension-import:v1"]);
+  });
+
   it("saveOpenAiKey with invalid key — throws AI_KEY_INVALID error and does not persist", async () => {
     const existing = {
       userId: "user-1",

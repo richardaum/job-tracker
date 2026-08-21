@@ -36,6 +36,8 @@ describe("SettingsResolver (integration)", () => {
       aiEnabled: true,
       trialCallsUsed: 0,
       trialCallsLimit: 50,
+      lastQuickTipId: null,
+      dismissedQuickTipIds: [],
       duplicateWindowDays: 30,
       blockedKeywords: [],
       blockedCompanies: [],
@@ -104,6 +106,34 @@ describe("SettingsResolver (integration)", () => {
       blockedCompanies: [],
     });
     expect(service.getSettings).toHaveBeenCalledWith("user-1");
+  });
+
+  it("settings query exposes persisted quick-tip state", async () => {
+    service.getSettings.mockResolvedValue({
+      userId: "user-1",
+      autoFillEnabled: false,
+      autoSummaryEnabled: false,
+      autoMatchEnabled: false,
+      aiEnabled: true,
+      trialCallsUsed: 0,
+      trialCallsLimit: 50,
+      lastQuickTipId: "paste-to-draft:v1",
+      dismissedQuickTipIds: ["extension-import:v1"],
+      duplicateWindowDays: 30,
+      blockedKeywords: [],
+      blockedCompanies: [],
+    });
+
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set(auth)
+      .send({ query: `{ settings { lastQuickTipId dismissedQuickTipIds } }` });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.settings).toEqual({
+      lastQuickTipId: "paste-to-draft:v1",
+      dismissedQuickTipIds: ["extension-import:v1"],
+    });
   });
 
   it("settings query returns error for unauthenticated request", async () => {

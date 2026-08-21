@@ -27,6 +27,17 @@ describe("UserSettingEntity", () => {
     expect(metadata?.options.default).toBe(0);
   });
 
+  it("dismissedQuickTipIds column defaults to an empty text array", () => {
+    const metadata = getColumnMetadata("dismissedQuickTipIds");
+    expect(metadata?.options.array).toBe(true);
+    expect(metadata?.options.default).toBeDefined();
+  });
+
+  it("lastQuickTipId column is nullable", () => {
+    const metadata = getColumnMetadata("lastQuickTipId");
+    expect(metadata?.options.nullable).toBe(true);
+  });
+
   it("allows setting aiEnabled to false", () => {
     const entity = new UserSettingEntity();
     entity.userId = "user-1";

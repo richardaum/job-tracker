@@ -31,6 +31,12 @@ export class UserSettingType {
   @Field(() => Int)
   trialCallsLimit!: number;
 
+  @Field(() => String, { nullable: true })
+  lastQuickTipId!: string | null;
+
+  @Field(() => [String])
+  dismissedQuickTipIds!: string[];
+
   @Field(() => [BlockedKeywordType], { nullable: true })
   blockedKeywords?: BlockedKeywordType[];
 

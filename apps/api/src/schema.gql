@@ -73,6 +73,8 @@ type UserSetting {
   duplicateWindowDays: Int!
   trialCallsUsed: Int!
   trialCallsLimit: Int!
+  lastQuickTipId: String
+  dismissedQuickTipIds: [String!]!
   blockedKeywords: [BlockedKeyword!]
   blockedCompanies: [String!]
   id: ID!
@@ -649,6 +651,8 @@ input UpdateSettingsInput {
   autoMatchEnabled: Boolean
   aiEnabled: Boolean
   duplicateWindowDays: Int
+  lastQuickTipId: String
+  dismissedQuickTipIds: [String!]
   blockedKeywords: [BlockedKeywordInput!]
   blockedCompanies: [String!]
 }

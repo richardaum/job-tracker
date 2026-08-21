@@ -48,6 +48,12 @@ export class UserSettingEntity {
   @Column({ name: "trial_calls_limit", type: "int", default: 50 })
   trialCallsLimit!: number;
 
+  @Column({ name: "last_quick_tip_id", type: "text", nullable: true })
+  lastQuickTipId!: string | null;
+
+  @Column({ name: "dismissed_quick_tip_ids", type: "text", array: true, default: () => "ARRAY[]::text[]" })
+  dismissedQuickTipIds!: string[];
+
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
 

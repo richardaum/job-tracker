@@ -73,6 +73,8 @@ vi.mock("@/modules/navigation/components/ObfuscatedText", () => ({
   ObfuscatedText: ({ text }: { text: string; obfuscatedText: string }) => <span>{text}</span>,
 }));
 
+vi.mock("@/modules/navigation/components/QuickTips", () => ({ QuickTips: () => <span>Quick tips</span> }));
+
 vi.mock("@/modules/navigation/components/WelcomeTourProgressTrackbar", () => ({
   WelcomeTourProgressTrackbar: () => <span>Welcome tour</span>,
 }));
@@ -241,6 +243,25 @@ describe("Sidebar", () => {
     render(<Sidebar user={mockUser} />);
 
     expect(screen.getAllByText("Welcome tour").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("places Quick tips above the welcome tour", () => {
+    render(<Sidebar user={mockUser} quickTipsEnabled />);
+
+    const quickTip = screen.getAllByText("Quick tips")[0];
+    const welcomeTour = screen.getAllByText("Welcome tour")[0];
+
+    if (!quickTip || !welcomeTour) {
+      throw new Error("Expected Quick tips and Welcome tour to render.");
+    }
+
+    expect(quickTip.compareDocumentPosition(welcomeTour)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it("hides Quick tips when its feature flag is disabled", () => {
+    render(<Sidebar user={mockUser} quickTipsEnabled={false} />);
+
+    expect(screen.queryByText("Quick tips")).not.toBeInTheDocument();
   });
 
   it("renders trial quota trackbar when hasOpenAiKey is false", () => {

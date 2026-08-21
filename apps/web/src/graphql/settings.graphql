@@ -9,6 +9,8 @@ query Settings {
     duplicateWindowDays
     trialCallsUsed
     trialCallsLimit
+    lastQuickTipId
+    dismissedQuickTipIds
     blockedKeywords {
       keyword
       scope
@@ -29,6 +31,8 @@ mutation UpdateSettings($input: UpdateSettingsInput!) {
     duplicateWindowDays
     trialCallsUsed
     trialCallsLimit
+    lastQuickTipId
+    dismissedQuickTipIds
     blockedKeywords {
       keyword
       scope

@@ -5,6 +5,7 @@ import {
   ArrowSquareOutIcon,
   BriefcaseIcon,
   BuildingsIcon,
+  ClipboardTextIcon,
   ClockIcon,
   CurrencyDollarIcon,
   FilesIcon,
@@ -20,6 +21,7 @@ import {
   TextTIcon,
   TrashIcon,
   UserIcon,
+  XIcon,
 } from "@phosphor-icons/react";
 
 /**
@@ -85,6 +87,12 @@ export const conceptIcon = {
 
   /** Description / content body */
   description: TextAlignLeftIcon,
+
+  /** Paste content from the clipboard */
+  paste: ClipboardTextIcon,
+
+  /** Close or dismiss */
+  close: XIcon,
 
   /** List / all items */
   list: ListIcon,
