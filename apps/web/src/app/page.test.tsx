@@ -1,5 +1,5 @@
 import { ApolloNextAppProvider } from "@apollo/client-integration-nextjs";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { createApolloClient } from "@/lib/make-apollo-client";
@@ -36,6 +36,8 @@ describe("HomePage", () => {
 
     expect(screen.getByRole("heading", { name: /one pipeline/i })).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /sign in with google/i }).length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    expect(screen.getByRole("button", { name: /continue with google/i })).toBeInTheDocument();
   });
 
   it("stays visible for signed-in visitors, swapping the CTA for a link to their jobs", () => {

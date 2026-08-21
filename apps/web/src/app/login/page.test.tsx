@@ -1,6 +1,6 @@
 import { ApolloNextAppProvider } from "@apollo/client-integration-nextjs";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createApolloClient } from "@/lib/make-apollo-client";
 
@@ -22,22 +22,35 @@ vi.mock("@/hooks/useCurrentUser", () => ({ useCurrentUser: () => useCurrentUserM
 function renderPage() {
   return render(
     <ApolloNextAppProvider makeClient={createApolloClient}>
-      <LoginPageClient loginV2Enabled={false} />
+      <LoginPageClient />
     </ApolloNextAppProvider>,
   );
 }
 
 describe("LoginPage", () => {
-  it("renders Google login button", () => {
+  beforeEach(() => {
+    replaceMock.mockClear();
+  });
+
+  it("shows a transition while it validates the OAuth session", () => {
     usePathnameMock.mockReturnValue("/login");
     useSearchParamsMock.mockReturnValue(new URLSearchParams("returnTo=%2Fjobs%2F123"));
     useCurrentUserMock.mockReturnValue({ user: null, loading: false, error: undefined });
 
     renderPage();
 
-    expect(screen.getByRole("heading", { name: /get started/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /continue with google/i })).toBeInTheDocument();
-    expect(screen.getByRole("region", { name: /newjobtracker highlights/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /finalizing your access/i })).toBeInTheDocument();
+  });
+
+  it("keeps the loading view visible when view=loading", () => {
+    usePathnameMock.mockReturnValue("/login");
+    useSearchParamsMock.mockReturnValue(new URLSearchParams("view=loading"));
+    useCurrentUserMock.mockReturnValue({ user: null, loading: false, error: undefined });
+
+    renderPage();
+
+    expect(screen.getByRole("heading", { name: /finalizing your access/i })).toBeInTheDocument();
+    expect(replaceMock).not.toHaveBeenCalled();
   });
 
   it("redirects authenticated users to returnTo from query param", () => {
@@ -50,14 +63,14 @@ describe("LoginPage", () => {
     expect(replaceMock).toHaveBeenCalledWith("/jobs/123");
   });
 
-  it("falls back to jobs for an unsafe returnTo", () => {
+  it("returns signed-out visitors to the landing popover", () => {
     usePathnameMock.mockReturnValue("/login");
     useSearchParamsMock.mockReturnValue(new URLSearchParams("returnTo=https%3A%2F%2Fevil.example"));
-    useCurrentUserMock.mockReturnValue({ user: { id: "user-1" }, loading: false, error: undefined });
+    useCurrentUserMock.mockReturnValue({ user: null, loading: false, error: undefined });
 
     renderPage();
 
-    expect(replaceMock).toHaveBeenCalledWith("/jobs");
+    expect(replaceMock).toHaveBeenCalledWith("/?signIn=open&returnTo=%2Fjobs");
   });
 
   it("renders the pending message and hides the login CTA when status=pending", () => {
@@ -68,9 +81,9 @@ describe("LoginPage", () => {
     renderPage();
 
     expect(screen.getByRole("heading", { name: /access requested/i })).toBeInTheDocument();
-    expect(screen.getByText(/pending admin approval/i)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /continue with google/i })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /log out/i })).toBeInTheDocument();
+    expect(screen.getByText(/access checkpoint/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /try signing in again/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /use a different account/i })).toBeInTheDocument();
   });
 
   it("renders the rejected message and hides the login CTA when status=rejected", () => {
@@ -82,46 +95,16 @@ describe("LoginPage", () => {
 
     expect(screen.getByRole("heading", { name: /access not granted/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /continue with google/i })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /log out/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /use a different account/i })).toBeInTheDocument();
   });
 
-  it("falls back to the default login CTA for an unrecognized status value", () => {
+  it("returns an unrecognized status to the landing popover", () => {
     usePathnameMock.mockReturnValue("/login");
     useSearchParamsMock.mockReturnValue(new URLSearchParams("status=something-else"));
     useCurrentUserMock.mockReturnValue({ user: null, loading: false, error: undefined });
 
     renderPage();
 
-    expect(screen.getByRole("button", { name: /continue with google/i })).toBeInTheDocument();
-  });
-
-  describe("logging out from the pending screen", () => {
-    const fetchMock = vi.fn();
-
-    beforeEach(() => {
-      usePathnameMock.mockReturnValue("/login");
-      useSearchParamsMock.mockReturnValue(new URLSearchParams("status=pending"));
-      useCurrentUserMock.mockReturnValue({ user: null, loading: false, error: undefined });
-      fetchMock.mockResolvedValue(new Response(null, { status: 200 }));
-      vi.stubGlobal("fetch", fetchMock);
-    });
-
-    afterEach(() => {
-      vi.unstubAllGlobals();
-    });
-
-    it("calls the logout endpoint and redirects to /login", async () => {
-      renderPage();
-
-      fireEvent.click(screen.getByRole("button", { name: /log out/i }));
-
-      await waitFor(() => {
-        expect(fetchMock).toHaveBeenCalledWith(
-          expect.stringContaining("/auth/logout"),
-          expect.objectContaining({ method: "POST", credentials: "include" }),
-        );
-        expect(replaceMock).toHaveBeenCalledWith("/login");
-      });
-    });
+    expect(replaceMock).toHaveBeenCalledWith("/?signIn=open&returnTo=%2Fjobs");
   });
 });

@@ -39,10 +39,11 @@ export class GoogleAuthGuard extends AuthGuard("google") {
     return (await super.canActivate(context)) as boolean;
   }
 
-  getAuthenticateOptions(context: ExecutionContext): { state?: string } {
+  getAuthenticateOptions(context: ExecutionContext): { state?: string; prompt?: "select_account" } {
     const request = context.switchToHttp().getRequest<Request>();
     const returnTo = getSafeReturnTo(request.query.returnTo);
+    const prompt = request.query.switchAccount === "true" ? "select_account" : undefined;
 
-    return returnTo ? { state: returnTo } : {};
+    return { ...(returnTo ? { state: returnTo } : {}), ...(prompt ? { prompt } : {}) };
   }
 }

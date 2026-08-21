@@ -11,6 +11,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 
+import { LandingSignInPopover } from "./LandingSignInPopover";
 import { PipelineRail } from "./PipelineRail";
 
 const features = [
@@ -96,6 +97,36 @@ function SuspendedPrimaryCta(props: PrimaryCtaProps) {
   );
 }
 
+function NavigationCta({ className, dark }: PrimaryCtaProps) {
+  const { user, loading } = useCurrentUser();
+  const sharedClasses = primaryCtaClasses({ className, dark });
+
+  if (!loading && user) {
+    return (
+      <Link href="/jobs" className={sharedClasses}>
+        Go to your jobs
+        <ArrowRightIcon className={cn("size-4")} aria-hidden />
+      </Link>
+    );
+  }
+
+  return <LandingSignInPopover triggerClassName={sharedClasses} />;
+}
+
+function SuspendedNavigationCta(props: PrimaryCtaProps) {
+  return (
+    <Suspense
+      fallback={
+        <Link href="/login" className={primaryCtaClasses(props)}>
+          Sign in
+        </Link>
+      }
+    >
+      <NavigationCta {...props} />
+    </Suspense>
+  );
+}
+
 export function LandingPage() {
   return (
     <main className={cn("text-text-primary")}>
@@ -105,7 +136,7 @@ export function LandingPage() {
             <AppBrandMark size={30} className={cn("rounded-lg")} />
             {APP_TITLE}
           </span>
-          <SuspendedPrimaryCta dark className={cn("border border-border-default px-4 py-2 text-xs")} />
+          <SuspendedNavigationCta dark className={cn("border border-border-default px-4 py-2 text-xs")} />
         </nav>
       </div>
 

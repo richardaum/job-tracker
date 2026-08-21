@@ -110,7 +110,7 @@ export function Sidebar({ open = false, onClose, user }: SidebarProps) {
       await fetch(`${API_URL}/auth/logout`, authMutationRequestInit({ method: "POST", credentials: "include" }));
       await apolloClient.clearStore();
       onClose?.();
-      router.replace("/login");
+      router.replace("/");
     } finally {
       setLoggingOut(false);
     }

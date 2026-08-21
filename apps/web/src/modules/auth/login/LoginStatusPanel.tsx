@@ -1,24 +1,24 @@
 "use client";
 
-import { useApolloClient } from "@apollo/client/react";
-import { authMutationRequestInit } from "@job-tracker/auth";
 import { Button, cn, Heading } from "@job-tracker/ui";
-import { SignOutIcon } from "@phosphor-icons/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { GoogleLogoIcon } from "@phosphor-icons/react";
 
+import { APP_TITLE } from "@/app/metadata";
 import { getApiBaseUrl } from "@/lib/api-endpoints";
+import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 
 export type LoginStatusPanelStatus = "pending" | "rejected";
 
-const COPY: Record<LoginStatusPanelStatus, { title: string; body: string }> = {
+const COPY: Record<LoginStatusPanelStatus, { title: string; body: string; statusLabel: string }> = {
   pending: {
     title: "Access requested",
-    body: "Your access request was received and is pending admin approval. Check back later — you'll be able to sign in once your account is approved.",
+    body: "Your account is at the access checkpoint. We'll unlock your workspace as soon as an administrator approves it.",
+    statusLabel: "Access under review",
   },
   rejected: {
     title: "Access not granted",
-    body: "Your access request was not approved. If you believe this is a mistake, contact the team that invited you.",
+    body: "This account hasn't been approved. Contact the team that invited you if you need help.",
+    statusLabel: "Access unavailable",
   },
 };
 
@@ -26,49 +26,95 @@ type LoginStatusPanelProps = { status: LoginStatusPanelStatus; className?: strin
 
 export function LoginStatusPanel({ status, className }: LoginStatusPanelProps) {
   const copy = COPY[status];
-  const router = useRouter();
-  const apolloClient = useApolloClient();
-  const [loggingOut, setLoggingOut] = useState(false);
 
-  async function handleLogout() {
-    setLoggingOut(true);
-    try {
-      await fetch(
-        `${getApiBaseUrl()}/auth/logout`,
-        authMutationRequestInit({ method: "POST", credentials: "include" }),
-      );
-      await apolloClient.clearStore();
-      router.replace("/login");
-    } finally {
-      setLoggingOut(false);
-    }
+  function handleRetryLogin() {
+    // Full navigation to API origin for OAuth (not an in-app Next route).
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign(`${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent("/jobs")}`);
+  }
+
+  function handleSwitchAccount() {
+    // `switchAccount` is translated to Google's supported `prompt=select_account` server-side.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign(`${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent("/jobs")}&switchAccount=true`);
   }
 
   return (
-    <div
+    <section
+      aria-labelledby="access-status-title"
       className={cn(
-        "w-full max-w-md rounded-xl border border-border-default bg-bg-surface p-8 shadow-lg",
-        "lg:flex lg:h-full lg:max-w-none lg:flex-col lg:justify-center lg:p-10",
+        "grid min-h-100 overflow-hidden rounded-3xl border border-border-default bg-bg-surface shadow-lg",
+        "lg:grid-cols-[minmax(18rem,0.37fr)_minmax(0,0.63fr)]",
         className,
       )}
     >
-      <Heading as="h1" size="3xl" className={cn("font-semibold text-text-brand")}>
-        {copy.title}
-      </Heading>
-      <p className={cn("mt-2 text-sm text-text-muted")}>{copy.body}</p>
+      <aside className={cn("bg-bg-brand-strong p-8 text-text-inverted sm:p-10")}>
+        <span className={cn("inline-flex items-center gap-2.5 text-sm font-semibold")}>
+          <AppBrandMark size={30} className={cn("rounded-lg")} />
+          {APP_TITLE}
+        </span>
+        <ol className={cn("mt-9 grid gap-4 text-sm")}>
+          <li className={cn("flex items-center gap-3 text-text-inverted")}>
+            <span className={cn("size-2 rounded-full bg-(--primitive-color-green-500)")} aria-hidden />
+            Google account connected
+          </li>
+          <li className={cn("flex items-center gap-3 font-semibold text-text-inverted")}>
+            <span
+              className={cn(
+                "size-2 rounded-full border-2",
+                status === "pending" ? "border-border-warning" : "border-border-error",
+              )}
+              aria-hidden
+            />
+            {copy.statusLabel}
+          </li>
+          <li className={cn("flex items-center gap-3 text-text-inverted/50")}>
+            <span className={cn("size-2 rounded-full border border-current")} aria-hidden />
+            Workspace ready
+          </li>
+        </ol>
+      </aside>
 
-      <Button
-        type="button"
-        intent="ghost"
-        size="sm"
-        colorScheme="error"
-        state={loggingOut ? "loading" : "default"}
-        leftIcon={<SignOutIcon size={16} />}
-        onClick={() => void handleLogout()}
-        className={cn("mt-6 w-fit")}
-      >
-        Log out
-      </Button>
-    </div>
+      <div className={cn("relative flex min-h-75 items-center px-8 py-18 sm:px-12")}>
+        <div className={cn("flex max-w-xl items-start gap-5")}>
+          <span
+            className={cn(
+              "mt-0.5 grid size-12 shrink-0 place-items-center rounded-full text-lg",
+              status === "pending"
+                ? "bg-bg-warning-subtle text-(--primitive-color-yellow-950)"
+                : "bg-bg-error-subtle text-text-error",
+            )}
+            aria-hidden
+          >
+            {status === "pending" ? "◷" : "×"}
+          </span>
+          <div>
+            <Heading as="h1" id="access-status-title" size="2xl" className={cn("font-semibold")}>
+              {copy.title}
+            </Heading>
+            <p className={cn("mt-2 max-w-lg text-sm/relaxed text-text-secondary")}>{copy.body}</p>
+          </div>
+        </div>
+
+        <div
+          className={cn(
+            "absolute right-8 bottom-8 flex flex-wrap items-center justify-end gap-2 sm:right-12 sm:bottom-10",
+          )}
+        >
+          <Button
+            type="button"
+            intent="primary"
+            size="sm"
+            leftIcon={<GoogleLogoIcon size={14} weight="bold" />}
+            onClick={handleRetryLogin}
+          >
+            Try signing in again
+          </Button>
+          <Button type="button" intent="ghost" size="sm" onClick={handleSwitchAccount}>
+            Use a different account
+          </Button>
+        </div>
+      </div>
+    </section>
   );
 }
