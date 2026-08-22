@@ -5,6 +5,18 @@ import { getAllowedDevOrigins } from "./config/dev-network";
 import { screenshotFlags } from "./src/lib/screenshot-flags";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      "job-tracker-web-eta.vercel.app",
+      "job-tracker-web-richardaums-projects.vercel.app",
+      "job-tracker-web-git-main-richardaums-projects.vercel.app",
+    ].map((value) => ({
+      source: "/:path*",
+      destination: "https://newjobtracker.app/:path*",
+      permanent: true,
+      has: [{ type: "host", value }],
+    }));
+  },
   devIndicators: screenshotFlags.hideNextDevIndicator ? false : undefined,
   typedRoutes: true,
   experimental: { strictRouteTypes: true },
