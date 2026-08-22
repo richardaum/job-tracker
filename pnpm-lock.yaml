@@ -182,6 +182,9 @@ importers:
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
+      resend:
+        specifier: ^6.22.0
+        version: 6.22.0
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
@@ -496,7 +499,7 @@ importers:
         version: 1.5.9(@rsdoctor/client@1.5.9)(webpack@5.106.0(esbuild@0.27.7))
       '@rsdoctor/webpack-plugin':
         specifier: ^1.5.9
-        version: 1.5.9(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(webpack@5.106.0(esbuild@0.27.7))
+        version: 1.5.9(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(webpack@5.106.0(esbuild@0.27.7))
       '@tailwindcss/postcss':
         specifier: ^4.2.4
         version: 4.2.4
@@ -4831,6 +4834,9 @@ packages:
   '@sqltools/formatter@1.2.5':
     resolution: {integrity: sha512-Uy0+khmZqUrUGm5dmMqVlnvufZRSK0FbYzVgp0UMstm+F5+W2/jnEEQyc9vo1ZR/E5ZI/B1WjjoTqBqwJL6Krw==}
 
+  '@stablelib/base64@1.0.1':
+    resolution: {integrity: sha512-1bnPQqSxSuc3Ii6MhBysoWCg58j97aUjuCSZrGSmDxNqtytIi0k8utUenAwTZN4V5mXXYGsVUI9zeBqy+jBOSQ==}
+
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
@@ -7682,6 +7688,9 @@ packages:
   fast-safe-stringify@2.1.1:
     resolution: {integrity: sha512-W+KJc2dmILlPplD/H4K9l9LcAHAfPtP6BY84uVLXQ6Evcz9Lcg33Y2z1IVblT6xdY54PXYVHEv+0Wpq8Io6zkA==}
 
+  fast-sha256@1.3.0:
+    resolution: {integrity: sha512-n11RGP/lrWEFI/bWdygLxhI+pVeo1ZYIVwvvPkW7azl/rOy+F3HYRZ2K5zeE9mmkhQppyv9sQFx0JM9UabnpPQ==}
+
   fast-uri@3.1.0:
     resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
 
@@ -10076,6 +10085,9 @@ packages:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
 
+  postal-mime@2.7.5:
+    resolution: {integrity: sha512-GNEXKvWFQnbgO5NlrGzVa0FmWzBZ24PersAWErttSg1Hjpf0ATxTwS5DOMGaOpTG6bUh5cTr7xi0jAD942wCJA==}
+
   postcss@8.4.31:
     resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
     engines: {node: ^10 || ^12 || >=14}
@@ -10464,6 +10476,15 @@ packages:
   require-main-filename@2.0.0:
     resolution: {integrity: sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==}
 
+  resend@6.22.0:
+    resolution: {integrity: sha512-dP1jyl0n1Dx7GYDb0bcsbv9Yx0oBRLhUtSyNFRIOsSzV9MvCVbua/3WP6YUP2JptAU5BciEWGInV+hFjUuYLUw==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@react-email/render': '*'
+    peerDependenciesMeta:
+      '@react-email/render':
+        optional: true
+
   resolve-cwd@3.0.0:
     resolution: {integrity: sha512-OrZaX2Mb+rJCpH/6CpSqt9xFVpN++x01XnN2ie9g6P5/3xelLAkXWVADpdz1IHD/KFfEXyE6V0U01OQ3UO2rEg==}
     engines: {node: '>=8'}
@@ -10841,6 +10862,9 @@ packages:
 
   standard-as-callback@2.1.0:
     resolution: {integrity: sha512-qoRRSyROncaz1z0mvYqIE4lCd9p2R90i6GxW3uZv5ucSu8tU7B5HXUP1gG8pVZsYNVaXjk8ClXHPttLyxAL48A==}
+
+  standardwebhooks@1.0.0:
+    resolution: {integrity: sha512-BbHGOQK9olHPMvQNHWul6MYlrRTAOKn03rOe4A8O3CLWhNf4YHBqq2HJKKC+sfqpxiBY52pNeesD6jIiLDz8jg==}
 
   statuses@2.0.2:
     resolution: {integrity: sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==}
@@ -15853,14 +15877,14 @@ snapshots:
 
   '@rsdoctor/client@1.5.9': {}
 
-  '@rsdoctor/core@1.5.9(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(webpack@5.106.0(esbuild@0.27.7))':
+  '@rsdoctor/core@1.5.9(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(webpack@5.106.0(esbuild@0.27.7))':
     dependencies:
       '@rsbuild/plugin-check-syntax': 1.6.1
       '@rsdoctor/graph': 1.5.9(webpack@5.106.0(esbuild@0.27.7))
       '@rsdoctor/sdk': 1.5.9(webpack@5.106.0(esbuild@0.27.7))
       '@rsdoctor/types': 1.5.9(webpack@5.106.0(esbuild@0.27.7))
       '@rsdoctor/utils': 1.5.9(webpack@5.106.0(esbuild@0.27.7))
-      '@rspack/resolver': 0.2.8(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
+      '@rspack/resolver': 0.2.8(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
       browserslist-load-config: 1.0.1
       es-toolkit: 1.46.0
       filesize: 10.1.6
@@ -15935,9 +15959,9 @@ snapshots:
       - '@rspack/core'
       - webpack
 
-  '@rsdoctor/webpack-plugin@1.5.9(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(webpack@5.106.0(esbuild@0.27.7))':
+  '@rsdoctor/webpack-plugin@1.5.9(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(webpack@5.106.0(esbuild@0.27.7))':
     dependencies:
-      '@rsdoctor/core': 1.5.9(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(webpack@5.106.0(esbuild@0.27.7))
+      '@rsdoctor/core': 1.5.9(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(webpack@5.106.0(esbuild@0.27.7))
       '@rsdoctor/graph': 1.5.9(webpack@5.106.0(esbuild@0.27.7))
       '@rsdoctor/sdk': 1.5.9(webpack@5.106.0(esbuild@0.27.7))
       '@rsdoctor/types': 1.5.9(webpack@5.106.0(esbuild@0.27.7))
@@ -15970,9 +15994,9 @@ snapshots:
   '@rspack/resolver-binding-linux-x64-musl@0.2.8':
     optional: true
 
-  '@rspack/resolver-binding-wasm32-wasi@0.2.8(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)':
+  '@rspack/resolver-binding-wasm32-wasi@0.2.8(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
+      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -15987,7 +16011,7 @@ snapshots:
   '@rspack/resolver-binding-win32-x64-msvc@0.2.8':
     optional: true
 
-  '@rspack/resolver@0.2.8(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)':
+  '@rspack/resolver@0.2.8(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     optionalDependencies:
       '@rspack/resolver-binding-darwin-arm64': 0.2.8
       '@rspack/resolver-binding-darwin-x64': 0.2.8
@@ -15995,7 +16019,7 @@ snapshots:
       '@rspack/resolver-binding-linux-arm64-musl': 0.2.8
       '@rspack/resolver-binding-linux-x64-gnu': 0.2.8
       '@rspack/resolver-binding-linux-x64-musl': 0.2.8
-      '@rspack/resolver-binding-wasm32-wasi': 0.2.8(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
+      '@rspack/resolver-binding-wasm32-wasi': 0.2.8(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
       '@rspack/resolver-binding-win32-arm64-msvc': 0.2.8
       '@rspack/resolver-binding-win32-ia32-msvc': 0.2.8
       '@rspack/resolver-binding-win32-x64-msvc': 0.2.8
@@ -16214,6 +16238,8 @@ snapshots:
   '@socket.io/component-emitter@3.1.2': {}
 
   '@sqltools/formatter@1.2.5': {}
+
+  '@stablelib/base64@1.0.1': {}
 
   '@standard-schema/spec@1.1.0': {}
 
@@ -19345,6 +19371,8 @@ snapshots:
   fast-redact@3.5.0: {}
 
   fast-safe-stringify@2.1.1: {}
+
+  fast-sha256@1.3.0: {}
 
   fast-uri@3.1.0: {}
 
@@ -22579,6 +22607,8 @@ snapshots:
 
   possible-typed-array-names@1.1.0: {}
 
+  postal-mime@2.7.5: {}
+
   postcss@8.4.31:
     dependencies:
       nanoid: 3.3.11
@@ -23064,6 +23094,11 @@ snapshots:
       - supports-color
 
   require-main-filename@2.0.0: {}
+
+  resend@6.22.0:
+    dependencies:
+      postal-mime: 2.7.5
+      standardwebhooks: 1.0.0
 
   resolve-cwd@3.0.0:
     dependencies:
@@ -23580,6 +23615,11 @@ snapshots:
 
   standard-as-callback@2.1.0:
     optional: true
+
+  standardwebhooks@1.0.0:
+    dependencies:
+      '@stablelib/base64': 1.0.1
+      fast-sha256: 1.3.0
 
   statuses@2.0.2: {}
 
