@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
 
 import { BadRequestException, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
-
 import { PostHogService } from "@api/domains/feature-flags/posthog.service";
 
 import { ActiveUserCacheService } from "./active-user-cache.service";
 import { AuthProviderEnum } from "./auth-provider.enum";
+import { RegistrationEmailService } from "./registration-email.service";
 import { RoleEnum } from "./role.enum";
 import { UserStatusEnum } from "./user-status.enum";
 import { UserRepository } from "./users.repository";
@@ -22,6 +22,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly activeUserCache: ActiveUserCacheService,
     private readonly postHogService: PostHogService,
+    private readonly registrationEmailService?: RegistrationEmailService,
   ) {}
 
   async listAllUsers(): Promise<User[]> {
@@ -34,7 +35,9 @@ export class UserService {
   }
 
   async approveRegistration(userId: string): Promise<User> {
-    return this.transitionRegistration(userId, UserStatusEnum.Active);
+    const user = await this.transitionRegistration(userId, UserStatusEnum.Active);
+    await this.registrationEmailService?.notifyUserOfApprovedRegistration(user);
+    return user;
   }
 
   async rejectRegistration(userId: string): Promise<User> {
@@ -76,7 +79,7 @@ export class UserService {
   }
 
   async upsertFromProvider(profile: NewUser): Promise<User> {
-    return this.userRepository.manager.transaction(async (em) => {
+    const result = await this.userRepository.manager.transaction(async (em) => {
       const existingLink = await this.userRepository.findAccountByProvider(
         profile.providerName,
         profile.providerAccountId,
@@ -84,10 +87,13 @@ export class UserService {
       );
 
       if (existingLink) {
-        return this.userRepository.saveUser(
-          { id: existingLink.userId, email: profile.email, name: profile.name, avatarUrl: profile.avatarUrl },
-          em,
-        );
+        return {
+          user: await this.userRepository.saveUser(
+            { id: existingLink.userId, email: profile.email, name: profile.name, avatarUrl: profile.avatarUrl },
+            em,
+          ),
+          isNew: false,
+        };
       }
 
       const userId = randomUUID();
@@ -107,8 +113,13 @@ export class UserService {
         { id: randomUUID(), userId, providerName: profile.providerName, providerAccountId: profile.providerAccountId },
         em,
       );
-      return user;
+      return { user, isNew: true };
     });
+
+    if (result.isNew && result.user.status === UserStatusEnum.Pending) {
+      await this.registrationEmailService?.notifyAdminsOfPendingRegistration(result.user);
+    }
+    return result.user;
   }
 
   private async resolveNewUserStatus(email: string): Promise<UserStatusEnum> {

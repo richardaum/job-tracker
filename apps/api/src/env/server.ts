@@ -82,6 +82,8 @@ const apiEnvSchema = z.object({
   POSTHOG_PERSONAL_API_KEY: z.string().optional(),
   /** PostHog ingestion host, defaults to US cloud. */
   POSTHOG_HOST: z.url().default("https://us.i.posthog.com"),
+  /** Resend API key for transactional email delivery. */
+  RESEND_API_KEY: z.string().optional(),
 });
 
 export const apiEnv = apiEnvSchema

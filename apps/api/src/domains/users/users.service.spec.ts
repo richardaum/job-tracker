@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ActiveUserCacheService } from "./active-user-cache.service";
 import { AuthProviderEnum } from "./auth-provider.enum";
+import { RegistrationEmailService } from "./registration-email.service";
 import { RoleEnum } from "./role.enum";
 import { UserStatusEnum } from "./user-status.enum";
 import { UserRepository } from "./users.repository";
@@ -30,6 +31,7 @@ describe("UserService", () => {
   let service: UserService;
   let repo: UserRepository;
   let postHogService: PostHogService;
+  let registrationEmailService: RegistrationEmailService;
   let em: EntityManager;
 
   beforeEach(() => {
@@ -43,12 +45,17 @@ describe("UserService", () => {
       insertAccount: vi.fn(),
       findById: vi.fn(),
       findByEmail: vi.fn().mockResolvedValue(null),
+      findActiveAdmins: vi.fn(),
       incrementTokenVersion: vi.fn(),
       setRefreshJti: vi.fn(),
       setStatus: vi.fn(),
     } as unknown as UserRepository;
     postHogService = { isFeatureEnabled: vi.fn().mockResolvedValue(false) } as unknown as PostHogService;
-    service = new UserService(repo, new ActiveUserCacheService(), postHogService);
+    registrationEmailService = {
+      notifyAdminsOfPendingRegistration: vi.fn().mockResolvedValue(undefined),
+      notifyUserOfApprovedRegistration: vi.fn().mockResolvedValue(undefined),
+    } as unknown as RegistrationEmailService;
+    service = new UserService(repo, new ActiveUserCacheService(), postHogService, registrationEmailService);
   });
 
   describe("findOrCreateFromGoogle", () => {
@@ -76,8 +83,9 @@ describe("UserService", () => {
     });
 
     it("creates a user and provider link when none exists", async () => {
+      const pendingUser = { ...mockUser, status: UserStatusEnum.Pending };
       vi.mocked(repo.findAccountByProvider).mockResolvedValue(null);
-      vi.mocked(repo.insertUser).mockResolvedValue(mockUser);
+      vi.mocked(repo.insertUser).mockResolvedValue(pendingUser);
       vi.mocked(repo.insertAccount).mockResolvedValue({} as UserAccountEntity);
 
       const profile = { googleId: "google-456", email: "other@example.com", name: "Other User", avatarUrl: null };
@@ -105,7 +113,8 @@ describe("UserService", () => {
         }),
         em,
       );
-      expect(result).toBe(mockUser);
+      expect(registrationEmailService.notifyAdminsOfPendingRegistration).toHaveBeenCalledWith(pendingUser);
+      expect(result).toBe(pendingUser);
     });
 
     it("creates a new user as active when the auto-accept flag is enabled", async () => {
@@ -119,6 +128,7 @@ describe("UserService", () => {
 
       expect(postHogService.isFeatureEnabled).toHaveBeenCalledWith("auto-accept-register-enabled", "system");
       expect(repo.insertUser).toHaveBeenCalledWith(expect.objectContaining({ status: UserStatusEnum.Active }), em);
+      expect(registrationEmailService.notifyAdminsOfPendingRegistration).not.toHaveBeenCalled();
     });
 
     it("creates a new user as pending when the flag is disabled and the email has no prior approval", async () => {
@@ -272,6 +282,7 @@ describe("UserService", () => {
       const result = await service.approveRegistration("uuid-1");
       expect(repo.setStatus).toHaveBeenCalledWith("uuid-1", UserStatusEnum.Active);
       expect(result.status).toBe(UserStatusEnum.Active);
+      expect(registrationEmailService.notifyUserOfApprovedRegistration).toHaveBeenCalledWith(result);
     });
 
     it("throws BadRequestException when the user is not pending", async () => {

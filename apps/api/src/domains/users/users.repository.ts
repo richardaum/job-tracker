@@ -5,7 +5,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import type { EntityManager, Repository } from "typeorm";
 
 import { AuthProviderEnum } from "./auth-provider.enum";
-import type { UserStatusEnum } from "./user-status.enum";
+import { RoleEnum } from "./role.enum";
+import { UserStatusEnum } from "./user-status.enum";
 import type { InsertAccountRepoDto, InsertUserRepoDto, SaveUserRepoDto } from "./users.repository.schema";
 import type { User } from "./users.schema";
 
@@ -40,6 +41,10 @@ export class UserRepository {
 
   async findByEmail(email: string): Promise<User | null> {
     return this.usersRepo.findOne({ where: { email } });
+  }
+
+  async findActiveAdmins(): Promise<User[]> {
+    return this.usersRepo.find({ where: { role: RoleEnum.Admin, status: UserStatusEnum.Active } });
   }
 
   async findByProvider(providerName: AuthProviderEnum, providerAccountId: string): Promise<User | null> {

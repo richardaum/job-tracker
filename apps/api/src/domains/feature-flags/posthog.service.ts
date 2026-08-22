@@ -20,7 +20,9 @@ export class PostHogService implements OnModuleDestroy {
   async isFeatureEnabled(flagKey: string, distinctId: string): Promise<boolean> {
     if (!this.client) return false;
 
-    const [error, flags] = await tryRun(this.client.evaluateFlags(distinctId));
+    const [error, flags] = await tryRun(
+      this.client.evaluateFlags(distinctId, { personProperties: { deploymentEnvironment: apiEnv.NODE_ENV } }),
+    );
     if (error) {
       this.logger.warn(`failed to evaluate flag=${flagKey} distinctId=${distinctId}: ${String(error)}`);
       return false;
