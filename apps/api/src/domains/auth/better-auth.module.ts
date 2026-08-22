@@ -10,13 +10,16 @@ const pool = new Pool({
   ssl: apiEnv.DATABASE_SSL_ENABLED ? { rejectUnauthorized: false } : undefined,
 });
 const database = new Kysely<Record<string, never>>({ dialect: new PostgresDialect({ pool }) });
+const webOrigin = new URL(apiEnv.WEB_URL).origin;
 
 export const betterAuth = createBetterAuth({
   database: { db: database, type: "postgres" },
   secret: apiEnv.BETTER_AUTH_SECRET,
   baseURL: apiEnv.BETTER_AUTH_BASE_URL,
   basePath: "/api/auth",
-  trustedOrigins: [apiEnv.WEB_URL],
+  // Better Auth compares origins literally. Normalize a configured URL such as
+  // `https://newjobtracker.app/` to its browser Origin representation.
+  trustedOrigins: [webOrigin],
   socialProviders: { google: { clientId: apiEnv.GOOGLE_CLIENT_ID, clientSecret: apiEnv.GOOGLE_CLIENT_SECRET } },
   // Domain users already use UUID primary keys; sharing the ID makes the
   // session-to-domain authorization bridge explicit and lookup-safe.
