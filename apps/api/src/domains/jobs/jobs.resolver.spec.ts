@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { RoleEnum } from "@api/domains/users/role.enum";
@@ -105,7 +105,7 @@ describe("JobsResolver (integration)", () => {
         { provide: JobSummaryService, useValue: { requestSummary: vi.fn() } },
       ],
     })
-      .overrideGuard(JwtAuthGuard)
+      .overrideGuard(SessionAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           const gqlCtx = GqlExecutionContext.create(ctx);

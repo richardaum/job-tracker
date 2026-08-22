@@ -4,7 +4,7 @@ import { ApolloDriver } from "@nestjs/apollo";
 import { Module } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ThrottlerModule } from "@nestjs/throttler";
-import type { Request } from "express";
+import type { Request, Response } from "express";
 import { join } from "path";
 
 import { AppController } from "./app.controller";
@@ -13,6 +13,7 @@ import { AiChatModule } from "./domains/ai-chat/ai-chat.module";
 import { AiUsageModule } from "./domains/ai-usage/ai-usage.module";
 import { AiModule } from "./domains/ai/ai.module";
 import { AuthModule } from "./domains/auth/auth.module";
+import { createBetterAuthModule } from "./domains/auth/better-auth.module";
 import { CompaniesModule } from "./domains/companies/companies.module";
 import { CurrencyConverterModule } from "./domains/currency-converter/currency-converter.module";
 import { ExtensionActivityModule } from "./domains/extension-activity/extension-activity.module";
@@ -29,7 +30,6 @@ import { apiEnv } from "./env/server";
 import { fixSubscriptionResolve } from "./graphql/fix-subscription-resolve";
 import { graphqlFormatError } from "./graphql/graphql-format-error";
 import { createWsSubscribe } from "./graphql/graphql-ws-logger";
-import { parseWsCookies } from "./graphql/parse-ws-cookies";
 
 @Module({
   imports: [
@@ -38,6 +38,7 @@ import { parseWsCookies } from "./graphql/parse-ws-cookies";
     DatabaseModule,
     FeatureFlagsModule,
     AuthModule,
+    createBetterAuthModule(),
     JobsModule,
     CompaniesModule,
     CurrencyConverterModule,
@@ -64,10 +65,14 @@ import { parseWsCookies } from "./graphql/parse-ws-cookies";
         },
       },
       transformSchema: fixSubscriptionResolve,
-      context: (ctx: { req?: Request; connectionParams?: Record<string, unknown>; extra?: { request: Request } }) => {
+      context: (ctx: {
+        req?: Request;
+        res?: Response;
+        connectionParams?: Record<string, unknown>;
+        extra?: { request: Request };
+      }) => {
         const req = ctx.req ?? ctx.extra?.request;
-        if (req) parseWsCookies(req);
-        return { req };
+        return { req, res: ctx.res };
       },
     }),
   ],

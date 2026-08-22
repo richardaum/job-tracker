@@ -1,15 +1,11 @@
-import { randomUUID } from "node:crypto";
-
 import { BadRequestException, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { PostHogService } from "@api/domains/feature-flags/posthog.service";
 
-import { ActiveUserCacheService } from "./active-user-cache.service";
-import { AuthProviderEnum } from "./auth-provider.enum";
 import { RegistrationEmailService } from "./registration-email.service";
 import { RoleEnum } from "./role.enum";
 import { UserStatusEnum } from "./user-status.enum";
 import { UserRepository } from "./users.repository";
-import type { NewUser, User } from "./users.schema";
+import type { User } from "./users.schema";
 
 const AUTO_ACCEPT_REGISTER_FLAG = "auto-accept-register-enabled";
 const AUTO_ACCEPT_REGISTER_DISTINCT_ID = "system";
@@ -20,7 +16,6 @@ export class UserService {
 
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly activeUserCache: ActiveUserCacheService,
     private readonly postHogService: PostHogService,
     private readonly registrationEmailService?: RegistrationEmailService,
   ) {}
@@ -62,64 +57,34 @@ export class UserService {
     return this.userRepository.findByEmail(email);
   }
 
-  /** Google Passport profile → persisted OAuth identity */
-  async findOrCreateFromGoogle(profile: {
-    googleId: string;
+  /** Better Auth persists its user first; this hook creates the matching domain profile. */
+  async findOrCreateFromBetterAuth(profile: {
+    id: string;
     email: string;
     name: string;
     avatarUrl: string | null;
   }): Promise<User> {
-    return this.upsertFromProvider({
-      providerName: AuthProviderEnum.Google,
-      providerAccountId: profile.googleId,
+    const byId = await this.findById(profile.id);
+    if (byId) return byId;
+
+    const byEmail = await this.findByEmail(profile.email);
+    if (byEmail) {
+      return byEmail;
+    }
+
+    const status = await this.resolveNewUserStatus(profile.email);
+    const user = await this.userRepository.insertUser({
+      id: profile.id,
       email: profile.email,
       name: profile.name,
       avatarUrl: profile.avatarUrl,
+      role: RoleEnum.User,
+      status,
     });
-  }
-
-  async upsertFromProvider(profile: NewUser): Promise<User> {
-    const result = await this.userRepository.manager.transaction(async (em) => {
-      const existingLink = await this.userRepository.findAccountByProvider(
-        profile.providerName,
-        profile.providerAccountId,
-        em,
-      );
-
-      if (existingLink) {
-        return {
-          user: await this.userRepository.saveUser(
-            { id: existingLink.userId, email: profile.email, name: profile.name, avatarUrl: profile.avatarUrl },
-            em,
-          ),
-          isNew: false,
-        };
-      }
-
-      const userId = randomUUID();
-      const status = await this.resolveNewUserStatus(profile.email);
-      const user = await this.userRepository.insertUser(
-        {
-          id: userId,
-          email: profile.email,
-          name: profile.name,
-          avatarUrl: profile.avatarUrl,
-          role: profile.role ?? RoleEnum.User,
-          status,
-        },
-        em,
-      );
-      await this.userRepository.insertAccount(
-        { id: randomUUID(), userId, providerName: profile.providerName, providerAccountId: profile.providerAccountId },
-        em,
-      );
-      return { user, isNew: true };
-    });
-
-    if (result.isNew && result.user.status === UserStatusEnum.Pending) {
-      await this.registrationEmailService?.notifyAdminsOfPendingRegistration(result.user);
+    if (user.status === UserStatusEnum.Pending) {
+      await this.registrationEmailService?.notifyAdminsOfPendingRegistration(user);
     }
-    return result.user;
+    return user;
   }
 
   private async resolveNewUserStatus(email: string): Promise<UserStatusEnum> {
@@ -139,28 +104,11 @@ export class UserService {
     return UserStatusEnum.Pending;
   }
 
-  async incrementTokenVersion(id: string): Promise<void> {
-    await this.userRepository.incrementTokenVersion(id);
-    this.activeUserCache.invalidate(id);
-  }
-
-  async setRefreshJti(id: string, jti: string | null): Promise<void> {
-    await this.userRepository.setRefreshJti(id, jti);
-    this.activeUserCache.invalidate(id);
-  }
-
   async deactivateUser(id: string): Promise<void> {
     await this.userRepository.setStatus(id, UserStatusEnum.Deactivated);
-    await this.userRepository.incrementTokenVersion(id);
-    this.activeUserCache.invalidate(id);
   }
 
-  async validateActiveUser(userId: string, tokenVersion: number): Promise<User> {
-    const cached = this.activeUserCache.get(userId, tokenVersion);
-    if (cached) {
-      return cached;
-    }
-
+  async validateActiveUser(userId: string): Promise<User> {
     const user = await this.findById(userId);
     if (!user) {
       this.logger.warn(`auth denied userId=${userId} reason=user_not_found`);
@@ -170,14 +118,6 @@ export class UserService {
       this.logger.warn(`auth denied userId=${userId} reason=user_inactive`);
       throw new UnauthorizedException();
     }
-    if (user.tokenVersion !== tokenVersion) {
-      this.logger.warn(
-        `auth denied userId=${userId} reason=token_version_mismatch tokenVersion=${tokenVersion} currentVersion=${user.tokenVersion}`,
-      );
-      throw new UnauthorizedException();
-    }
-
-    this.activeUserCache.set(userId, tokenVersion, user);
     return user;
   }
 }

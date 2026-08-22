@@ -2,9 +2,9 @@ import "reflect-metadata";
 
 import { AiUsageRecordEntity } from "@api/database/entities/ai-usage-record.entity";
 import { UserSettingEntity } from "@api/database/entities/user-setting.entity";
-import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
+import { insertIntegrationUser } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import type { SettingsService } from "@api/domains/settings/settings.service";
 import { apiEnv } from "@api/env/server";
@@ -34,17 +34,15 @@ describe.skipIf(!hasDb)("AiUsageResolver (database integration)", () => {
   beforeAll(async () => {
     dataSource = await createTestDataSource();
     userId = (
-      await insertUserWithAuthAccount(dataSource, {
+      await insertIntegrationUser(dataSource, {
         email: "ai-usage-graphql-owner@example.com",
         name: "AI Usage GraphQL Owner",
-        providerAccountId: "ai-usage-graphql-owner",
       })
     ).id;
     const otherUserId = (
-      await insertUserWithAuthAccount(dataSource, {
+      await insertIntegrationUser(dataSource, {
         email: "ai-usage-graphql-other@example.com",
         name: "AI Usage GraphQL Other",
-        providerAccountId: "ai-usage-graphql-other",
       })
     ).id;
     await dataSource.getRepository(UserSettingEntity).save({ userId, trialCallsUsed: 6, trialCallsLimit: 40 });
@@ -76,7 +74,7 @@ describe.skipIf(!hasDb)("AiUsageResolver (database integration)", () => {
       ],
       providers: [AiUsageResolver, { provide: AiUsageService, useValue: service }],
     })
-      .overrideGuard(JwtAuthGuard)
+      .overrideGuard(SessionAuthGuard)
       .useValue({
         canActivate: (context: ExecutionContext) => {
           const requestContext = GqlExecutionContext.create(context).getContext<{

@@ -124,18 +124,6 @@ export type AsyncMetadataType = {
   timestamp?: Maybe<Scalars['DateTime']['output']>;
 };
 
-export type AuthAccount = {
-  __typename?: 'AuthAccount';
-  createdAt: Scalars['DateTime']['output'];
-  id: Scalars['ID']['output'];
-  providerAccountId: Scalars['String']['output'];
-  providerName: AuthProvider;
-};
-
-export enum AuthProvider {
-  Google = 'Google'
-}
-
 export type BlockedKeyword = {
   __typename?: 'BlockedKeyword';
   keyword: Scalars['String']['output'];
@@ -1175,7 +1163,7 @@ export enum UserStatus {
 
 export type UserType = {
   __typename?: 'UserType';
-  accounts: Array<AuthAccount>;
+  authProviders: Array<Scalars['String']['output']>;
   avatarUrl?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
@@ -1293,7 +1281,7 @@ export type AiUsageQuery = { __typename?: 'Query', aiUsage: { __typename?: 'AiUs
 export type AuthenticatedShellQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AuthenticatedShellQuery = { __typename?: 'Query', me: { __typename?: 'UserType', id: string, email: string, name: string, role: Role, avatarUrl?: string | null, accounts: Array<{ __typename?: 'AuthAccount', id: string, providerName: AuthProvider, providerAccountId: string, createdAt: any }> }, settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number } };
+export type AuthenticatedShellQuery = { __typename?: 'Query', me: { __typename?: 'UserType', id: string, email: string, name: string, role: Role, avatarUrl?: string | null, authProviders: Array<string> }, settings: { __typename?: 'UserSetting', id: string, autoFillEnabled: boolean, autoSummaryEnabled: boolean, autoMatchEnabled: boolean, duplicateWindowDays: number } };
 
 export type UpdateCompanyMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1564,7 +1552,7 @@ export type DeleteMatchAnalysisMutation = { __typename?: 'Mutation', deleteMatch
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'UserType', id: string, email: string, name: string, role: Role, avatarUrl?: string | null, accounts: Array<{ __typename?: 'AuthAccount', id: string, providerName: AuthProvider, providerAccountId: string, createdAt: any }> } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'UserType', id: string, email: string, name: string, role: Role, avatarUrl?: string | null, authProviders: Array<string> } };
 
 export type QuickFilterCountsQueryVariables = Exact<{
   company?: InputMaybe<Scalars['String']['input']>;
@@ -1977,12 +1965,7 @@ export const AuthenticatedShellDocument = gql`
     name
     role
     avatarUrl
-    accounts {
-      id
-      providerName
-      providerAccountId
-      createdAt
-    }
+    authProviders
   }
   settings {
     id
@@ -2558,12 +2541,7 @@ export const MeDocument = gql`
     name
     role
     avatarUrl
-    accounts {
-      id
-      providerName
-      providerAccountId
-      createdAt
-    }
+    authProviders
   }
 }
     `;

@@ -4,7 +4,7 @@ import { DataSource as TypeOrmDataSource } from "typeorm";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { apiEnv } from "@api/env/server";
-import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
+import { insertIntegrationUser } from "@api/database/integration-test-user";
 
 type UserSettingsColumn = { data_type: string; is_nullable: "YES" | "NO"; column_default: string | null };
 
@@ -73,13 +73,9 @@ describe("Migration: AddAiSettingsColumns", () => {
   it("existing user_settings row reads correct defaults after migration", async () => {
     // Insert a user first with unique email to avoid conflicts
     const uniqueEmail = `test-${Date.now()}@example.com`;
-    const user = await insertUserWithAuthAccount(ds, {
-      email: uniqueEmail,
-      name: "Test User",
-      providerAccountId: `google-${Date.now()}`,
-    });
+    const user = await insertIntegrationUser(ds, { email: uniqueEmail, name: "Test User" });
 
-    // The insertUserWithAuthAccount doesn't create settings, so manually create one
+    // The integration-user helper doesn't create settings, so manually create one.
     const queryRunner = ds.createQueryRunner();
     try {
       // Insert user_settings if it doesn't exist

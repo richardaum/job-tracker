@@ -1,10 +1,9 @@
 import "reflect-metadata";
 
-import { UserAccountEntity } from "@api/database/entities/user-account.entity";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import { RoleService } from "@api/domains/auth/role.service";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { UserStatusEnum } from "@api/domains/users/user-status.enum";
 import type { User } from "@api/domains/users/users.schema";
 import { UserService } from "@api/domains/users/users.service";
@@ -28,11 +27,8 @@ const adminUser: User = {
   avatarUrl: null,
   role: RoleEnum.Admin,
   status: UserStatusEnum.Active,
-  tokenVersion: 0,
-  refreshJti: null,
   createdAt: new Date(),
   updatedAt: new Date(),
-  accounts: [] as UserAccountEntity[],
 };
 
 const memberUser: User = { ...adminUser, id: "user-1", email: "user@example.com", role: RoleEnum.User };
@@ -72,7 +68,7 @@ describe("RegistrationsResolver (integration)", () => {
         { provide: UserService, useValue: { listRegistrations, approveRegistration, rejectRegistration, findById } },
       ],
     })
-      .overrideGuard(JwtAuthGuard)
+      .overrideGuard(SessionAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           const gqlCtx = GqlExecutionContext.create(ctx);

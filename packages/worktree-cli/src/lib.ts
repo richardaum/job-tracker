@@ -33,12 +33,7 @@ export type GlobalRegistry = { slugs: Record<string, SlugPorts & { updatedAt?: s
 
 export type WorktreeEnvMap = Record<string, string>;
 
-const REQUIRED_API_SECRET_KEYS = [
-  "GOOGLE_CLIENT_ID",
-  "GOOGLE_CLIENT_SECRET",
-  "JWT_ACCESS_SECRET",
-  "JWT_REFRESH_SECRET",
-] as const;
+const REQUIRED_API_SECRET_KEYS = ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "BETTER_AUTH_SECRET"] as const;
 
 /** Per-slug port cache file under `/tmp` (survives global registry edits). */
 export function slugRegistryPath(slug: string): string {
@@ -539,6 +534,7 @@ export function buildWorktreeApiEnv(params: {
     DATABASE_INTEGRATION_URL: e2eDatabaseUrl,
     PORT: String(ports.api),
 
+    BETTER_AUTH_BASE_URL: `http://localhost:${ports.api}`,
     WEB_URL: `http://localhost:${ports.web}`,
     CORS_ORIGINS: `http://localhost:${ports.web}`,
     RATE_LIMIT_DISABLED: "true",

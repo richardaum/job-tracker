@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { graphqlFormatError } from "@api/graphql/graphql-format-error";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
@@ -54,7 +54,7 @@ describe("CompaniesResolver (integration)", () => {
       ],
       providers: [CompaniesResolver, { provide: CompanyService, useValue: service }],
     })
-      .overrideGuard(JwtAuthGuard)
+      .overrideGuard(SessionAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           const gqlCtx = GqlExecutionContext.create(ctx);

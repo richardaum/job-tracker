@@ -1,8 +1,6 @@
 import { RoleEnum } from "@api/domains/users/role.enum";
 import { UserStatusEnum } from "@api/domains/users/user-status.enum";
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
-
-import { UserAccountEntity } from "./user-account.entity";
+import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: "users" })
 export class UserEntity {
@@ -11,9 +9,6 @@ export class UserEntity {
 
   @Column({ type: "text", unique: true })
   email!: string;
-
-  @OneToMany(() => UserAccountEntity, (account) => account.user, { cascade: false })
-  accounts!: UserAccountEntity[];
 
   @Column({ type: "text" })
   name!: string;
@@ -26,12 +21,6 @@ export class UserEntity {
 
   @Column({ type: "enum", enum: UserStatusEnum, enumName: "user_status", default: UserStatusEnum.Active })
   status!: UserStatusEnum;
-
-  @Column({ name: "token_version", type: "integer", default: 0 })
-  tokenVersion!: number;
-
-  @Column({ name: "refresh_jti", type: "uuid", nullable: true })
-  refreshJti!: string | null;
 
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;

@@ -12,11 +12,8 @@ const user: User = {
   avatarUrl: null,
   role: RoleEnum.User,
   status: UserStatusEnum.Pending,
-  tokenVersion: 0,
-  refreshJti: null,
   createdAt: new Date("2026-01-01"),
   updatedAt: new Date("2026-01-01"),
-  accounts: [],
 };
 
 describe("registration email templates", () => {

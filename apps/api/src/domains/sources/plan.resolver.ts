@@ -1,5 +1,5 @@
 import { CurrentUser } from "@api/domains/auth/current-user.decorator";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
@@ -17,7 +17,7 @@ import { SourcesService } from "./sources.service";
 import { UpdatePlanInput } from "./update-plan.input";
 
 @Resolver(() => PlanType)
-@UseGuards(JwtAuthGuard, RolesGuard, FeatureFlagGuard)
+@UseGuards(SessionAuthGuard, RolesGuard, FeatureFlagGuard)
 @Roles(RoleEnum.User)
 @FeatureFlag("sources-enabled")
 export class PlanResolver {

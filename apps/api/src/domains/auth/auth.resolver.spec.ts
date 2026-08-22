@@ -1,6 +1,5 @@
 import "reflect-metadata";
 
-import { UserAccountEntity } from "@api/database/entities/user-account.entity";
 import { RoleEnum } from "@api/domains/users/role.enum";
 import { UserStatusEnum } from "@api/domains/users/user-status.enum";
 import type { User } from "@api/domains/users/users.schema";
@@ -16,7 +15,7 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { AuthResolver } from "./auth.resolver";
-import { JwtAuthGuard } from "./jwt-auth.guard";
+import { SessionAuthGuard } from "./session-auth.guard";
 import { RolesGuard } from "./roles.guard";
 
 const mockUser: User = {
@@ -26,11 +25,8 @@ const mockUser: User = {
   avatarUrl: null,
   role: RoleEnum.User,
   status: UserStatusEnum.Active,
-  tokenVersion: 0,
-  refreshJti: null,
   createdAt: new Date(),
   updatedAt: new Date(),
-  accounts: [] as UserAccountEntity[],
 };
 
 describe("AuthResolver (integration)", () => {
@@ -46,7 +42,7 @@ describe("AuthResolver (integration)", () => {
         { provide: UserService, useValue: { findById: vi.fn().mockResolvedValue(mockUser), deactivateUser } },
       ],
     })
-      .overrideGuard(JwtAuthGuard)
+      .overrideGuard(SessionAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           const gqlCtx = GqlExecutionContext.create(ctx);

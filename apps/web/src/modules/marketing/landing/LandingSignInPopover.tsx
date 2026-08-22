@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useAuthReturnTo } from "@/hooks/useAuthReturnTo";
-import { getApiBaseUrl } from "@/lib/api-endpoints";
+import { signInWithGoogle } from "@/lib/auth-client";
 
 type LandingSignInPopoverProps = { triggerClassName: string };
 
@@ -18,9 +18,7 @@ export function LandingSignInPopover({ triggerClassName }: LandingSignInPopoverP
   const isOpenFromLogin = searchParams.get("signIn") === "open";
 
   const handleGoogleLogin = () => {
-    // Full navigation to API origin for OAuth (not an in-app Next route).
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.assign(`${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent(safeReturnTo)}`);
+    void signInWithGoogle(`${window.location.origin}${safeReturnTo}`);
   };
 
   return (

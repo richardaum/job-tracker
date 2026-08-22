@@ -5,12 +5,7 @@ query AuthenticatedShell {
     name
     role
     avatarUrl
-    accounts {
-      id
-      providerName
-      providerAccountId
-      createdAt
-    }
+    authProviders
   }
   settings {
     id

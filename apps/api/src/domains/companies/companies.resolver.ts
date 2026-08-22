@@ -1,5 +1,5 @@
 import { CurrentUser } from "@api/domains/auth/current-user.decorator";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
@@ -12,7 +12,7 @@ import { CompanyType } from "./company.type";
 import { UpdateCompanyInput } from "./update-company.input";
 
 @Resolver(() => CompanyType)
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(SessionAuthGuard, RolesGuard)
 @Roles(RoleEnum.User)
 export class CompaniesResolver {
   constructor(private readonly service: CompanyService) {}

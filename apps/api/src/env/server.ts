@@ -6,8 +6,6 @@ if (!process.env.DATABASE_URL) {
 
 import { z } from "zod";
 
-import { parseJwtSecretPair } from "./jwt-secrets";
-
 const nodeEnvSchema = z.enum(["development", "test", "production"]).default("development");
 
 function parseEnvBoolean(value: unknown, defaultValue = false): boolean {
@@ -40,18 +38,14 @@ const apiEnvSchema = z.object({
   GOOGLE_CLIENT_ID: z.string(),
   /** Google OAuth2 client secret for authentication via Google strategy. */
   GOOGLE_CLIENT_SECRET: z.string(),
-  /** Single access JWT secret — prefer JWT_ACCESS_SECRETS for key rotation support. */
-  JWT_ACCESS_SECRET: z.string().optional(),
-  /** Single refresh JWT secret — prefer JWT_REFRESH_SECRETS for key rotation support. */
-  JWT_REFRESH_SECRET: z.string().optional(),
-  /** JSON object with current access JWT secret and optional previous secret for zero-downtime key rotation. */
-  JWT_ACCESS_SECRETS: z.string().optional(),
-  /** JSON object with current refresh JWT secret and optional previous secret for zero-downtime key rotation. */
-  JWT_REFRESH_SECRETS: z.string().optional(),
   /** Separate PostgreSQL connection string for integration tests, isolated from the main database. */
   DATABASE_INTEGRATION_URL: z.url().optional(),
   /** Base URL of the web frontend, used for CORS origin validation and OAuth redirects. */
   WEB_URL: z.url().default("http://localhost:3100"),
+  /** Secret used exclusively by Better Auth to sign and encrypt its session material. */
+  BETTER_AUTH_SECRET: z.string().min(32),
+  /** Public API origin used by Better Auth for OAuth callbacks and session cookies. */
+  BETTER_AUTH_BASE_URL: z.url(),
   /** OpenAI API key for AI-powered features such as job matching, summaries, and fill generation. */
   OPENAI_API_KEY: z.string().optional(),
   /** OpenAI model identifier for AI features, defaults to gpt-4.1-mini for cost efficiency. */
@@ -95,15 +89,6 @@ export const apiEnv = apiEnvSchema
     ({ AUTH_BYPASS_ENABLED, DEV_AUTH_BYPASS_EMAIL }) => !AUTH_BYPASS_ENABLED || DEV_AUTH_BYPASS_EMAIL !== undefined,
     { message: "DEV_AUTH_BYPASS_EMAIL is required when AUTH_BYPASS_ENABLED is true.", path: ["DEV_AUTH_BYPASS_EMAIL"] },
   )
-  .refine(
-    ({ JWT_ACCESS_SECRET, JWT_ACCESS_SECRETS }) => JWT_ACCESS_SECRETS !== undefined || JWT_ACCESS_SECRET !== undefined,
-    { message: "JWT_ACCESS_SECRET or JWT_ACCESS_SECRETS is required.", path: ["JWT_ACCESS_SECRET"] },
-  )
-  .refine(
-    ({ JWT_REFRESH_SECRET, JWT_REFRESH_SECRETS }) =>
-      JWT_REFRESH_SECRETS !== undefined || JWT_REFRESH_SECRET !== undefined,
-    { message: "JWT_REFRESH_SECRET or JWT_REFRESH_SECRETS is required.", path: ["JWT_REFRESH_SECRET"] },
-  )
   .refine(({ NODE_ENV, RATE_LIMIT_DISABLED }) => NODE_ENV !== "production" || !RATE_LIMIT_DISABLED, {
     message: "RATE_LIMIT_DISABLED cannot be enabled in production.",
     path: ["RATE_LIMIT_DISABLED"],
@@ -113,7 +98,3 @@ export const apiEnv = apiEnvSchema
     path: ["SIMULATED_LATENCY_ENABLED"],
   })
   .parse(process.env);
-
-export const jwtAccessSecrets = parseJwtSecretPair(apiEnv.JWT_ACCESS_SECRETS, apiEnv.JWT_ACCESS_SECRET);
-
-export const jwtRefreshSecrets = parseJwtSecretPair(apiEnv.JWT_REFRESH_SECRETS, apiEnv.JWT_REFRESH_SECRET);

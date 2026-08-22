@@ -4,7 +4,7 @@ import { getMetadataArgsStorage, DataSource as TypeOrmDataSource, Repository } f
 import { UserSettingEntity } from "./user-setting.entity";
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { apiEnv } from "@api/env/server";
-import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
+import { insertIntegrationUser } from "@api/database/integration-test-user";
 
 describe("UserSettingEntity", () => {
   function getColumnMetadata(propertyName: string) {
@@ -102,11 +102,7 @@ describe("UserSettingEntity with EncryptedColumnTransformer (Integration)", () =
   });
 
   it("encrypts openaiApiKeyEncrypted when saving to database", async () => {
-    const user = await insertUserWithAuthAccount(ds, {
-      email: `test-${Date.now()}@example.com`,
-      name: "Test User",
-      providerAccountId: `google-${Date.now()}`,
-    });
+    const user = await insertIntegrationUser(ds, { email: `test-${Date.now()}@example.com`, name: "Test User" });
 
     const plainKey = "sk-test-123456789";
     const setting = userSettingRepository.create({
@@ -137,11 +133,7 @@ describe("UserSettingEntity with EncryptedColumnTransformer (Integration)", () =
   });
 
   it("decrypts openaiApiKeyEncrypted when loading from database", async () => {
-    const user = await insertUserWithAuthAccount(ds, {
-      email: `test-${Date.now()}@example.com`,
-      name: "Test User",
-      providerAccountId: `google-${Date.now()}`,
-    });
+    const user = await insertIntegrationUser(ds, { email: `test-${Date.now()}@example.com`, name: "Test User" });
 
     const plainKey = "sk-test-123456789";
     const setting = userSettingRepository.create({
@@ -160,11 +152,7 @@ describe("UserSettingEntity with EncryptedColumnTransformer (Integration)", () =
   });
 
   it("entity with encrypted key round-trips through database unchanged", async () => {
-    const user = await insertUserWithAuthAccount(ds, {
-      email: `test-${Date.now()}@example.com`,
-      name: "Test User",
-      providerAccountId: `google-${Date.now()}`,
-    });
+    const user = await insertIntegrationUser(ds, { email: `test-${Date.now()}@example.com`, name: "Test User" });
 
     const plainKey = "sk-test-123456789";
     const originalSetting = userSettingRepository.create({
@@ -184,11 +172,7 @@ describe("UserSettingEntity with EncryptedColumnTransformer (Integration)", () =
   });
 
   it("null key remains null through save/load cycle", async () => {
-    const user = await insertUserWithAuthAccount(ds, {
-      email: `test-${Date.now()}@example.com`,
-      name: "Test User",
-      providerAccountId: `google-${Date.now()}`,
-    });
+    const user = await insertIntegrationUser(ds, { email: `test-${Date.now()}@example.com`, name: "Test User" });
 
     const setting = userSettingRepository.create({
       userId: user.id,

@@ -175,8 +175,8 @@ async function main() {
       GOOGLE_CLIENT_ID: apiEnv.GOOGLE_CLIENT_ID ?? "",
       GOOGLE_CLIENT_SECRET: apiEnv.GOOGLE_CLIENT_SECRET ?? "",
 
-      JWT_ACCESS_SECRET: apiEnv.JWT_ACCESS_SECRET ?? "",
-      JWT_REFRESH_SECRET: apiEnv.JWT_REFRESH_SECRET ?? "",
+      BETTER_AUTH_SECRET: apiEnv.BETTER_AUTH_SECRET,
+      BETTER_AUTH_BASE_URL: e2eApiUrl,
       WEB_URL: `http://localhost:${e2eEnv.E2E_WEB_PORT}`,
       OPENAI_API_KEY: apiEnv.OPENAI_API_KEY ?? "",
       DEV_AUTH_BYPASS_EMAIL: e2eEnv.E2E_BYPASS_EMAIL,

@@ -1,6 +1,6 @@
 import { CompanyEntity } from "@api/database/entities/company.entity";
 import { JobEntity } from "@api/database/entities/job.entity";
-import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
+import { insertIntegrationUser } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { apiEnv } from "@api/env/server";
@@ -21,8 +21,7 @@ describe.skipIf(!hasDb)("Job async summary metadata (integration)", () => {
     const jobsRepository = dataSource.getRepository(JobEntity);
     repo = new JobsRepository(jobsRepository);
 
-    const user = await insertUserWithAuthAccount(dataSource, {
-      providerAccountId: "google-summary-metadata-test",
+    const user = await insertIntegrationUser(dataSource, {
       email: "summarymeta@example.com",
       name: "Summary Meta User",
       avatarUrl: null,

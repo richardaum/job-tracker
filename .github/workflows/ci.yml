@@ -71,8 +71,8 @@ jobs:
           PORT=3101
           GOOGLE_CLIENT_ID=ci-dummy
           GOOGLE_CLIENT_SECRET=ci-dummy
-          JWT_ACCESS_SECRET=ci-dummy-access
-          JWT_REFRESH_SECRET=ci-dummy-refresh
+          BETTER_AUTH_SECRET=ci-dummy-better-auth-secret-that-is-long-enough
+          BETTER_AUTH_BASE_URL=http://localhost:3101
           OPENAI_API_KEY=ci-dummy
           WEB_URL=http://localhost:3100
           AUTH_BYPASS_ENABLED=true
@@ -136,8 +136,8 @@ jobs:
           GOOGLE_CLIENT_ID=ci-dummy
           GOOGLE_CLIENT_SECRET=ci-dummy
 
-          JWT_ACCESS_SECRET=ci-dummy-access
-          JWT_REFRESH_SECRET=ci-dummy-refresh
+          BETTER_AUTH_SECRET=ci-dummy-better-auth-secret-that-is-long-enough
+          BETTER_AUTH_BASE_URL=http://localhost:3101
           WEB_URL=http://localhost:3100
           AUTH_BYPASS_ENABLED=true
           DEV_AUTH_BYPASS_EMAIL=ci@test.local

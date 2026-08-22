@@ -1,5 +1,5 @@
 import { CurrentUser } from "@api/domains/auth/current-user.decorator";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { FeatureFlag } from "@api/domains/feature-flags/feature-flag.decorator";
@@ -16,7 +16,7 @@ import { AiMessageType } from "./ai-message.type";
 import { AskQuestionPayloadType } from "./ask-question-payload.type";
 
 @Resolver(() => AiConversationType)
-@UseGuards(JwtAuthGuard, RolesGuard, FeatureFlagGuard)
+@UseGuards(SessionAuthGuard, RolesGuard, FeatureFlagGuard)
 @Roles(RoleEnum.User)
 @FeatureFlag("ai-chat-enabled")
 export class AiChatResolver {

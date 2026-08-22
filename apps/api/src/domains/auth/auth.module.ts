@@ -1,45 +1,29 @@
-import { GoogleAuthGuard } from "@api/domains/auth/google-auth.guard";
 import { RegistrationsResolver } from "@api/domains/users/registrations.resolver";
 import { UsersModule } from "@api/domains/users/users.module";
 import { Module } from "@nestjs/common";
-import { JwtModule } from "@nestjs/jwt";
-import { PassportModule } from "@nestjs/passport";
 
-import { AuthController } from "./auth.controller";
 import { AuthResolver } from "./auth.resolver";
-import { AuthService } from "./auth.service";
-import { AuthUserAccessService } from "./auth-user-access.service";
+import { BetterAuthAccountRepository } from "./better-auth-account.repository";
+import { BetterAuthUserProvisioner } from "./better-auth-user-provisioner";
+import { BetterAuthUserFieldsResolver } from "./better-auth-user-fields.resolver";
 import { DevAuthBypassService } from "./dev-auth-bypass.service";
-import { GoogleStrategy } from "./google.strategy";
-import { JwtStrategy } from "./jwt.strategy";
-import { JwtAuthGuard } from "./jwt-auth.guard";
 import { RoleService } from "./role.service";
 import { RolesGuard } from "./roles.guard";
+import { SessionAuthGuard } from "./session-auth.guard";
 
 @Module({
-  imports: [UsersModule, PassportModule.register({ session: false }), JwtModule.register({})],
+  imports: [UsersModule],
   providers: [
-    GoogleStrategy,
-    JwtStrategy,
-    JwtAuthGuard,
-    GoogleAuthGuard,
+    SessionAuthGuard,
     RolesGuard,
-    AuthService,
-    AuthUserAccessService,
     DevAuthBypassService,
     RoleService,
+    BetterAuthAccountRepository,
+    BetterAuthUserProvisioner,
+    BetterAuthUserFieldsResolver,
     AuthResolver,
     RegistrationsResolver,
   ],
-  controllers: [AuthController],
-  exports: [
-    JwtAuthGuard,
-    RolesGuard,
-    DevAuthBypassService,
-    AuthService,
-    AuthUserAccessService,
-    RoleService,
-    UsersModule,
-  ],
+  exports: [SessionAuthGuard, RolesGuard, DevAuthBypassService, RoleService, UsersModule],
 })
 export class AuthModule {}

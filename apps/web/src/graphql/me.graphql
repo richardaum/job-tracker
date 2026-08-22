@@ -5,11 +5,6 @@ query Me {
     name
     role
     avatarUrl
-    accounts {
-      id
-      providerName
-      providerAccountId
-      createdAt
-    }
+    authProviders
   }
 }

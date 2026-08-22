@@ -24,7 +24,7 @@ describe("useCurrentUser", () => {
       name: "Test User",
       role: Role.User,
       avatarUrl: null,
-      accounts: [],
+      authProviders: [],
     };
 
     useMeQueryMock.mockReturnValue({ data: { me: mockUser }, loading: false, error: undefined });

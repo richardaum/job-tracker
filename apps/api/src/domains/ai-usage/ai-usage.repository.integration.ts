@@ -1,5 +1,5 @@
 import { AiUsageRecordEntity } from "@api/database/entities/ai-usage-record.entity";
-import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
+import { insertIntegrationUser } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
@@ -19,19 +19,10 @@ describe.skipIf(!hasDb)("AiUsageRepository (integration)", () => {
   beforeAll(async () => {
     dataSource = await createTestDataSource();
     repository = new AiUsageRepository(dataSource.getRepository(AiUsageRecordEntity));
-    userId = (
-      await insertUserWithAuthAccount(dataSource, {
-        email: "ai-usage-owner@example.com",
-        name: "AI Usage Owner",
-        providerAccountId: "ai-usage-owner",
-      })
-    ).id;
+    userId = (await insertIntegrationUser(dataSource, { email: "ai-usage-owner@example.com", name: "AI Usage Owner" }))
+      .id;
     otherUserId = (
-      await insertUserWithAuthAccount(dataSource, {
-        email: "ai-usage-other@example.com",
-        name: "AI Usage Other",
-        providerAccountId: "ai-usage-other",
-      })
+      await insertIntegrationUser(dataSource, { email: "ai-usage-other@example.com", name: "AI Usage Other" })
     ).id;
 
     const entityRepository = dataSource.getRepository(AiUsageRecordEntity);

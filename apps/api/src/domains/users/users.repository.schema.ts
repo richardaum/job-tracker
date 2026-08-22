@@ -1,4 +1,3 @@
-import type { AuthProviderEnum } from "./auth-provider.enum";
 import type { RoleEnum } from "./role.enum";
 import type { UserStatusEnum } from "./user-status.enum";
 
@@ -11,11 +10,4 @@ export type InsertUserRepoDto = {
   avatarUrl: string | null;
   role: RoleEnum;
   status: UserStatusEnum;
-};
-
-export type InsertAccountRepoDto = {
-  id: string;
-  userId: string;
-  providerName: AuthProviderEnum;
-  providerAccountId: string;
 };

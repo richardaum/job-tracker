@@ -4,8 +4,8 @@ const ORIGINAL_ENV = { ...process.env };
 
 const REQUIRED_ENV = {
   DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/job_tracker_test",
-  JWT_ACCESS_SECRET: "test-access-secret",
-  JWT_REFRESH_SECRET: "test-refresh-secret",
+  BETTER_AUTH_SECRET: "test-better-auth-secret-that-is-long-enough",
+  BETTER_AUTH_BASE_URL: "http://localhost:3101",
   GOOGLE_CLIENT_ID: "test-client-id",
   GOOGLE_CLIENT_SECRET: "test-client-secret",
   SETTINGS_ENCRYPTION_KEY: "test-encryption-key-32-bytes-long==",
@@ -52,19 +52,8 @@ describe("API server env schema", () => {
     expect(env.apiEnv.RATE_LIMIT_DISABLED).toBe(false);
   });
 
-  it("parses JWT_ACCESS_SECRETS JSON when JWT_ACCESS_SECRET is omitted", async () => {
-    const env = await loadEnv({
-      JWT_ACCESS_SECRET: undefined,
-      JWT_ACCESS_SECRETS: JSON.stringify({ current: "json-access-current", previous: "json-access-previous" }),
-    });
-
-    expect(env.jwtAccessSecrets).toEqual({ current: "json-access-current", previous: "json-access-previous" });
-  });
-
-  it("rejects env when neither JWT_ACCESS_SECRET nor JWT_ACCESS_SECRETS is set", async () => {
-    await expect(loadEnv({ JWT_ACCESS_SECRET: undefined, JWT_ACCESS_SECRETS: undefined })).rejects.toThrow(
-      "JWT_ACCESS_SECRET or JWT_ACCESS_SECRETS is required.",
-    );
+  it("rejects a Better Auth secret shorter than 32 characters", async () => {
+    await expect(loadEnv({ BETTER_AUTH_SECRET: "too-short" })).rejects.toThrow();
   });
 
   it("parses RATE_LIMIT_DISABLED in development", async () => {

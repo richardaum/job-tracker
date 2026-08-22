@@ -1,7 +1,7 @@
 import { PlanEntity } from "@api/database/entities/plan.entity";
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
 import { SourceTemplateEntity } from "@api/database/entities/source-template.entity";
-import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
+import { insertIntegrationUser } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { SourceRunStatusEnum } from "@api/domains/sources/source-run-status.enum";
 import { SourcesRepository } from "@api/domains/sources/sources.repository";
@@ -24,8 +24,7 @@ describe.skipIf(!hasDb)("SourcesRepository (integration)", () => {
       dataSource.getRepository(SourceTemplateEntity),
     );
 
-    const user = await insertUserWithAuthAccount(dataSource, {
-      providerAccountId: "google-sources-repo-test",
+    const user = await insertIntegrationUser(dataSource, {
       email: "sourcesrepo@example.com",
       name: "Sources Repo User",
       avatarUrl: null,

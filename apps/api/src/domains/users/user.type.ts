@@ -1,6 +1,5 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 
-import { AuthAccountType } from "./auth-account.type";
 import { RoleEnum } from "./role.enum";
 import { UserStatusEnum } from "./user-status.enum";
 
@@ -27,6 +26,6 @@ export class UserType {
   @Field(() => Date)
   createdAt!: Date;
 
-  @Field(() => [AuthAccountType])
-  accounts!: AuthAccountType[];
+  @Field(() => [String])
+  authProviders?: string[];
 }

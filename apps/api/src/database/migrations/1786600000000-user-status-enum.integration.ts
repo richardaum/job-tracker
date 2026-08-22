@@ -4,7 +4,7 @@ import { DataSource as TypeOrmDataSource } from "typeorm";
 
 import { buildDataSourceOptions } from "@api/database/data-source-options";
 import { apiEnv } from "@api/env/server";
-import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
+import { insertIntegrationUser } from "@api/database/integration-test-user";
 
 type UsersStatusColumn = { data_type: string; is_nullable: "YES" | "NO"; column_default: string | null };
 
@@ -48,11 +48,7 @@ describe("Migration: UserStatusEnum", () => {
 
     try {
       const uniqueEmail = `test-${Date.now()}@example.com`;
-      const user = await insertUserWithAuthAccount(ds, {
-        email: uniqueEmail,
-        name: "Test User",
-        providerAccountId: `google-${Date.now()}`,
-      });
+      const user = await insertIntegrationUser(ds, { email: uniqueEmail, name: "Test User" });
 
       expect(await findStatusColumn(queryRunner)).toBeDefined();
 

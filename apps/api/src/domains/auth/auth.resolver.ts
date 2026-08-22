@@ -5,23 +5,23 @@ import { UnauthorizedException, UseGuards } from "@nestjs/common";
 import { Mutation, Query, Resolver } from "@nestjs/graphql";
 
 import { CurrentUser } from "./current-user.decorator";
-import { JwtAuthGuard } from "./jwt-auth.guard";
 import { Roles } from "./roles.decorator";
 import { RolesGuard } from "./roles.guard";
+import { SessionAuthGuard } from "./session-auth.guard";
 
 @Resolver()
 export class AuthResolver {
   constructor(private readonly userService: UserService) {}
 
   @Query(() => [UserType])
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(RoleEnum.Admin)
   async users(): Promise<UserType[]> {
     return this.userService.listAllUsers();
   }
 
   @Query(() => UserType)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Admin)
   async me(@CurrentUser() currentUser: { userId: string }): Promise<UserType> {
     const user = await this.userService.findById(currentUser.userId);
@@ -30,7 +30,7 @@ export class AuthResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Admin)
   async deactivateAccount(@CurrentUser() currentUser: { userId: string }): Promise<boolean> {
     await this.userService.deactivateUser(currentUser.userId);

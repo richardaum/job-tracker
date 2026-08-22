@@ -1,4 +1,4 @@
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
@@ -14,7 +14,7 @@ export class RegistrationsResolver {
   constructor(private readonly userService: UserService) {}
 
   @Query(() => [UserType])
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(RoleEnum.Admin)
   async registrations(
     @Args("status", { type: () => UserStatusEnum, nullable: true }) status?: UserStatusEnum,
@@ -23,14 +23,14 @@ export class RegistrationsResolver {
   }
 
   @Mutation(() => UserType)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(RoleEnum.Admin)
   async approveRegistration(@Args("userId", { type: () => ID }) userId: string): Promise<UserType> {
     return this.userService.approveRegistration(userId);
   }
 
   @Mutation(() => UserType)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(SessionAuthGuard, RolesGuard)
   @Roles(RoleEnum.Admin)
   async rejectRegistration(@Args("userId", { type: () => ID }) userId: string): Promise<UserType> {
     return this.userService.rejectRegistration(userId);

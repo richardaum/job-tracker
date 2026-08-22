@@ -1,5 +1,5 @@
 import { CurrentUser } from "@api/domains/auth/current-user.decorator";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
@@ -13,7 +13,7 @@ import { JobFillStatusEventType, JobMatchStatusEventType, JobSummaryStatusEventT
 import { JobsRepository } from "./jobs.repository";
 
 @Resolver()
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(SessionAuthGuard, RolesGuard)
 @Roles(RoleEnum.User)
 export class JobsEventsResolver {
   constructor(

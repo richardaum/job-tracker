@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import { UserSettingEntity } from "@api/database/entities/user-setting.entity";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { graphqlFormatError } from "@api/graphql/graphql-format-error";
 import type { ApolloDriverConfig } from "@nestjs/apollo";
@@ -60,7 +60,7 @@ describe("SettingsResolver (integration)", () => {
       ],
       providers: [SettingsResolver, UserSettingFieldsResolver, { provide: SettingsService, useValue: service }],
     })
-      .overrideGuard(JwtAuthGuard)
+      .overrideGuard(SessionAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           const gqlCtx = GqlExecutionContext.create(ctx);

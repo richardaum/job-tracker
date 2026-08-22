@@ -138,7 +138,7 @@ const mockUser: CurrentUser = {
   email: "john@example.com",
   role: Role.Admin,
   avatarUrl: null,
-  accounts: [],
+  authProviders: [],
 };
 
 describe("Sidebar", () => {

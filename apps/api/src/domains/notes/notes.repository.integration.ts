@@ -1,7 +1,7 @@
 import { CompanyEntity } from "@api/database/entities/company.entity";
 import { JobEntity } from "@api/database/entities/job.entity";
 import { JobNoteEntity } from "@api/database/entities/job-note.entity";
-import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
+import { insertIntegrationUser } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { apiEnv } from "@api/env/server";
 import type { DataSource } from "typeorm";
@@ -20,8 +20,7 @@ describe.skipIf(!hasDb)("NoteRepository (integration)", () => {
     dataSource = await createTestDataSource();
     repo = new NoteRepository(dataSource.getRepository(JobEntity), dataSource.getRepository(JobNoteEntity));
 
-    const user = await insertUserWithAuthAccount(dataSource, {
-      providerAccountId: "google-note-repo-test",
+    const user = await insertIntegrationUser(dataSource, {
       email: "noterepo@example.com",
       name: "Note Repo User",
       avatarUrl: null,

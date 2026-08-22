@@ -79,6 +79,7 @@ BAZ="quoted"
     assert.equal(env.DATABASE_URL, "postgresql://localhost/job_tracker_feat_a");
     assert.equal(env.PORT, "3105");
 
+    assert.equal(env.BETTER_AUTH_BASE_URL, "http://localhost:3105");
     assert.equal(env.WEB_URL, "http://localhost:3106");
     assert.equal(env.CORS_ORIGINS, "http://localhost:3106");
     assert.equal(env.RATE_LIMIT_DISABLED, "true");

@@ -4,7 +4,7 @@ import { Button, cn, Heading } from "@job-tracker/ui";
 import { GoogleLogoIcon } from "@phosphor-icons/react";
 
 import { APP_TITLE } from "@/app/metadata";
-import { getApiBaseUrl } from "@/lib/api-endpoints";
+import { signInWithGoogle } from "@/lib/auth-client";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 
 export type LoginStatusPanelStatus = "pending" | "rejected";
@@ -28,15 +28,11 @@ export function LoginStatusPanel({ status, className }: LoginStatusPanelProps) {
   const copy = COPY[status];
 
   function handleRetryLogin() {
-    // Full navigation to API origin for OAuth (not an in-app Next route).
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.assign(`${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent("/jobs")}`);
+    void signInWithGoogle(`${window.location.origin}/jobs`);
   }
 
   function handleSwitchAccount() {
-    // `switchAccount` is translated to Google's supported `prompt=select_account` server-side.
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.assign(`${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent("/jobs")}&switchAccount=true`);
+    void signInWithGoogle(`${window.location.origin}/jobs`, true);
   }
 
   return (

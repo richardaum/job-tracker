@@ -2,7 +2,7 @@ import { CompanyEntity } from "@api/database/entities/company.entity";
 import { JobEntity } from "@api/database/entities/job.entity";
 import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
-import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
+import { insertIntegrationUser } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { AsyncMetadataStatusEnum } from "@api/domains/shared/async-metadata.type";
 import { apiEnv } from "@api/env/server";
@@ -23,8 +23,7 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository — generation metadata (integr
     dataSource = await createTestDataSource();
     repo = new MatchAnalysisRepository(dataSource.getRepository(MatchAnalysisEntity));
 
-    const user = await insertUserWithAuthAccount(dataSource, {
-      providerAccountId: "google-match-metadata-test",
+    const user = await insertIntegrationUser(dataSource, {
       email: "matchmetadata@example.com",
       name: "Match Meta User",
       avatarUrl: null,

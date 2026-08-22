@@ -1,7 +1,6 @@
 "use client";
 
 import { useApolloClient } from "@apollo/client/react";
-import { authMutationRequestInit } from "@job-tracker/auth";
 import { Button, cn, Text } from "@job-tracker/ui";
 import {
   BriefcaseIcon,
@@ -25,7 +24,7 @@ import { Role } from "@/gql/graphql";
 import { useAiUsageChangedSubscription, useSettingsQuery } from "@/gql/hooks";
 import { clientEnv } from "@/env/client";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
-import { getApiBaseUrl } from "@/lib/api-endpoints";
+import { authClient } from "@/lib/auth-client";
 import { areScreenshotFlagsEnabled, screenshotFlags } from "@/lib/screenshot-flags";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
@@ -33,7 +32,6 @@ import { QuickTips } from "@/modules/navigation/components/QuickTips";
 import { TrialQuotaTrackbar } from "@/modules/navigation/components/TrialQuotaTrackbar";
 import { WelcomeTourProgressTrackbar } from "@/modules/navigation/components/WelcomeTourProgressTrackbar";
 
-const API_URL = getApiBaseUrl();
 const screenshotsEnabled = areScreenshotFlagsEnabled(clientEnv.NODE_ENV);
 
 const navItems: Array<{ href: Route; label: string; icon: typeof BriefcaseIcon }> = [
@@ -109,7 +107,7 @@ export function Sidebar({ open = false, onClose, user, quickTipsEnabled = false 
   async function handleLogout() {
     setLoggingOut(true);
     try {
-      await fetch(`${API_URL}/auth/logout`, authMutationRequestInit({ method: "POST", credentials: "include" }));
+      await authClient.signOut();
       await apolloClient.clearStore();
       onClose?.();
       router.replace("/");

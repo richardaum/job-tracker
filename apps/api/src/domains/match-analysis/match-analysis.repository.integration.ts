@@ -1,7 +1,7 @@
 import { JobEntity } from "@api/database/entities/job.entity";
 import { MatchAnalysisEntity } from "@api/database/entities/match-analysis.entity";
 import { ResumeEntity } from "@api/database/entities/resume.entity";
-import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
+import { insertIntegrationUser } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
 import { MatchAnalysisRepository } from "@api/domains/match-analysis/match-analysis.repository";
@@ -22,8 +22,7 @@ describe.skipIf(!hasDb)("MatchAnalysisRepository (integration)", () => {
     repo = new MatchAnalysisRepository(dataSource.getRepository(MatchAnalysisEntity));
     entitiesRepo = dataSource.getRepository(MatchAnalysisEntity);
 
-    const user = await insertUserWithAuthAccount(dataSource, {
-      providerAccountId: "google-match-repo-test",
+    const user = await insertIntegrationUser(dataSource, {
       email: "matchrepo@example.com",
       name: "Match Repo User",
       avatarUrl: null,

@@ -15,7 +15,6 @@ import { ResumeEntity } from "./entities/resume.entity";
 import { SourceRunEntity } from "./entities/source-run.entity";
 import { SourceTemplateEntity } from "./entities/source-template.entity";
 import { UserEntity } from "./entities/user.entity";
-import { UserAccountEntity } from "./entities/user-account.entity";
 import { UserSettingEntity } from "./entities/user-setting.entity";
 import { UserTourProgressEntity } from "./entities/user-tour-progress.entity";
 import { WorkPreferencesEntity } from "./entities/work-preferences.entity";
@@ -28,7 +27,6 @@ export const apiEntities = [
   AiMessageEntity,
   AiUsageRecordEntity,
   UserEntity,
-  UserAccountEntity,
   JobEntity,
   JobStageEventEntity,
   JobNoteEntity,

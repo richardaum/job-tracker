@@ -1,6 +1,6 @@
 import { JobEntity } from "@api/database/entities/job.entity";
 import { SourceRunEntity } from "@api/database/entities/source-run.entity";
-import { insertUserWithAuthAccount } from "@api/database/integration-test-user";
+import { insertIntegrationUser } from "@api/database/integration-test-user";
 import { createTestDataSource } from "@api/database/test-db";
 import { JobsRepository } from "@api/domains/jobs/jobs.repository";
 import { ApplicationStageEnum } from "@api/domains/jobs/job-stage.enum";
@@ -24,8 +24,7 @@ describe.skipIf(!hasDb)("JobsRepository (integration)", () => {
     jobsRepo = dataSource.getRepository(JobEntity);
     sourceRunsRepo = dataSource.getRepository(SourceRunEntity);
 
-    const user = await insertUserWithAuthAccount(dataSource, {
-      providerAccountId: "google-jobs-repo-test",
+    const user = await insertIntegrationUser(dataSource, {
       email: "jobsrepo@example.com",
       name: "Jobs Repo User",
       avatarUrl: null,

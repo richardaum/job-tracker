@@ -1,4 +1,4 @@
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { RoleEnum } from "@api/domains/users/role.enum";
@@ -9,7 +9,7 @@ import { CurrencyRates } from "./currency.types";
 import { CurrencyConverterService } from "./currency-converter.service";
 
 @Resolver(() => CurrencyRates)
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(SessionAuthGuard, RolesGuard)
 @Roles(RoleEnum.User)
 export class CurrencyConverterResolver {
   constructor(private readonly service: CurrencyConverterService) {}

@@ -2,22 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type AuthAccount {
-  id: ID!
-  providerName: AuthProvider!
-  providerAccountId: String!
-  createdAt: DateTime!
-}
-
-enum AuthProvider {
-  Google
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
 type UserType {
   id: ID!
   email: String!
@@ -26,7 +10,7 @@ type UserType {
   role: Role!
   status: UserStatus!
   createdAt: DateTime!
-  accounts: [AuthAccount!]!
+  authProviders: [String!]!
 }
 
 enum Role {
@@ -40,6 +24,11 @@ enum UserStatus {
   Rejected
   Deactivated
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type AiUsageChangedEventType {
   trialCallsUsed: Int!

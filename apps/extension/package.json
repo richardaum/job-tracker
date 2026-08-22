@@ -17,7 +17,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@job-tracker/auth": "workspace:*",
     "@job-tracker/html-sanitize": "workspace:*",
     "@job-tracker/plan-schemas": "workspace:*",
     "@job-tracker/try-run": "workspace:*",

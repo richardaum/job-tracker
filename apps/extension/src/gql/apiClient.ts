@@ -21,6 +21,69 @@ export type Scalars = {
   JSON: { input: any; output: any };
 };
 
+export type AiConversationType = {
+  __typename?: "AiConversationType";
+  createdAt: Scalars["DateTime"]["output"];
+  generatingStatus?: Maybe<AsyncMetadataType>;
+  id: Scalars["ID"]["output"];
+  jobId: Scalars["ID"]["output"];
+  title: Scalars["String"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+};
+
+export enum AiMessageRole {
+  Assistant = "Assistant",
+  User = "User",
+}
+
+export type AiMessageStreamEventType = {
+  __typename?: "AiMessageStreamEventType";
+  aiMessageId?: Maybe<Scalars["ID"]["output"]>;
+  conversationId: Scalars["ID"]["output"];
+  error?: Maybe<Scalars["String"]["output"]>;
+  phase: AiMessageStreamPhase;
+  token?: Maybe<Scalars["String"]["output"]>;
+  userMessageId?: Maybe<Scalars["ID"]["output"]>;
+};
+
+export enum AiMessageStreamPhase {
+  Complete = "Complete",
+  Failed = "Failed",
+  Ready = "Ready",
+  Streaming = "Streaming",
+}
+
+export type AiMessageType = {
+  __typename?: "AiMessageType";
+  content: Scalars["String"]["output"];
+  conversationId: Scalars["ID"]["output"];
+  createdAt: Scalars["DateTime"]["output"];
+  id: Scalars["ID"]["output"];
+  role: AiMessageRole;
+};
+
+export type AiUsageChangedEventType = {
+  __typename?: "AiUsageChangedEventType";
+  hasOpenAiKey: Scalars["Boolean"]["output"];
+  trialCallsUsed: Scalars["Int"]["output"];
+};
+
+export type AiUsageSummary = {
+  __typename?: "AiUsageSummary";
+  personalKey: AiUsageTotals;
+  trial: AiUsageTotals;
+  trialCallsLimit: Scalars["Int"]["output"];
+  trialCallsUsed: Scalars["Int"]["output"];
+};
+
+export type AiUsageTotals = {
+  __typename?: "AiUsageTotals";
+  calls: Scalars["Int"]["output"];
+  inputTokens: Scalars["Int"]["output"];
+  outputTokens: Scalars["Int"]["output"];
+  totalTokens: Scalars["Int"]["output"];
+};
+
 export enum ApplicationQuickFilter {
   Active = "Active",
   Applied = "Applied",
@@ -43,6 +106,8 @@ export enum ApplicationStage {
   Technical = "Technical",
 }
 
+export type AskQuestionPayloadType = { __typename?: "AskQuestionPayloadType"; success: Scalars["Boolean"]["output"] };
+
 export enum AsyncMetadataStatus {
   Completed = "Completed",
   Failed = "Failed",
@@ -55,18 +120,6 @@ export type AsyncMetadataType = {
   status?: Maybe<AsyncMetadataStatus>;
   timestamp?: Maybe<Scalars["DateTime"]["output"]>;
 };
-
-export type AuthAccount = {
-  __typename?: "AuthAccount";
-  createdAt: Scalars["DateTime"]["output"];
-  id: Scalars["ID"]["output"];
-  providerAccountId: Scalars["String"]["output"];
-  providerName: AuthProvider;
-};
-
-export enum AuthProvider {
-  Google = "Google",
-}
 
 export type BlockedKeyword = {
   __typename?: "BlockedKeyword";
@@ -187,6 +240,12 @@ export enum ExtensionActivityEventType {
   SourceRunStarted = "SourceRunStarted",
   SourceRunStopConditionMet = "SourceRunStopConditionMet",
 }
+
+export type FilterCountType = {
+  __typename?: "FilterCountType";
+  count: Scalars["Int"]["output"];
+  key: ApplicationQuickFilter;
+};
 
 export enum FitClassification {
   Negative = "Negative",
@@ -335,8 +394,11 @@ export enum MatchVerdict {
 
 export type Mutation = {
   __typename?: "Mutation";
+  approveRegistration: UserType;
+  askAiQuestion: AskQuestionPayloadType;
   clearSourceRuns: Scalars["Boolean"]["output"];
   clearSourceTemplateRuns: Scalars["Int"]["output"];
+  createAiConversation: AiConversationType;
   createJob: JobType;
   createJobNote: NoteType;
   createJobStageEvent: JobStageEventType;
@@ -345,6 +407,7 @@ export type Mutation = {
   createSourceRun: SourceRunType;
   createSourceTemplate: SourceTemplateType;
   deactivateAccount: Scalars["Boolean"]["output"];
+  deleteAiConversation: DeleteMutationPayloadType;
   deleteCompany: DeleteMutationPayloadType;
   deleteJob: DeleteMutationPayloadType;
   deleteJobNote: DeleteMutationPayloadType;
@@ -357,10 +420,16 @@ export type Mutation = {
   detachJobsFromSourceRun: Scalars["Int"]["output"];
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
+  rejectRegistration: UserType;
   removeJobTag: JobType;
+  removeOpenAiKey: UserSetting;
   reportExtensionActivity: ExtensionActivityEvent;
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
+  resetTourProgress: TourProgressType;
+  saveOpenAiKey: UserSetting;
+  saveTourProgress: TourProgressType;
+  setUserTrialCallsLimit: UserSetting;
   updateCompany: CompanyType;
   updateJob: JobType;
   updateJobNote: NoteType;
@@ -374,10 +443,16 @@ export type Mutation = {
   updateWorkPreferences: Array<PreferenceType>;
 };
 
+export type MutationApproveRegistrationArgs = { userId: Scalars["ID"]["input"] };
+
+export type MutationAskAiQuestionArgs = { content: Scalars["String"]["input"]; conversationId: Scalars["ID"]["input"] };
+
 export type MutationClearSourceTemplateRunsArgs = {
   deleteJobs?: InputMaybe<Scalars["Boolean"]["input"]>;
   templateId: Scalars["ID"]["input"];
 };
+
+export type MutationCreateAiConversationArgs = { jobId: Scalars["ID"]["input"] };
 
 export type MutationCreateJobArgs = { input: CreateJobInput };
 
@@ -392,6 +467,8 @@ export type MutationCreateResumeArgs = { input: CreateResumeInput };
 export type MutationCreateSourceRunArgs = { input: CreateSourceRunInput };
 
 export type MutationCreateSourceTemplateArgs = { input: CreateSourceTemplateInput };
+
+export type MutationDeleteAiConversationArgs = { id: Scalars["ID"]["input"] };
 
 export type MutationDeleteCompanyArgs = { id: Scalars["ID"]["input"] };
 
@@ -420,6 +497,8 @@ export type MutationFillJobAutomaticallyArgs = { jobId: Scalars["ID"]["input"] }
 
 export type MutationGenerateJobMatchArgs = { input: GenerateMatchInput };
 
+export type MutationRejectRegistrationArgs = { userId: Scalars["ID"]["input"] };
+
 export type MutationRemoveJobTagArgs = { id: Scalars["ID"]["input"]; tag: Scalars["String"]["input"] };
 
 export type MutationReportExtensionActivityArgs = { input: ReportExtensionActivityInput };
@@ -427,6 +506,14 @@ export type MutationReportExtensionActivityArgs = { input: ReportExtensionActivi
 export type MutationRequestJobSummaryArgs = { jobId: Scalars["ID"]["input"] };
 
 export type MutationRerunSourceTemplateArgs = { templateId: Scalars["ID"]["input"] };
+
+export type MutationResetTourProgressArgs = { input: ResetTourProgressInput };
+
+export type MutationSaveOpenAiKeyArgs = { key: Scalars["String"]["input"] };
+
+export type MutationSaveTourProgressArgs = { input: SaveTourProgressInput };
+
+export type MutationSetUserTrialCallsLimitArgs = { limit: Scalars["Int"]["input"]; userId: Scalars["ID"]["input"] };
 
 export type MutationUpdateCompanyArgs = { id: Scalars["ID"]["input"]; input: UpdateCompanyInput };
 
@@ -481,6 +568,9 @@ export type PreferenceType = { __typename?: "PreferenceType"; text: Scalars["Str
 
 export type Query = {
   __typename?: "Query";
+  aiConversations: Array<AiConversationType>;
+  aiMessages: Array<AiMessageType>;
+  aiUsage: AiUsageSummary;
   companies: Array<CompanyType>;
   company: CompanyType;
   companyJobsCount: Scalars["Int"]["output"];
@@ -501,6 +591,8 @@ export type Query = {
   me: UserType;
   plan?: Maybe<PlanType>;
   plans: Array<PlanType>;
+  quickFilterCounts: Array<FilterCountType>;
+  registrations: Array<UserType>;
   restructureJobDescriptionWithAI: Scalars["String"]["output"];
   resume: ResumeType;
   resumes: Array<ResumeType>;
@@ -510,9 +602,14 @@ export type Query = {
   sourceRuns: Array<SourceRunType>;
   sourceTemplate: SourceTemplateType;
   sourceTemplates: Array<SourceTemplateType>;
+  tourProgress?: Maybe<TourProgressType>;
   users: Array<UserType>;
   workPreferences: Array<PreferenceType>;
 };
+
+export type QueryAiConversationsArgs = { jobId: Scalars["ID"]["input"] };
+
+export type QueryAiMessagesArgs = { conversationId: Scalars["ID"]["input"] };
 
 export type QueryCompanyArgs = { id: Scalars["ID"]["input"] };
 
@@ -553,6 +650,13 @@ export type QueryMatchArgs = { id: Scalars["ID"]["input"] };
 
 export type QueryPlanArgs = { id: Scalars["ID"]["input"] };
 
+export type QueryQuickFilterCountsArgs = {
+  company?: InputMaybe<Scalars["String"]["input"]>;
+  runId?: InputMaybe<Scalars["ID"]["input"]>;
+};
+
+export type QueryRegistrationsArgs = { status?: InputMaybe<UserStatus> };
+
 export type QueryRestructureJobDescriptionWithAiArgs = { text: Scalars["String"]["input"] };
 
 export type QueryResumeArgs = { id: Scalars["ID"]["input"] };
@@ -562,6 +666,8 @@ export type QueryRewriteTextWithAiArgs = { text: Scalars["String"]["input"] };
 export type QuerySourceRunActivityEventsArgs = { runId: Scalars["ID"]["input"] };
 
 export type QuerySourceTemplateArgs = { id: Scalars["ID"]["input"] };
+
+export type QueryTourProgressArgs = { tourId: Scalars["String"]["input"] };
 
 export type ReportExtensionActivityInput = {
   browser?: InputMaybe<Scalars["String"]["input"]>;
@@ -579,6 +685,12 @@ export enum RequirementType {
   SoftSkill = "SoftSkill",
 }
 
+export type ResetTourProgressInput = {
+  currentStepId: Scalars["String"]["input"];
+  tourId: Scalars["String"]["input"];
+  tourVersion: Scalars["Int"]["input"];
+};
+
 export type ResumeType = {
   __typename?: "ResumeType";
   content: Scalars["String"]["output"];
@@ -590,11 +702,23 @@ export type ResumeType = {
   userId: Scalars["String"]["output"];
 };
 
+export enum Role {
+  Admin = "Admin",
+  User = "User",
+}
+
 export enum SalaryPeriod {
   Hour = "Hour",
   Month = "Month",
   Year = "Year",
 }
+
+export type SaveTourProgressInput = {
+  currentStepId?: InputMaybe<Scalars["String"]["input"]>;
+  status: TourProgressStatus;
+  tourId: Scalars["String"]["input"];
+  tourVersion: Scalars["Int"]["input"];
+};
 
 export type SourceRunActivityEvent = {
   __typename?: "SourceRunActivityEvent";
@@ -664,6 +788,8 @@ export enum StopWhen {
 
 export type Subscription = {
   __typename?: "Subscription";
+  aiMessageStreamed: AiMessageStreamEventType;
+  aiUsageChanged: AiUsageChangedEventType;
   extensionActivityEvents: ExtensionActivityEvent;
   jobFillStatusChanged: JobFillStatusEventType;
   jobMatchStatusChanged: JobMatchStatusEventType;
@@ -671,11 +797,32 @@ export type Subscription = {
   sourceRunEvents: SourceRunEvent;
 };
 
+export type SubscriptionAiMessageStreamedArgs = { conversationId: Scalars["ID"]["input"] };
+
 export type SubscriptionJobFillStatusChangedArgs = { jobId: Scalars["ID"]["input"] };
 
 export type SubscriptionJobMatchStatusChangedArgs = { jobId: Scalars["ID"]["input"] };
 
 export type SubscriptionJobSummaryStatusChangedArgs = { jobId: Scalars["ID"]["input"] };
+
+export enum TourProgressStatus {
+  Completed = "Completed",
+  InProgress = "InProgress",
+  Skipped = "Skipped",
+}
+
+export type TourProgressType = {
+  __typename?: "TourProgressType";
+  completedAt?: Maybe<Scalars["DateTime"]["output"]>;
+  createdAt: Scalars["DateTime"]["output"];
+  currentStepId?: Maybe<Scalars["String"]["output"]>;
+  id: Scalars["ID"]["output"];
+  skippedAt?: Maybe<Scalars["DateTime"]["output"]>;
+  status: TourProgressStatus;
+  tourId: Scalars["String"]["output"];
+  tourVersion: Scalars["Int"]["output"];
+  updatedAt: Scalars["DateTime"]["output"];
+};
 
 export type UpdateCompanyInput = {
   description?: InputMaybe<Scalars["String"]["input"]>;
@@ -719,12 +866,15 @@ export type UpdateResumeInput = {
 };
 
 export type UpdateSettingsInput = {
+  aiEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   autoFillEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   autoMatchEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   autoSummaryEnabled?: InputMaybe<Scalars["Boolean"]["input"]>;
   blockedCompanies?: InputMaybe<Array<Scalars["String"]["input"]>>;
   blockedKeywords?: InputMaybe<Array<BlockedKeywordInput>>;
+  dismissedQuickTipIds?: InputMaybe<Array<Scalars["String"]["input"]>>;
   duplicateWindowDays?: InputMaybe<Scalars["Int"]["input"]>;
+  lastQuickTipId?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type UpdateSourceRunInput = { surfaceUrl: Scalars["String"]["input"] };
@@ -738,24 +888,39 @@ export type UpdateSourceTemplateInput = {
 
 export type UserSetting = {
   __typename?: "UserSetting";
+  aiEnabled: Scalars["Boolean"]["output"];
   autoFillEnabled: Scalars["Boolean"]["output"];
   autoMatchEnabled: Scalars["Boolean"]["output"];
   autoSummaryEnabled: Scalars["Boolean"]["output"];
   blockedCompanies?: Maybe<Array<Scalars["String"]["output"]>>;
   blockedKeywords?: Maybe<Array<BlockedKeyword>>;
+  dismissedQuickTipIds: Array<Scalars["String"]["output"]>;
   duplicateWindowDays: Scalars["Int"]["output"];
+  hasOpenAiKey: Scalars["Boolean"]["output"];
   id: Scalars["ID"]["output"];
+  lastQuickTipId?: Maybe<Scalars["String"]["output"]>;
+  trialCallsLimit: Scalars["Int"]["output"];
+  trialCallsUsed: Scalars["Int"]["output"];
   userId: Scalars["String"]["output"];
 };
 
+export enum UserStatus {
+  Active = "Active",
+  Deactivated = "Deactivated",
+  Pending = "Pending",
+  Rejected = "Rejected",
+}
+
 export type UserType = {
   __typename?: "UserType";
-  accounts: Array<AuthAccount>;
+  authProviders: Array<Scalars["String"]["output"]>;
   avatarUrl?: Maybe<Scalars["String"]["output"]>;
+  createdAt: Scalars["DateTime"]["output"];
   email: Scalars["String"]["output"];
   id: Scalars["ID"]["output"];
   name: Scalars["String"]["output"];
-  role: Scalars["String"]["output"];
+  role: Role;
+  status: UserStatus;
 };
 
 export enum Weight {

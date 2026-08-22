@@ -1,5 +1,5 @@
 import { CurrentUser } from "@api/domains/auth/current-user.decorator";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { DeleteMutationPayloadType } from "@api/domains/shared/delete-mutation-payload.type";
@@ -13,7 +13,7 @@ import { NoteService } from "./notes.service";
 import { UpdateNoteInput } from "./update-note.input";
 
 @Resolver(() => NoteType)
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(SessionAuthGuard, RolesGuard)
 @Roles(RoleEnum.User)
 export class NoteResolver {
   constructor(private readonly service: NoteService) {}

@@ -1,6 +1,6 @@
 import { defineBackground } from "wxt/utils/define-background";
 
-import { api, onAuthRefresh } from "@/gql/api";
+import { api } from "@/gql/api";
 import { ContextMenuService } from "@/domains/context-menu/context-menu.service";
 import { ExtensionActivityReporterService } from "@/domains/extension-activity/extension-activity-reporter.service";
 import { ImportJobService } from "@/domains/import-job/import-job.service";
@@ -48,14 +48,6 @@ export default defineBackground(() => {
 
   const activityReporterDeps = { extensionVersion: chrome.runtime.getManifest().version, browser: navigator.userAgent };
   const activityReporter = new ExtensionActivityReporterService(logService, activityReporterDeps);
-
-  onAuthRefresh((success) => {
-    activityReporter.report(
-      success ? ExtensionActivityEventType.AuthRefreshed : ExtensionActivityEventType.AuthFailed,
-      success ? "Session token refreshed" : "Session token refresh failed",
-      { sourceRunId: "auth" },
-    );
-  });
 
   const importJobService = new ImportJobService(messagingService, new WxtTabService(), activityReporter);
 

@@ -16,7 +16,7 @@ Vitest, `src/**/*.spec.ts`, Node, `fileParallelism: false`. Integration tests (`
 
 ## NestJS
 
-Resolvers with `@UseGuards(JwtAuthGuard, RolesGuard)` must `import AuthModule`.
+Resolvers with `@UseGuards(SessionAuthGuard, RolesGuard)` must `import AuthModule`.
 
 ## Mutations
 

@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { FeatureFlagGuard } from "@api/domains/feature-flags/feature-flag.guard";
 import { PostHogService } from "@api/domains/feature-flags/posthog.service";
@@ -64,7 +64,7 @@ describe("AiChatResolver (integration)", () => {
         { provide: "PUB_SUB", useValue: { asyncIterableIterator: vi.fn() } },
       ],
     })
-      .overrideGuard(JwtAuthGuard)
+      .overrideGuard(SessionAuthGuard)
       .useValue({
         canActivate: (ctx: ExecutionContext) => {
           const gqlCtx = GqlExecutionContext.create(ctx);

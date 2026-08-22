@@ -1,5 +1,5 @@
 import { CurrentUser } from "@api/domains/auth/current-user.decorator";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { RoleEnum } from "@api/domains/users/role.enum";
@@ -11,7 +11,7 @@ import { AiUsageChangedEventType } from "./settings-event.types";
 import { AiUsageChanged } from "./settings.events";
 
 @Resolver()
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(SessionAuthGuard, RolesGuard)
 @Roles(RoleEnum.User)
 export class SettingsEventsResolver {
   constructor(private readonly eventBus: SettingsEventBus) {}

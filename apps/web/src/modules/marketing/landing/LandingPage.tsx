@@ -8,7 +8,7 @@ import { Suspense } from "react";
 import { APP_TITLE } from "@/app/metadata";
 import { useAuthReturnTo } from "@/hooks/useAuthReturnTo";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { getApiBaseUrl } from "@/lib/api-endpoints";
+import { signInWithGoogle } from "@/lib/auth-client";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 
 import { LandingSignInPopover } from "./LandingSignInPopover";
@@ -65,9 +65,7 @@ function PrimaryCta({ className, dark }: PrimaryCtaProps) {
   const { safeReturnTo } = useAuthReturnTo();
 
   const handleGoogleLogin = () => {
-    // Full navigation to API origin for OAuth (not an in-app Next route).
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.assign(`${getApiBaseUrl()}/auth/google?returnTo=${encodeURIComponent(safeReturnTo)}`);
+    void signInWithGoogle(`${window.location.origin}${safeReturnTo}`);
   };
 
   const sharedClasses = primaryCtaClasses({ className, dark });

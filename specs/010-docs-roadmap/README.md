@@ -19,6 +19,7 @@ tags:
 - [R-18] Deliver `multilingual-experience` as the canonical i18n scope, including locale routing, dictionary governance, and EN/PT-BR quality checks.
 - [R-28] Deliver `application-salary` as the optional structured pay and tags scope on the canonical application record, including list and details UI parity.
 - [R-33] Deliver `salary-calculator` as a standalone tools page with hourly/monthly/yearly rate conversion and multi-currency support (USD, EUR, BRL, GBP, CHF) using a free public exchange rate API.
+- [R-34] Establish a first-party web/API topology by serving the API at `api.newjobtracker.app` or through a same-origin proxy at `newjobtracker.app/api`; preserve HTTPS and explicit origin policy, and define a separate authentication transport for the Chrome extension.
 
 ## Dependencies
 

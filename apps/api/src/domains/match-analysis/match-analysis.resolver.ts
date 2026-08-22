@@ -1,5 +1,5 @@
 import { CurrentUser } from "@api/domains/auth/current-user.decorator";
-import { JwtAuthGuard } from "@api/domains/auth/jwt-auth.guard";
+import { SessionAuthGuard } from "@api/domains/auth/session-auth.guard";
 import { Roles } from "@api/domains/auth/roles.decorator";
 import { RolesGuard } from "@api/domains/auth/roles.guard";
 import { JobType } from "@api/domains/jobs/job.type";
@@ -13,7 +13,7 @@ import { MatchAnalysisService } from "./match-analysis.service";
 import { MatchAnalysisType } from "./match-analysis.type";
 
 @Resolver(() => MatchAnalysisType)
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(SessionAuthGuard, RolesGuard)
 @Roles(RoleEnum.User)
 export class MatchAnalysisResolver {
   constructor(private readonly service: MatchAnalysisService) {}
@@ -63,7 +63,7 @@ export class MatchAnalysisResolver {
 }
 
 @Resolver(() => JobType)
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(SessionAuthGuard, RolesGuard)
 @Roles(RoleEnum.User)
 export class JobMatchResolver {
   constructor(private readonly service: MatchAnalysisService) {}

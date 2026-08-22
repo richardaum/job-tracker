@@ -1,8 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { AuthProvider } from "@/gql/graphql";
-
 import IdentityTabPage from "./IdentityTabPage";
 
 const useMeQueryMock = vi.fn();
@@ -11,16 +9,6 @@ vi.mock("@/gql/hooks", async () => {
   const actual = await vi.importActual<typeof import("@/gql/hooks")>("@/gql/hooks");
   return { ...actual, useMeQuery: () => useMeQueryMock() };
 });
-
-const defaultAccounts = [
-  {
-    __typename: "AuthAccount" as const,
-    id: "account-1",
-    providerName: AuthProvider.Google,
-    providerAccountId: "google-subject-xyz",
-    createdAt: "2026-05-01T00:00:00.000Z",
-  },
-];
 
 function mockUser(overrides: Record<string, unknown> = {}) {
   return {
@@ -33,7 +21,7 @@ function mockUser(overrides: Record<string, unknown> = {}) {
         email: "john@example.com",
         role: "user",
         avatarUrl: "https://example.com/avatar.jpg",
-        accounts: defaultAccounts,
+        authProviders: ["google"],
         ...overrides,
       },
     },
@@ -63,8 +51,8 @@ describe("IdentityTabPage", () => {
     expect(screen.getByText("Google")).toBeInTheDocument();
   });
 
-  it("hides provider field when accounts list is empty", () => {
-    useMeQueryMock.mockReturnValue(mockUser({ accounts: [] }));
+  it("hides provider field when Better Auth has no linked providers", () => {
+    useMeQueryMock.mockReturnValue(mockUser({ authProviders: [] }));
     render(<IdentityTabPage />);
     expect(screen.queryByText("Google")).not.toBeInTheDocument();
   });

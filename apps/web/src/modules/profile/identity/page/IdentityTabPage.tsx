@@ -3,21 +3,10 @@
 import { cn, FieldWithLabelAction, Stack, Text } from "@job-tracker/ui";
 import Image from "next/image";
 
-import { AuthProvider } from "@/gql/graphql";
 import { useMeQuery } from "@/gql/hooks";
 
-function authProviderLabel(provider: AuthProvider): string {
-  switch (provider) {
-    case AuthProvider.Google:
-      return "Google";
-    default:
-      return provider;
-  }
-}
-
-function primaryProviderLabel(accounts: { providerName: AuthProvider }[]): string | null {
-  const first = accounts[0];
-  return first ? authProviderLabel(first.providerName) : null;
+function authProviderLabel(provider: string): string {
+  return provider === "google" ? "Google" : provider;
 }
 
 export default function IdentityTabPage() {
@@ -38,8 +27,7 @@ export default function IdentityTabPage() {
     .join("")
     .toUpperCase()
     .slice(0, 2);
-
-  const providerLabel = primaryProviderLabel(user.accounts);
+  const providerLabel = user.authProviders[0] ? authProviderLabel(user.authProviders[0]) : null;
 
   return (
     <Stack gap="lg" align="stretch" className={cn("px-1 w-full")}>
