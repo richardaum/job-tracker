@@ -76,30 +76,32 @@ export function LoginStatusPanel({ status, className }: LoginStatusPanelProps) {
         </ol>
       </aside>
 
-      <div className={cn("relative flex min-h-75 items-center px-8 py-18 sm:px-12")}>
-        <div className={cn("flex max-w-xl items-start gap-5")}>
-          <span
-            className={cn(
-              "mt-0.5 grid size-12 shrink-0 place-items-center rounded-full text-lg",
-              status === "pending"
-                ? "bg-bg-warning-subtle text-(--primitive-color-yellow-950)"
-                : "bg-bg-error-subtle text-text-error",
-            )}
-            aria-hidden
-          >
-            {status === "pending" ? "◷" : "×"}
-          </span>
-          <div>
-            <Heading as="h1" id="access-status-title" size="2xl" className={cn("font-semibold")}>
-              {copy.title}
-            </Heading>
-            <p className={cn("mt-2 max-w-lg text-sm/relaxed text-text-secondary")}>{copy.body}</p>
+      <div className={cn("relative flex min-h-75 flex-col px-8 py-12 sm:px-12 sm:py-18")}>
+        <div className={cn("flex w-full flex-1 items-center")}>
+          <div className={cn("flex max-w-xl items-start gap-5")}>
+            <span
+              className={cn(
+                "mt-0.5 grid size-12 shrink-0 place-items-center rounded-full text-lg",
+                status === "pending"
+                  ? "bg-bg-warning-subtle text-(--primitive-color-yellow-950)"
+                  : "bg-bg-error-subtle text-text-error",
+              )}
+              aria-hidden
+            >
+              {status === "pending" ? "◷" : "×"}
+            </span>
+            <div>
+              <Heading as="h1" id="access-status-title" size="2xl" className={cn("font-semibold")}>
+                {copy.title}
+              </Heading>
+              <p className={cn("mt-2 max-w-lg text-sm/relaxed text-text-secondary")}>{copy.body}</p>
+            </div>
           </div>
         </div>
 
         <div
           className={cn(
-            "absolute right-8 bottom-8 flex flex-wrap items-center justify-end gap-2 sm:right-12 sm:bottom-10",
+            "mt-10 flex w-full flex-col items-stretch gap-2 sm:absolute sm:right-12 sm:bottom-10 sm:mt-0 sm:w-auto sm:flex-row sm:items-center sm:justify-end",
           )}
         >
           <Button
