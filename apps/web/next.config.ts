@@ -2,7 +2,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 import { getAllowedDevOrigins } from "./config/dev-network";
-import { screenshotFlags } from "./src/lib/screenshot-flags";
+import { screenshotFlags, screenshotsEnabled } from "./src/lib/screenshot-flags";
 
 const apiOrigin = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 
@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
       has: [{ type: "host", value }],
     }));
   },
-  devIndicators: screenshotFlags.hideNextDevIndicator ? false : undefined,
+  devIndicators: screenshotsEnabled && screenshotFlags.hideNextDevIndicator ? false : undefined,
   typedRoutes: true,
   experimental: { strictRouteTypes: true },
   // Keep separate dist dirs so `next build` does not conflict with a running `next dev`.

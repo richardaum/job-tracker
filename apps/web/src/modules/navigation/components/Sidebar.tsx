@@ -22,17 +22,14 @@ import { useEffect, useState } from "react";
 
 import { Role } from "@/gql/graphql";
 import { useAiUsageChangedSubscription, useSettingsQuery } from "@/gql/hooks";
-import { clientEnv } from "@/env/client";
 import type { CurrentUser } from "@/hooks/useCurrentUser";
 import { authClient } from "@/lib/auth-client";
-import { areScreenshotFlagsEnabled, screenshotFlags } from "@/lib/screenshot-flags";
+import { screenshotFlags, screenshotsEnabled } from "@/lib/screenshot-flags";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 import { ObfuscatedText } from "@/modules/navigation/components/ObfuscatedText";
 import { QuickTips } from "@/modules/navigation/components/QuickTips";
 import { TrialQuotaTrackbar } from "@/modules/navigation/components/TrialQuotaTrackbar";
 import { WelcomeTourProgressTrackbar } from "@/modules/navigation/components/WelcomeTourProgressTrackbar";
-
-const screenshotsEnabled = areScreenshotFlagsEnabled(clientEnv.NODE_ENV);
 
 const navItems: Array<{ href: Route; label: string; icon: typeof BriefcaseIcon }> = [
   { href: "/jobs", label: "Jobs", icon: BriefcaseIcon },
