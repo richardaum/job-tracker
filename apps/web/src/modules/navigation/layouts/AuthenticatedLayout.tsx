@@ -7,6 +7,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { useAuthReturnTo } from "@/hooks/useAuthReturnTo";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { getAuthUserStatus } from "@/lib/graphql-entity-errors";
 import { Sidebar } from "@/modules/navigation/components/Sidebar";
 
 const NPS_SURVEY_ELIGIBLE_EVENT = "nps_survey_eligible";
@@ -24,15 +25,24 @@ function AuthenticatedFullscreenLoadingScreen() {
 type AuthenticatedLayoutProps = { children: ReactNode; quickTipsEnabled?: boolean };
 export function AuthenticatedLayout({ children, quickTipsEnabled = false }: AuthenticatedLayoutProps) {
   const router = useRouter();
-  const { user, loading } = useCurrentUser();
+  const { user, loading, error } = useCurrentUser();
   const { loginRedirectUrl } = useAuthReturnTo();
   const [isNavOpen, setIsNavOpen] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace(loginRedirectUrl);
+    if (loading || user) return;
+
+    // A Pending/Rejected/Deactivated account has a valid session but no access yet — send it
+    // to the status screen instead of the generic sign-in bounce, which looked like a silent
+    // failure (the account was created, it's just waiting on approval).
+    const userStatus = getAuthUserStatus(error)?.toLowerCase();
+    if (userStatus === "pending" || userStatus === "rejected" || userStatus === "deactivated") {
+      router.replace(`/login?status=${userStatus}`);
+      return;
     }
-  }, [loading, loginRedirectUrl, router, user]);
+
+    router.replace(loginRedirectUrl);
+  }, [loading, error, loginRedirectUrl, router, user]);
 
   if (loading) {
     return <AuthenticatedFullscreenLoadingScreen />;

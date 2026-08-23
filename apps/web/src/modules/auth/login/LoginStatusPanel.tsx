@@ -7,7 +7,7 @@ import { APP_TITLE } from "@/app/metadata";
 import { signInWithGoogle } from "@/lib/auth-client";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
 
-export type LoginStatusPanelStatus = "pending" | "rejected";
+export type LoginStatusPanelStatus = "pending" | "rejected" | "deactivated";
 
 const COPY: Record<LoginStatusPanelStatus, { title: string; body: string; statusLabel: string }> = {
   pending: {
@@ -18,6 +18,11 @@ const COPY: Record<LoginStatusPanelStatus, { title: string; body: string; status
   rejected: {
     title: "Access not granted",
     body: "This account hasn't been approved. Contact the team that invited you if you need help.",
+    statusLabel: "Access unavailable",
+  },
+  deactivated: {
+    title: "Account deactivated",
+    body: "This account has been deactivated. Contact the team that invited you if you believe this is a mistake.",
     statusLabel: "Access unavailable",
   },
 };

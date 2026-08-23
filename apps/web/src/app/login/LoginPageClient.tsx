@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { APP_TITLE } from "@/app/metadata";
 import { useAuthReturnTo } from "@/hooks/useAuthReturnTo";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { hasGraphQLCode } from "@/lib/graphql-entity-errors";
+import { getAuthUserStatus, hasGraphQLCode } from "@/lib/graphql-entity-errors";
 import type { LoginStatusPanelStatus } from "@/modules/auth/login/LoginStatusPanel";
 import { LoginStatusPanel } from "@/modules/auth/login/LoginStatusPanel";
 import { AppBrandMark } from "@/modules/navigation/components/AppBrandMark";
@@ -17,7 +17,12 @@ function isAuthError(error: unknown): boolean {
 }
 
 function toLoginStatus(value: string | null): LoginStatusPanelStatus | undefined {
-  return value === "pending" || value === "rejected" ? value : undefined;
+  return value === "pending" || value === "rejected" || value === "deactivated" ? value : undefined;
+}
+
+// SessionAuthGuard's UserStatusEnum values, lowercased to match LoginStatusPanelStatus.
+function statusFromUserStatus(userStatus: string | undefined): LoginStatusPanelStatus | undefined {
+  return toLoginStatus(userStatus?.toLowerCase() ?? null);
 }
 
 export function LoginPageClient() {
@@ -25,7 +30,7 @@ export function LoginPageClient() {
   const { user, loading, error } = useCurrentUser();
   const { safeReturnTo } = useAuthReturnTo();
   const searchParams = useSearchParams();
-  const status = toLoginStatus(searchParams.get("status"));
+  const status = toLoginStatus(searchParams.get("status")) ?? statusFromUserStatus(getAuthUserStatus(error));
   const isLoadingView = searchParams.get("view") === "loading";
 
   useEffect(() => {

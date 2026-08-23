@@ -22,3 +22,15 @@ export function hasGraphQLCode(error: unknown, code: string): boolean {
     return ext?.code === code;
   });
 }
+
+// SessionAuthGuard throws UnauthorizedException({ userStatus }) for non-active accounts.
+// @nestjs/apollo copies that payload verbatim into extensions.originalError.
+export function getAuthUserStatus(error: unknown): string | undefined {
+  for (const e of readGraphQLErrors(error)) {
+    const ext = e.extensions as Record<string, unknown> | undefined;
+    const originalError = ext?.originalError as Record<string, unknown> | undefined;
+    const userStatus = originalError?.userStatus;
+    if (typeof userStatus === "string") return userStatus;
+  }
+  return undefined;
+}

@@ -116,7 +116,12 @@ export class UserService {
     }
     if (user.status !== UserStatusEnum.Active) {
       this.logger.warn(`auth denied userId=${userId} reason=user_inactive`);
-      throw new UnauthorizedException();
+      // @nestjs/apollo's auto HTTP-to-GraphQL transform (apollo-base.driver.js) only recognizes
+      // this as an HTTP exception, and copies the body into extensions.originalError, when
+      // response.statusCode is present. A custom object body does NOT get statusCode injected
+      // automatically (that only happens for a string body) — omitting it here silently fell
+      // through to a generic INTERNAL_SERVER_ERROR with no userStatus reaching the client.
+      throw new UnauthorizedException({ statusCode: 401, message: "Account not active", userStatus: user.status });
     }
     return user;
   }

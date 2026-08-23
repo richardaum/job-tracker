@@ -16,6 +16,10 @@ export function signInWithGoogle(callbackURL: string, selectAccount = false): Pr
   return authClient.signIn.social({
     provider: "google",
     callbackURL,
+    // New accounts start as Pending until an admin approves them. Without this, a first-time
+    // signup follows the normal `callbackURL`, GraphQL rejects the pending session, and the
+    // user bounces in a loop back to the sign-in popover with no explanation.
+    newUserCallbackURL: `${window.location.origin}/login?status=pending`,
     ...(selectAccount ? { additionalParams: { prompt: "select_account" } } : {}),
   });
 }
