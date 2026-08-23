@@ -1,9 +1,10 @@
 "use client";
 
 import { cn, Popover } from "@job-tracker/ui";
-import { GoogleLogoIcon } from "@phosphor-icons/react";
+import { CircleNotchIcon, GoogleLogoIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 import { useAuthReturnTo } from "@/hooks/useAuthReturnTo";
 import { signInWithGoogle } from "@/lib/auth-client";
@@ -16,9 +17,17 @@ export function LandingSignInPopover({ triggerClassName }: LandingSignInPopoverP
   const router = useRouter();
   const searchParams = useSearchParams();
   const isOpenFromLogin = searchParams.get("signIn") === "open";
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
-  const handleGoogleLogin = () => {
-    void signInWithGoogle(`${window.location.origin}${safeReturnTo}`);
+  const handleGoogleLogin = async () => {
+    setIsSigningIn(true);
+    try {
+      // On success this navigates away to Google, so isSigningIn only ever needs resetting
+      // on failure (network error, popup blocked, etc).
+      await signInWithGoogle(`${window.location.origin}${safeReturnTo}`);
+    } finally {
+      setIsSigningIn(false);
+    }
   };
 
   return (
@@ -41,13 +50,20 @@ export function LandingSignInPopover({ triggerClassName }: LandingSignInPopoverP
         <button
           type="button"
           onClick={handleGoogleLogin}
+          disabled={isSigningIn}
+          aria-busy={isSigningIn}
           className={cn(
             "mt-5 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-border-brand px-4 py-2.5 text-sm font-semibold text-text-inverted transition-opacity hover:opacity-90",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-brand focus-visible:ring-offset-2",
+            "disabled:cursor-wait disabled:opacity-80",
           )}
         >
-          <GoogleLogoIcon className={cn("size-5")} weight="regular" aria-hidden />
-          Continue with Google
+          {isSigningIn ? (
+            <CircleNotchIcon className={cn("size-5 animate-spin")} aria-hidden />
+          ) : (
+            <GoogleLogoIcon className={cn("size-5")} weight="regular" aria-hidden />
+          )}
+          {isSigningIn ? "Signing in…" : "Continue with Google"}
         </button>
         <p className={cn("mt-4 text-xs/relaxed text-text-muted")}>
           By continuing, you agree to our{" "}
