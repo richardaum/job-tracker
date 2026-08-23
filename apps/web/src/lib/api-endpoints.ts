@@ -8,10 +8,13 @@ export function getApiBaseUrl(): string {
   return clientEnv.NEXT_PUBLIC_API_URL ? trimTrailingSlash(clientEnv.NEXT_PUBLIC_API_URL) : "";
 }
 
+// GraphQL is proxied through this origin (see next.config.ts rewrites) so the Better Auth
+// session cookie, which belongs to this site, is sent along with every request.
 export function getApiGraphqlUrl(): string {
-  return `${getApiBaseUrl()}/graphql`;
+  const origin = typeof window === "undefined" ? getApiBaseUrl() : window.location.origin;
+  return `${origin}/graphql`;
 }
 
 export function getApiGraphqlWsUrl(): string {
-  return `${getApiBaseUrl().replace(/^http/, "ws")}/graphql`;
+  return getApiGraphqlUrl().replace(/^http/, "ws");
 }

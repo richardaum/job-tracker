@@ -4,7 +4,21 @@ import type { NextConfig } from "next";
 import { getAllowedDevOrigins } from "./config/dev-network";
 import { screenshotFlags } from "./src/lib/screenshot-flags";
 
+const apiOrigin = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+
 const nextConfig: NextConfig = {
+  // Proxy the API same-origin so the Better Auth session cookie is usable by both
+  // /api/auth and /graphql. Web and API live on different registrable domains, and
+  // browsers (Firefox Total Cookie Protection, Safari ITP) partition cookies set via
+  // a cross-site fetch during the OAuth redirect dance, breaking the state cookie.
+  async rewrites() {
+    if (!apiOrigin) return [];
+
+    return [
+      { source: "/api/:path*", destination: `${apiOrigin}/api/:path*` },
+      { source: "/graphql", destination: `${apiOrigin}/graphql` },
+    ];
+  },
   async redirects() {
     return [
       "job-tracker-web-eta.vercel.app",

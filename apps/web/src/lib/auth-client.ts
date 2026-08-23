@@ -2,14 +2,10 @@
 
 import { createAuthClient } from "better-auth/client";
 
-import { getApiBaseUrl } from "./api-endpoints";
-
+// Always same-origin: /api/auth is proxied to the API (see next.config.ts rewrites) so the
+// Better Auth session cookie belongs to this site, not the cross-site API domain. Signing in
+// via a direct cross-site fetch gets its state cookie partitioned away by Firefox/Safari.
 function getAuthBaseUrl(): string {
-  const apiBaseUrl = getApiBaseUrl();
-  if (apiBaseUrl) return `${apiBaseUrl}/api/auth`;
-
-  // Better Auth requires an absolute URL even when the API is reverse-proxied
-  // to the same origin. The explicit fallback also keeps browser tests valid.
   const origin = typeof window === "undefined" ? "http://localhost:3100" : window.location.origin;
   return `${origin}/api/auth`;
 }
