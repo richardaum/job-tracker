@@ -98,3 +98,29 @@ describe("UserService.listRegistrations", () => {
     expect(result).toEqual([ana]);
   });
 });
+
+describe("UserService.reactivateUserByAdmin", () => {
+  it("reactivates a deactivated user", async () => {
+    const user = makeUser({ status: UserStatusEnum.Deactivated });
+    const userRepository = {
+      findById: vi.fn().mockResolvedValue(user),
+      setStatus: vi.fn().mockResolvedValue(undefined),
+    };
+    const service = new UserService(userRepository as never, {} as never);
+
+    await expect(service.reactivateUserByAdmin(user.id)).resolves.toMatchObject({
+      id: user.id,
+      status: UserStatusEnum.Active,
+    });
+    expect(userRepository.setStatus).toHaveBeenCalledWith(user.id, UserStatusEnum.Active);
+  });
+
+  it("rejects reactivation for a non-deactivated user", async () => {
+    const user = makeUser({ status: UserStatusEnum.Rejected });
+    const userRepository = { findById: vi.fn().mockResolvedValue(user), setStatus: vi.fn() };
+    const service = new UserService(userRepository as never, {} as never);
+
+    await expect(service.reactivateUserByAdmin(user.id)).rejects.toThrow("Only deactivated users can be reactivated.");
+    expect(userRepository.setStatus).not.toHaveBeenCalled();
+  });
+});
