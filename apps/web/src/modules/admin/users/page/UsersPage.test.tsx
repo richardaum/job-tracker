@@ -11,6 +11,7 @@ const approveRegistrationMock = vi.fn().mockResolvedValue({});
 const rejectRegistrationMock = vi.fn().mockResolvedValue({});
 const resendApprovalEmailMock = vi.fn().mockResolvedValue({});
 const removeUserMock = vi.fn().mockResolvedValue({});
+const reactivateUserMock = vi.fn().mockResolvedValue({});
 const useFeatureFlagEnabledMock = vi.hoisted(() => vi.fn<(flagKey: string) => boolean>(() => true));
 
 vi.mock("@/gql/hooks", () => ({
@@ -19,6 +20,7 @@ vi.mock("@/gql/hooks", () => ({
   useRejectRegistrationMutation: () => [rejectRegistrationMock, { loading: false }],
   useResendApprovalEmailMutation: () => [resendApprovalEmailMock, { loading: false }],
   useRemoveUserMutation: () => [removeUserMock, { loading: false }],
+  useReactivateUserMutation: () => [reactivateUserMock, { loading: false }],
 }));
 
 vi.mock("posthog-js/react", () => ({ useFeatureFlagEnabled: (flagKey: string) => useFeatureFlagEnabledMock(flagKey) }));
@@ -57,6 +59,22 @@ const activeUser = {
   role: Role.Admin,
   status: UserStatus.Active,
   createdAt: "2026-01-02T00:00:00.000Z",
+};
+
+const rejectedUser = {
+  ...pendingUser,
+  id: "reg-3",
+  name: "Rejected Person",
+  email: "rejected@example.com",
+  status: UserStatus.Rejected,
+};
+
+const deactivatedUser = {
+  ...activeUser,
+  id: "reg-4",
+  name: "Deactivated Person",
+  email: "deactivated@example.com",
+  status: UserStatus.Deactivated,
 };
 
 describe("UsersPage", () => {
@@ -306,6 +324,45 @@ describe("UsersPage", () => {
 
     await waitFor(() => {
       expect(removeUserMock).toHaveBeenCalledWith({ variables: { userId: activeUser.id } });
+      expect(refetchMock).toHaveBeenCalled();
+    });
+  });
+
+  it("allows removing rejected users", async () => {
+    useAdminUsersQueryMock.mockReturnValue({
+      data: { registrations: [rejectedUser] },
+      loading: false,
+      error: undefined,
+      refetch: refetchMock,
+    });
+
+    renderPage();
+
+    await openActionsMenu("Rejected Person");
+    fireEvent.click(screen.getByRole("menuitem", { name: "Remove user" }));
+    fireEvent.click(screen.getByRole("button", { name: "Remove" }));
+
+    await waitFor(() => {
+      expect(removeUserMock).toHaveBeenCalledWith({ variables: { userId: rejectedUser.id } });
+      expect(refetchMock).toHaveBeenCalled();
+    });
+  });
+
+  it("allows reactivating deactivated users", async () => {
+    useAdminUsersQueryMock.mockReturnValue({
+      data: { registrations: [deactivatedUser] },
+      loading: false,
+      error: undefined,
+      refetch: refetchMock,
+    });
+
+    renderPage();
+
+    await openActionsMenu("Deactivated Person");
+    fireEvent.click(screen.getByRole("menuitem", { name: "Reactivate user" }));
+
+    await waitFor(() => {
+      expect(reactivateUserMock).toHaveBeenCalledWith({ variables: { userId: deactivatedUser.id } });
       expect(refetchMock).toHaveBeenCalled();
     });
   });

@@ -8,6 +8,7 @@ import { UserStatus } from "@/gql/graphql";
 import {
   useApproveRegistrationMutation,
   useRejectRegistrationMutation,
+  useReactivateUserMutation,
   useRemoveUserMutation,
   useResendApprovalEmailMutation,
 } from "@/gql/hooks";
@@ -48,6 +49,7 @@ export default function UsersPage() {
   const [rejectRegistration, { loading: rejecting }] = useRejectRegistrationMutation();
   const [resendApprovalEmail, { loading: resending }] = useResendApprovalEmailMutation();
   const [removeUser, { loading: removing }] = useRemoveUserMutation();
+  const [reactivateUser, { loading: reactivating }] = useReactivateUserMutation();
 
   async function handleApprove(userId: string) {
     await approveRegistration({ variables: { userId } });
@@ -65,6 +67,11 @@ export default function UsersPage() {
 
   async function handleRemove(userId: string) {
     await removeUser({ variables: { userId } });
+    await refetch();
+  }
+
+  async function handleReactivate(userId: string) {
+    await reactivateUser({ variables: { userId } });
     await refetch();
   }
 
@@ -125,7 +132,8 @@ export default function UsersPage() {
                 onReject={handleReject}
                 onResendApprovalEmail={handleResendApprovalEmail}
                 onRemove={handleRemove}
-                isMutating={approving || rejecting || resending || removing}
+                onReactivate={handleReactivate}
+                isMutating={approving || rejecting || resending || removing || reactivating}
               />
             ))}
           </Stack>

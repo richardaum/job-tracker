@@ -35,6 +35,7 @@ interface UserCardProps {
   onReject: (userId: string) => void;
   onResendApprovalEmail: (userId: string) => void;
   onRemove: (userId: string) => void;
+  onReactivate: (userId: string) => void;
   isMutating: boolean;
 }
 
@@ -45,12 +46,22 @@ const STATUS_BADGE_INTENT: Record<UserStatus, BadgeIntent> = {
   [UserStatus.Deactivated]: "default",
 };
 
-export function UserCard({ user, onApprove, onReject, onResendApprovalEmail, onRemove, isMutating }: UserCardProps) {
+export function UserCard({
+  user,
+  onApprove,
+  onReject,
+  onResendApprovalEmail,
+  onRemove,
+  onReactivate,
+  isMutating,
+}: UserCardProps) {
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const resendApprovalEmailEnabled = useFeatureFlagEnabled(RESEND_APPROVAL_EMAIL_FLAG) ?? false;
   const isPending = user.status === UserStatus.Pending;
   const isActive = user.status === UserStatus.Active;
-  const hasActions = isPending || isActive;
+  const isRejected = user.status === UserStatus.Rejected;
+  const isDeactivated = user.status === UserStatus.Deactivated;
+  const hasActions = isPending || isActive || isRejected || isDeactivated;
   const requestedAt = new Date(user.createdAt).toLocaleDateString();
 
   return (
@@ -100,6 +111,16 @@ export function UserCard({ user, onApprove, onReject, onResendApprovalEmail, onR
                     Remove user
                   </DropdownMenuItem>
                 </>
+              ) : null}
+              {isRejected ? (
+                <DropdownMenuItem destructive disabled={isMutating} onSelect={() => setRemoveDialogOpen(true)}>
+                  Remove user
+                </DropdownMenuItem>
+              ) : null}
+              {isDeactivated ? (
+                <DropdownMenuItem disabled={isMutating} onSelect={() => onReactivate(user.id)}>
+                  Reactivate user
+                </DropdownMenuItem>
               ) : null}
             </DropdownMenu>
             <ConfirmDialog

@@ -438,6 +438,7 @@ export type Mutation = {
   detachJobsFromSourceRun: Scalars['Int']['output'];
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
+  reactivateUser: UserType;
   rejectRegistration: UserType;
   removeJobTag: JobType;
   removeOpenAiKey: UserSetting;
@@ -584,6 +585,11 @@ export type MutationFillJobAutomaticallyArgs = {
 
 export type MutationGenerateJobMatchArgs = {
   input: GenerateMatchInput;
+};
+
+
+export type MutationReactivateUserArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -1248,6 +1254,13 @@ export type RemoveUserMutationVariables = Exact<{
 
 
 export type RemoveUserMutation = { __typename?: 'Mutation', removeUser: { __typename?: 'UserType', id: string, status: UserStatus } };
+
+export type ReactivateUserMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type ReactivateUserMutation = { __typename?: 'Mutation', reactivateUser: { __typename?: 'UserType', id: string, status: UserStatus } };
 
 export type AiConversationFieldsFragment = { __typename?: 'AiConversationType', id: string, jobId: string, title: string, createdAt: any, updatedAt: any };
 
@@ -1917,6 +1930,14 @@ export const ResendApprovalEmailDocument = gql`
 export const RemoveUserDocument = gql`
     mutation RemoveUser($userId: ID!) {
   removeUser(userId: $userId) {
+    id
+    status
+  }
+}
+    `;
+export const ReactivateUserDocument = gql`
+    mutation ReactivateUser($userId: ID!) {
+  reactivateUser(userId: $userId) {
     id
     status
   }
@@ -3019,6 +3040,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     RemoveUser(variables: RemoveUserMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<RemoveUserMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<RemoveUserMutation>({ document: RemoveUserDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'RemoveUser', 'mutation', variables);
+    },
+    ReactivateUser(variables: ReactivateUserMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ReactivateUserMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ReactivateUserMutation>({ document: ReactivateUserDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'ReactivateUser', 'mutation', variables);
     },
     AiConversations(variables: AiConversationsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AiConversationsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<AiConversationsQuery>({ document: AiConversationsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AiConversations', 'query', variables);

@@ -439,6 +439,7 @@ export type Mutation = {
   detachJobsFromSourceRun: Scalars['Int']['output'];
   fillJobAutomatically: JobType;
   generateJobMatch: MatchAnalysisType;
+  reactivateUser: UserType;
   rejectRegistration: UserType;
   removeJobTag: JobType;
   removeOpenAiKey: UserSetting;
@@ -585,6 +586,11 @@ export type MutationFillJobAutomaticallyArgs = {
 
 export type MutationGenerateJobMatchArgs = {
   input: GenerateMatchInput;
+};
+
+
+export type MutationReactivateUserArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -1249,6 +1255,13 @@ export type RemoveUserMutationVariables = Exact<{
 
 
 export type RemoveUserMutation = { __typename?: 'Mutation', removeUser: { __typename?: 'UserType', id: string, status: UserStatus } };
+
+export type ReactivateUserMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type ReactivateUserMutation = { __typename?: 'Mutation', reactivateUser: { __typename?: 'UserType', id: string, status: UserStatus } };
 
 export type AiConversationFieldsFragment = { __typename?: 'AiConversationType', id: string, jobId: string, title: string, createdAt: any, updatedAt: any };
 
@@ -2151,6 +2164,39 @@ export const RemoveUserDocument = gql`
 export function useRemoveUserMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RemoveUserMutation, RemoveUserMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return ApolloReactHooks.useMutation<RemoveUserMutation, RemoveUserMutationVariables>(RemoveUserDocument, options);
+      }
+
+
+export const ReactivateUserDocument = gql`
+    mutation ReactivateUser($userId: ID!) {
+  reactivateUser(userId: $userId) {
+    id
+    status
+  }
+}
+    `;
+
+
+/**
+ * __useReactivateUserMutation__
+ *
+ * To run a mutation, you first call `useReactivateUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReactivateUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [reactivateUserMutation, { data, loading, error }] = useReactivateUserMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useReactivateUserMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ReactivateUserMutation, ReactivateUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ReactivateUserMutation, ReactivateUserMutationVariables>(ReactivateUserDocument, options);
       }
 
 

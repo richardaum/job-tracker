@@ -37,3 +37,10 @@ mutation RemoveUser($userId: ID!) {
     status
   }
 }
+
+mutation ReactivateUser($userId: ID!) {
+  reactivateUser(userId: $userId) {
+    id
+    status
+  }
+}
