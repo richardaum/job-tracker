@@ -54,4 +54,11 @@ export class RegistrationsResolver {
   ): Promise<UserType> {
     return this.userService.removeUserByAdmin(currentUser.userId, userId);
   }
+
+  @Mutation(() => UserType)
+  @UseGuards(SessionAuthGuard, RolesGuard)
+  @Roles(RoleEnum.Admin)
+  async reactivateUser(@Args("userId", { type: () => ID }) userId: string): Promise<UserType> {
+    return this.userService.reactivateUserByAdmin(userId);
+  }
 }

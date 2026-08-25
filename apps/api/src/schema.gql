@@ -531,6 +531,7 @@ type Mutation {
   rejectRegistration(userId: ID!): UserType!
   resendApprovalEmail(userId: ID!): UserType!
   removeUser(userId: ID!): UserType!
+  reactivateUser(userId: ID!): UserType!
   createJob(input: CreateJobInput!): JobType!
   fillJobAutomatically(jobId: ID!): JobType!
   updateJob(id: ID!, input: UpdateJobInput!): JobType!

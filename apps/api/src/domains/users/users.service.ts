@@ -142,6 +142,16 @@ export class UserService {
     return { ...user, status: UserStatusEnum.Deactivated };
   }
 
+  async reactivateUserByAdmin(userId: string): Promise<User> {
+    const user = await this.userRepository.findById(userId);
+    if (!user || user.status !== UserStatusEnum.Deactivated) {
+      throw new BadRequestException("Only deactivated users can be reactivated.");
+    }
+
+    await this.userRepository.setStatus(userId, UserStatusEnum.Active);
+    return { ...user, status: UserStatusEnum.Active };
+  }
+
   async validateActiveUser(userId: string): Promise<User> {
     const user = await this.findById(userId);
     if (!user) {
