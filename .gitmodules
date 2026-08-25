@@ -1,0 +1,3 @@
+[submodule ".agents/skills/code-review-skill"]
+	path = .agents/skills/code-review-skill
+	url = https://github.com/awesome-skills/code-review-skill.git
