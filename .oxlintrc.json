@@ -145,7 +145,7 @@
     },
     {
       "files": [
-        "apps/web/src/app/**/{page,layout,loading,error,not-found,global-error,template,default}.{ts,tsx}",
+        "apps/web/src/app/**/{page,layout,loading,error,not-found,global-error,template,default,opengraph-image,twitter-image,icon,apple-icon,sitemap,robots,manifest}.{ts,tsx}",
         "apps/web/src/modules/**/page/*.{ts,tsx}"
       ],
       "rules": { "import/no-default-export": "off" }
@@ -284,7 +284,10 @@
               "preferredRegion",
               "maxDuration",
               "viewport",
-              "generateViewport"
+              "generateViewport",
+              "size",
+              "contentType",
+              "alt"
             ]
           }
         ]
