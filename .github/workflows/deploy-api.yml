@@ -1,0 +1,42 @@
+name: Deploy API
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Detect API-relevant changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api:
+              - 'apps/api/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+
+  deploy:
+    needs: check-changes
+    if: needs.check-changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      # App ID for the "job-tracker" DigitalOcean app (job-tracker-apps-api service).
+      # Not a secret — find it with `doctl apps list`.
+      - name: Trigger DigitalOcean deployment
+        run: doctl apps create-deployment 1bbdd8bd-e81f-40f4-a276-a324748cb942
