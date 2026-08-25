@@ -28,7 +28,7 @@ export class RegistrationEmailService {
       if (!enabled) return;
 
       const admins = await this.userRepository.findActiveAdmins();
-      const template = pendingRegistrationAdminEmail(user, new URL("/admin/registrations", apiEnv.WEB_URL).toString());
+      const template = pendingRegistrationAdminEmail(user, new URL("/admin/users", apiEnv.WEB_URL).toString());
       await Promise.all(admins.map((admin) => this.send(admin.email, template)));
     });
   }
@@ -38,6 +38,13 @@ export class RegistrationEmailService {
       const enabled = await this.postHogService.isFeatureEnabled(REGISTRATION_APPROVED_USER_EMAIL_FLAG, user.id);
       if (!enabled) return;
 
+      await this.send(user.email, registrationApprovedUserEmail(user, apiEnv.WEB_URL));
+    });
+  }
+
+  /** Admin-triggered resend, bypasses the rollout flag since it's an explicit manual action. */
+  async resendApprovedRegistrationEmail(user: User): Promise<void> {
+    await this.runSafely("registration_approved_user_resend", async () => {
       await this.send(user.email, registrationApprovedUserEmail(user, apiEnv.WEB_URL));
     });
   }

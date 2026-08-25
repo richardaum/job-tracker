@@ -488,7 +488,7 @@ enum TourProgressStatus {
 type Query {
   users: [UserType!]!
   me: UserType!
-  registrations(status: UserStatus): [UserType!]!
+  registrations(status: UserStatus, search: String): [UserType!]!
   jobs(filter: ApplicationQuickFilter, company: String, runId: ID): [JobType!]!
   quickFilterCounts(company: String, runId: ID): [FilterCountType!]!
   job(id: ID!): JobType!
@@ -529,6 +529,8 @@ type Mutation {
   deactivateAccount: Boolean!
   approveRegistration(userId: ID!): UserType!
   rejectRegistration(userId: ID!): UserType!
+  resendApprovalEmail(userId: ID!): UserType!
+  removeUser(userId: ID!): UserType!
   createJob(input: CreateJobInput!): JobType!
   fillJobAutomatically(jobId: ID!): JobType!
   updateJob(id: ID!, input: UpdateJobInput!): JobType!

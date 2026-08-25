@@ -46,12 +46,18 @@ describe("RegistrationsResolver (integration)", () => {
   let listRegistrations: ReturnType<typeof vi.fn>;
   let approveRegistration: ReturnType<typeof vi.fn>;
   let rejectRegistration: ReturnType<typeof vi.fn>;
+  let resendApprovalEmail: ReturnType<typeof vi.fn>;
+  let removeUserByAdmin: ReturnType<typeof vi.fn>;
   let findById: ReturnType<typeof vi.fn>;
+
+  const approvedUser: User = { ...pendingUser, id: "approved-1", status: UserStatusEnum.Active };
 
   beforeAll(async () => {
     listRegistrations = vi.fn().mockResolvedValue([pendingUser]);
     approveRegistration = vi.fn().mockResolvedValue({ ...pendingUser, status: UserStatusEnum.Active });
     rejectRegistration = vi.fn().mockResolvedValue({ ...pendingUser, status: UserStatusEnum.Rejected });
+    resendApprovalEmail = vi.fn().mockResolvedValue(approvedUser);
+    removeUserByAdmin = vi.fn().mockResolvedValue({ ...approvedUser, status: UserStatusEnum.Deactivated });
     findById = vi.fn().mockImplementation((id: string) => {
       if (id === adminUser.id) return Promise.resolve(adminUser);
       if (id === memberUser.id) return Promise.resolve(memberUser);
@@ -65,7 +71,17 @@ describe("RegistrationsResolver (integration)", () => {
         RolesGuard,
         RoleService,
         Reflector,
-        { provide: UserService, useValue: { listRegistrations, approveRegistration, rejectRegistration, findById } },
+        {
+          provide: UserService,
+          useValue: {
+            listRegistrations,
+            approveRegistration,
+            rejectRegistration,
+            resendApprovalEmail,
+            removeUserByAdmin,
+            findById,
+          },
+        },
       ],
     })
       .overrideGuard(SessionAuthGuard)
@@ -91,6 +107,8 @@ describe("RegistrationsResolver (integration)", () => {
     listRegistrations.mockClear();
     approveRegistration.mockClear();
     rejectRegistration.mockClear();
+    resendApprovalEmail.mockClear();
+    removeUserByAdmin.mockClear();
   });
 
   it("registrations returns pending users for an admin caller", async () => {
@@ -100,8 +118,18 @@ describe("RegistrationsResolver (integration)", () => {
       .send({ query: "{ registrations(status: Pending) { id status } }" });
 
     expect(res.statusCode).toBe(200);
-    expect(listRegistrations).toHaveBeenCalledWith(UserStatusEnum.Pending);
+    expect(listRegistrations).toHaveBeenCalledWith(UserStatusEnum.Pending, undefined);
     expect(res.body.data.registrations).toEqual([{ id: pendingUser.id, status: "Pending" }]);
+  });
+
+  it("registrations forwards the search argument to the service", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set("x-user-id", adminUser.id)
+      .send({ query: '{ registrations(search: "ana") { id } }' });
+
+    expect(res.statusCode).toBe(200);
+    expect(listRegistrations).toHaveBeenCalledWith(undefined, "ana");
   });
 
   it("registrations is forbidden for a non-admin caller", async () => {
@@ -158,5 +186,87 @@ describe("RegistrationsResolver (integration)", () => {
 
     expect(res.body.errors).toBeDefined();
     expect(approveRegistration).not.toHaveBeenCalledWith(pendingUser.id);
+  });
+
+  it("resendApprovalEmail resends the approval email for an active user for an admin caller", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set("x-user-id", adminUser.id)
+      .send({ query: `mutation { resendApprovalEmail(userId: "${approvedUser.id}") { id status } }` });
+
+    expect(res.statusCode).toBe(200);
+    expect(resendApprovalEmail).toHaveBeenCalledWith(approvedUser.id);
+    expect(res.body.data.resendApprovalEmail.status).toBe("Active");
+  });
+
+  it("resendApprovalEmail surfaces BadRequestException for a non-active user", async () => {
+    resendApprovalEmail.mockRejectedValueOnce(
+      new BadRequestException("Only active users can have their approval email resent."),
+    );
+
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set("x-user-id", adminUser.id)
+      .send({ query: `mutation { resendApprovalEmail(userId: "${pendingUser.id}") { id } }` });
+
+    expect(res.body.errors).toBeDefined();
+    expect(res.body.errors[0].message).toMatch(/active/i);
+  });
+
+  it("resendApprovalEmail is forbidden for a non-admin caller", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set("x-user-id", memberUser.id)
+      .send({ query: `mutation { resendApprovalEmail(userId: "${approvedUser.id}") { id } }` });
+
+    expect(res.body.errors).toBeDefined();
+    expect(resendApprovalEmail).not.toHaveBeenCalledWith(approvedUser.id);
+  });
+
+  it("removeUser deactivates a user for an admin caller", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set("x-user-id", adminUser.id)
+      .send({ query: `mutation { removeUser(userId: "${approvedUser.id}") { id status } }` });
+
+    expect(res.statusCode).toBe(200);
+    expect(removeUserByAdmin).toHaveBeenCalledWith(adminUser.id, approvedUser.id);
+    expect(res.body.data.removeUser.status).toBe("Deactivated");
+  });
+
+  it("removeUser surfaces BadRequestException when targeting yourself", async () => {
+    removeUserByAdmin.mockRejectedValueOnce(
+      new BadRequestException("Use account settings to deactivate your own account."),
+    );
+
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set("x-user-id", adminUser.id)
+      .send({ query: `mutation { removeUser(userId: "${adminUser.id}") { id } }` });
+
+    expect(res.body.errors).toBeDefined();
+    expect(res.body.errors[0].message).toMatch(/own account/i);
+  });
+
+  it("removeUser surfaces BadRequestException for an already-deactivated user", async () => {
+    removeUserByAdmin.mockRejectedValueOnce(new BadRequestException("User not found or already deactivated."));
+
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set("x-user-id", adminUser.id)
+      .send({ query: `mutation { removeUser(userId: "${approvedUser.id}") { id } }` });
+
+    expect(res.body.errors).toBeDefined();
+    expect(res.body.errors[0].message).toMatch(/deactivated/i);
+  });
+
+  it("removeUser is forbidden for a non-admin caller", async () => {
+    const res = await request(app.getHttpServer())
+      .post("/graphql")
+      .set("x-user-id", memberUser.id)
+      .send({ query: `mutation { removeUser(userId: "${approvedUser.id}") { id } }` });
+
+    expect(res.body.errors).toBeDefined();
+    expect(removeUserByAdmin).not.toHaveBeenCalled();
   });
 });

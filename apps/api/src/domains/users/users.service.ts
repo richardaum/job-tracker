@@ -24,9 +24,19 @@ export class UserService {
     return this.userRepository.findAll();
   }
 
-  async listRegistrations(status?: UserStatusEnum): Promise<User[]> {
+  async listRegistrations(status?: UserStatusEnum, search?: string): Promise<User[]> {
     const users = await this.userRepository.findAll();
-    return status ? users.filter((user) => user.status === status) : users;
+    const statusFiltered = status
+      ? users.filter((user) => user.status === status)
+      : users.filter((user) => user.status !== UserStatusEnum.Deactivated);
+
+    const normalizedSearch = search?.trim().toLowerCase();
+    if (!normalizedSearch) return statusFiltered;
+
+    return statusFiltered.filter(
+      (user) =>
+        user.name.toLowerCase().includes(normalizedSearch) || user.email.toLowerCase().includes(normalizedSearch),
+    );
   }
 
   async approveRegistration(userId: string): Promise<User> {
@@ -37,6 +47,16 @@ export class UserService {
 
   async rejectRegistration(userId: string): Promise<User> {
     return this.transitionRegistration(userId, UserStatusEnum.Rejected);
+  }
+
+  async resendApprovalEmail(userId: string): Promise<User> {
+    const user = await this.userRepository.findById(userId);
+    if (!user || user.status !== UserStatusEnum.Active) {
+      throw new BadRequestException("Only active users can have their approval email resent.");
+    }
+
+    await this.registrationEmailService?.resendApprovedRegistrationEmail(user);
+    return user;
   }
 
   private async transitionRegistration(userId: string, nextStatus: UserStatusEnum): Promise<User> {
@@ -106,6 +126,20 @@ export class UserService {
 
   async deactivateUser(id: string): Promise<void> {
     await this.userRepository.setStatus(id, UserStatusEnum.Deactivated);
+  }
+
+  async removeUserByAdmin(adminId: string, userId: string): Promise<User> {
+    if (adminId === userId) {
+      throw new BadRequestException("Use account settings to deactivate your own account.");
+    }
+
+    const user = await this.userRepository.findById(userId);
+    if (!user || user.status === UserStatusEnum.Deactivated) {
+      throw new BadRequestException("User not found or already deactivated.");
+    }
+
+    await this.userRepository.setStatus(userId, UserStatusEnum.Deactivated);
+    return { ...user, status: UserStatusEnum.Deactivated };
   }
 
   async validateActiveUser(userId: string): Promise<User> {
