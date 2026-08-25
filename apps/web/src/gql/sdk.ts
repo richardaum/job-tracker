@@ -441,9 +441,11 @@ export type Mutation = {
   rejectRegistration: UserType;
   removeJobTag: JobType;
   removeOpenAiKey: UserSetting;
+  removeUser: UserType;
   reportExtensionActivity: ExtensionActivityEvent;
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
+  resendApprovalEmail: UserType;
   resetTourProgress: TourProgressType;
   saveOpenAiKey: UserSetting;
   saveTourProgress: TourProgressType;
@@ -596,6 +598,11 @@ export type MutationRemoveJobTagArgs = {
 };
 
 
+export type MutationRemoveUserArgs = {
+  userId: Scalars['ID']['input'];
+};
+
+
 export type MutationReportExtensionActivityArgs = {
   input: ReportExtensionActivityInput;
 };
@@ -608,6 +615,11 @@ export type MutationRequestJobSummaryArgs = {
 
 export type MutationRerunSourceTemplateArgs = {
   templateId: Scalars['ID']['input'];
+};
+
+
+export type MutationResendApprovalEmailArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -872,6 +884,7 @@ export type QueryQuickFilterCountsArgs = {
 
 
 export type QueryRegistrationsArgs = {
+  search?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<UserStatus>;
 };
 
@@ -1200,10 +1213,13 @@ export type AdminExtensionActivityEventsSubscriptionVariables = Exact<{ [key: st
 
 export type AdminExtensionActivityEventsSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, sourceRunId?: string | null, occurredAt: any } };
 
-export type AdminRegistrationsQueryVariables = Exact<{ [key: string]: never; }>;
+export type AdminUsersQueryVariables = Exact<{
+  status?: InputMaybe<UserStatus>;
+  search?: InputMaybe<Scalars['String']['input']>;
+}>;
 
 
-export type AdminRegistrationsQuery = { __typename?: 'Query', registrations: Array<{ __typename?: 'UserType', id: string, email: string, name: string, avatarUrl?: string | null, status: UserStatus, createdAt: any }> };
+export type AdminUsersQuery = { __typename?: 'Query', registrations: Array<{ __typename?: 'UserType', id: string, email: string, name: string, avatarUrl?: string | null, role: Role, status: UserStatus, createdAt: any }> };
 
 export type ApproveRegistrationMutationVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -1219,10 +1235,19 @@ export type RejectRegistrationMutationVariables = Exact<{
 
 export type RejectRegistrationMutation = { __typename?: 'Mutation', rejectRegistration: { __typename?: 'UserType', id: string, status: UserStatus } };
 
-export type AdminUsersQueryVariables = Exact<{ [key: string]: never; }>;
+export type ResendApprovalEmailMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
 
 
-export type AdminUsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'UserType', id: string, email: string, name: string, role: Role, avatarUrl?: string | null }> };
+export type ResendApprovalEmailMutation = { __typename?: 'Mutation', resendApprovalEmail: { __typename?: 'UserType', id: string, status: UserStatus } };
+
+export type RemoveUserMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveUserMutation = { __typename?: 'Mutation', removeUser: { __typename?: 'UserType', id: string, status: UserStatus } };
 
 export type AiConversationFieldsFragment = { __typename?: 'AiConversationType', id: string, jobId: string, title: string, createdAt: any, updatedAt: any };
 
@@ -1852,13 +1877,14 @@ export const AdminExtensionActivityEventsDocument = gql`
   }
 }
     `;
-export const AdminRegistrationsDocument = gql`
-    query AdminRegistrations {
-  registrations {
+export const AdminUsersDocument = gql`
+    query AdminUsers($status: UserStatus, $search: String) {
+  registrations(status: $status, search: $search) {
     id
     email
     name
     avatarUrl
+    role
     status
     createdAt
   }
@@ -1880,14 +1906,19 @@ export const RejectRegistrationDocument = gql`
   }
 }
     `;
-export const AdminUsersDocument = gql`
-    query AdminUsers {
-  users {
+export const ResendApprovalEmailDocument = gql`
+    mutation ResendApprovalEmail($userId: ID!) {
+  resendApprovalEmail(userId: $userId) {
     id
-    email
-    name
-    role
-    avatarUrl
+    status
+  }
+}
+    `;
+export const RemoveUserDocument = gql`
+    mutation RemoveUser($userId: ID!) {
+  removeUser(userId: $userId) {
+    id
+    status
   }
 }
     `;
@@ -2974,8 +3005,8 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     AdminExtensionActivityEvents(variables?: AdminExtensionActivityEventsSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AdminExtensionActivityEventsSubscription> {
       return withWrapper((wrappedRequestHeaders) => client.request<AdminExtensionActivityEventsSubscription>({ document: AdminExtensionActivityEventsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AdminExtensionActivityEvents', 'subscription', variables);
     },
-    AdminRegistrations(variables?: AdminRegistrationsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AdminRegistrationsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<AdminRegistrationsQuery>({ document: AdminRegistrationsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AdminRegistrations', 'query', variables);
+    AdminUsers(variables?: AdminUsersQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AdminUsersQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AdminUsersQuery>({ document: AdminUsersDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AdminUsers', 'query', variables);
     },
     ApproveRegistration(variables: ApproveRegistrationMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ApproveRegistrationMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<ApproveRegistrationMutation>({ document: ApproveRegistrationDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'ApproveRegistration', 'mutation', variables);
@@ -2983,8 +3014,11 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     RejectRegistration(variables: RejectRegistrationMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<RejectRegistrationMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<RejectRegistrationMutation>({ document: RejectRegistrationDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'RejectRegistration', 'mutation', variables);
     },
-    AdminUsers(variables?: AdminUsersQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AdminUsersQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<AdminUsersQuery>({ document: AdminUsersDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AdminUsers', 'query', variables);
+    ResendApprovalEmail(variables: ResendApprovalEmailMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<ResendApprovalEmailMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ResendApprovalEmailMutation>({ document: ResendApprovalEmailDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'ResendApprovalEmail', 'mutation', variables);
+    },
+    RemoveUser(variables: RemoveUserMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<RemoveUserMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RemoveUserMutation>({ document: RemoveUserDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'RemoveUser', 'mutation', variables);
     },
     AiConversations(variables: AiConversationsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<AiConversationsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<AiConversationsQuery>({ document: AiConversationsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'AiConversations', 'query', variables);

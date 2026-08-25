@@ -1,11 +1,19 @@
 "use client";
 
-import { Card, cn, SearchInput, Skeleton, Stack, Text } from "@job-tracker/ui";
+import { Card, cn, SearchInput, Skeleton, Stack, Tabs, TabsList, TabsTrigger, Text } from "@job-tracker/ui";
 import { useState } from "react";
 
 import { EmptyState } from "@/components/empty-state";
+import { UserStatus } from "@/gql/graphql";
+import {
+  useApproveRegistrationMutation,
+  useRejectRegistrationMutation,
+  useRemoveUserMutation,
+  useResendApprovalEmailMutation,
+} from "@/gql/hooks";
+import { AdminSubtabsSlot } from "@/modules/admin/layout/admin-header.slots";
 import { UserCard } from "@/modules/admin/users/components/UserCard";
-import { useUsersListViewModel } from "@/modules/admin/users/hooks/useUsersListViewModel";
+import { type UsersStatusFilter, useUsersListViewModel } from "@/modules/admin/users/hooks/useUsersListViewModel";
 
 type UsersListSkeletonProps = { count?: number };
 function UsersListSkeleton({ count = 4 }: UsersListSkeletonProps) {
@@ -23,13 +31,57 @@ function UsersListSkeleton({ count = 4 }: UsersListSkeletonProps) {
   );
 }
 
+const STATUS_FILTERS: { value: UsersStatusFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: UserStatus.Pending, label: "Pending" },
+  { value: UserStatus.Active, label: "Approved" },
+  { value: UserStatus.Rejected, label: "Rejected" },
+  { value: UserStatus.Deactivated, label: "Deactivated" },
+];
+
 export default function UsersPage() {
   const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<UsersStatusFilter>("all");
 
-  const { users, filteredUsers, error, showInitialLoading } = useUsersListViewModel(query);
+  const { users, error, showInitialLoading, refetch } = useUsersListViewModel(query, statusFilter);
+  const [approveRegistration, { loading: approving }] = useApproveRegistrationMutation();
+  const [rejectRegistration, { loading: rejecting }] = useRejectRegistrationMutation();
+  const [resendApprovalEmail, { loading: resending }] = useResendApprovalEmailMutation();
+  const [removeUser, { loading: removing }] = useRemoveUserMutation();
+
+  async function handleApprove(userId: string) {
+    await approveRegistration({ variables: { userId } });
+    await refetch();
+  }
+
+  async function handleReject(userId: string) {
+    await rejectRegistration({ variables: { userId } });
+    await refetch();
+  }
+
+  async function handleResendApprovalEmail(userId: string) {
+    await resendApprovalEmail({ variables: { userId } });
+  }
+
+  async function handleRemove(userId: string) {
+    await removeUser({ variables: { userId } });
+    await refetch();
+  }
 
   return (
     <div className={cn("flex h-full flex-col")}>
+      <AdminSubtabsSlot>
+        <Tabs value={statusFilter} onValueChange={(value) => setStatusFilter(value as UsersStatusFilter)}>
+          <TabsList>
+            {STATUS_FILTERS.map((filter) => (
+              <TabsTrigger key={filter.value} value={filter.value}>
+                {filter.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </AdminSubtabsSlot>
+
       <div
         className={cn(
           "flex flex-col gap-3 border-b border-border-subtle pb-4 sm:flex-row sm:items-center sm:justify-between",
@@ -54,27 +106,26 @@ export default function UsersPage() {
           <Text size="sm" color="error">
             Failed to load users. Please refresh the page.
           </Text>
-        ) : filteredUsers.length === 0 ? (
+        ) : users.length === 0 ? (
           <EmptyState
             variant="filtered"
-            hasActiveFilter={query.trim().length > 0}
+            hasActiveFilter={query.trim().length > 0 || statusFilter !== "all"}
             noMatchMessage="No users match your search."
             emptyListMessage="No users found."
-            noMatchDetail="Try a different name or email."
-            emptyListDetail="Users will appear here once registered."
+            noMatchDetail="Try a different name, email, or status."
+            emptyListDetail="Users will appear here once someone signs in."
           />
         ) : (
           <Stack gap="sm">
-            {filteredUsers.map((user) => (
+            {users.map((user) => (
               <UserCard
                 key={user.id}
-                user={{
-                  id: user.id,
-                  name: user.name,
-                  email: user.email,
-                  role: user.role,
-                  avatarUrl: user.avatarUrl ?? null,
-                }}
+                user={user}
+                onApprove={handleApprove}
+                onReject={handleReject}
+                onResendApprovalEmail={handleResendApprovalEmail}
+                onRemove={handleRemove}
+                isMutating={approving || rejecting || resending || removing}
               />
             ))}
           </Stack>

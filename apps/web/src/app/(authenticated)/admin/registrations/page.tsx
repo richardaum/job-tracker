@@ -1,1 +1,5 @@
-export { default } from "@/modules/admin/registrations/page/RegistrationsPage";
+import { redirect } from "next/navigation";
+
+export default function RegistrationsRedirectPage() {
+  return redirect("/admin/users");
+}

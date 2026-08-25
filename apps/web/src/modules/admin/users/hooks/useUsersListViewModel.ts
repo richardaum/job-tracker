@@ -1,18 +1,28 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
+import { UserStatus } from "@/gql/graphql";
 import { useAdminUsersQuery } from "@/gql/hooks";
 
-export function useUsersListViewModel(searchQuery: string) {
-  const { data, loading, error } = useAdminUsersQuery({ fetchPolicy: "cache-and-network" });
+export type UsersStatusFilter = "all" | UserStatus;
 
-  const users = data?.users ?? [];
-  const normalizedSearch = searchQuery.trim().toLowerCase();
-  const filteredUsers = normalizedSearch
-    ? users.filter(
-        (user) =>
-          user.name.toLowerCase().includes(normalizedSearch) || user.email.toLowerCase().includes(normalizedSearch),
-      )
-    : users;
+const SEARCH_DEBOUNCE_MS = 300;
 
-  return { users, filteredUsers, loading, error, showInitialLoading: loading && !data };
+export function useUsersListViewModel(searchQuery: string, statusFilter: UsersStatusFilter) {
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery.trim());
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(searchQuery.trim()), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
+
+  const { data, loading, error, refetch } = useAdminUsersQuery({
+    variables: { status: statusFilter === "all" ? undefined : statusFilter, search: debouncedSearch || undefined },
+    fetchPolicy: "cache-and-network",
+  });
+
+  const users = data?.registrations ?? [];
+
+  return { users, loading, error, showInitialLoading: loading && !data, refetch };
 }

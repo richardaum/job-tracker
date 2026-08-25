@@ -1,9 +1,39 @@
-query AdminUsers {
-  users {
+query AdminUsers($status: UserStatus, $search: String) {
+  registrations(status: $status, search: $search) {
     id
     email
     name
-    role
     avatarUrl
+    role
+    status
+    createdAt
+  }
+}
+
+mutation ApproveRegistration($userId: ID!) {
+  approveRegistration(userId: $userId) {
+    id
+    status
+  }
+}
+
+mutation RejectRegistration($userId: ID!) {
+  rejectRegistration(userId: $userId) {
+    id
+    status
+  }
+}
+
+mutation ResendApprovalEmail($userId: ID!) {
+  resendApprovalEmail(userId: $userId) {
+    id
+    status
+  }
+}
+
+mutation RemoveUser($userId: ID!) {
+  removeUser(userId: $userId) {
+    id
+    status
   }
 }

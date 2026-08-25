@@ -442,9 +442,11 @@ export type Mutation = {
   rejectRegistration: UserType;
   removeJobTag: JobType;
   removeOpenAiKey: UserSetting;
+  removeUser: UserType;
   reportExtensionActivity: ExtensionActivityEvent;
   requestJobSummary: JobType;
   rerunSourceTemplate: SourceRunType;
+  resendApprovalEmail: UserType;
   resetTourProgress: TourProgressType;
   saveOpenAiKey: UserSetting;
   saveTourProgress: TourProgressType;
@@ -597,6 +599,11 @@ export type MutationRemoveJobTagArgs = {
 };
 
 
+export type MutationRemoveUserArgs = {
+  userId: Scalars['ID']['input'];
+};
+
+
 export type MutationReportExtensionActivityArgs = {
   input: ReportExtensionActivityInput;
 };
@@ -609,6 +616,11 @@ export type MutationRequestJobSummaryArgs = {
 
 export type MutationRerunSourceTemplateArgs = {
   templateId: Scalars['ID']['input'];
+};
+
+
+export type MutationResendApprovalEmailArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -873,6 +885,7 @@ export type QueryQuickFilterCountsArgs = {
 
 
 export type QueryRegistrationsArgs = {
+  search?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<UserStatus>;
 };
 
@@ -1201,10 +1214,13 @@ export type AdminExtensionActivityEventsSubscriptionVariables = Exact<{ [key: st
 
 export type AdminExtensionActivityEventsSubscription = { __typename?: 'Subscription', extensionActivityEvents: { __typename?: 'ExtensionActivityEvent', id: string, type: ExtensionActivityEventType, summary: string, sourceRunId?: string | null, occurredAt: any } };
 
-export type AdminRegistrationsQueryVariables = Exact<{ [key: string]: never; }>;
+export type AdminUsersQueryVariables = Exact<{
+  status?: InputMaybe<UserStatus>;
+  search?: InputMaybe<Scalars['String']['input']>;
+}>;
 
 
-export type AdminRegistrationsQuery = { __typename?: 'Query', registrations: Array<{ __typename?: 'UserType', id: string, email: string, name: string, avatarUrl?: string | null, status: UserStatus, createdAt: any }> };
+export type AdminUsersQuery = { __typename?: 'Query', registrations: Array<{ __typename?: 'UserType', id: string, email: string, name: string, avatarUrl?: string | null, role: Role, status: UserStatus, createdAt: any }> };
 
 export type ApproveRegistrationMutationVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -1220,10 +1236,19 @@ export type RejectRegistrationMutationVariables = Exact<{
 
 export type RejectRegistrationMutation = { __typename?: 'Mutation', rejectRegistration: { __typename?: 'UserType', id: string, status: UserStatus } };
 
-export type AdminUsersQueryVariables = Exact<{ [key: string]: never; }>;
+export type ResendApprovalEmailMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
 
 
-export type AdminUsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'UserType', id: string, email: string, name: string, role: Role, avatarUrl?: string | null }> };
+export type ResendApprovalEmailMutation = { __typename?: 'Mutation', resendApprovalEmail: { __typename?: 'UserType', id: string, status: UserStatus } };
+
+export type RemoveUserMutationVariables = Exact<{
+  userId: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveUserMutation = { __typename?: 'Mutation', removeUser: { __typename?: 'UserType', id: string, status: UserStatus } };
 
 export type AiConversationFieldsFragment = { __typename?: 'AiConversationType', id: string, jobId: string, title: string, createdAt: any, updatedAt: any };
 
@@ -1954,13 +1979,14 @@ export function useAdminExtensionActivityEventsSubscription(baseOptions?: Apollo
       }
 export type AdminExtensionActivityEventsSubscriptionHookResult = ReturnType<typeof useAdminExtensionActivityEventsSubscription>;
 
-export const AdminRegistrationsDocument = gql`
-    query AdminRegistrations {
-  registrations {
+export const AdminUsersDocument = gql`
+    query AdminUsers($status: UserStatus, $search: String) {
+  registrations(status: $status, search: $search) {
     id
     email
     name
     avatarUrl
+    role
     status
     createdAt
   }
@@ -1968,31 +1994,33 @@ export const AdminRegistrationsDocument = gql`
     `;
 
 /**
- * __useAdminRegistrationsQuery__
+ * __useAdminUsersQuery__
  *
- * To run a query within a React component, call `useAdminRegistrationsQuery` and pass it any options that fit your needs.
- * When your component renders, `useAdminRegistrationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useAdminUsersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAdminUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useAdminRegistrationsQuery({
+ * const { data, loading, error } = useAdminUsersQuery({
  *   variables: {
+ *      status: // value for 'status'
+ *      search: // value for 'search'
  *   },
  * });
  */
-export function useAdminRegistrationsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<AdminRegistrationsQuery, AdminRegistrationsQueryVariables>) {
+export function useAdminUsersQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<AdminUsersQuery, AdminUsersQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<AdminRegistrationsQuery, AdminRegistrationsQueryVariables>(AdminRegistrationsDocument, options);
+        return ApolloReactHooks.useQuery<AdminUsersQuery, AdminUsersQueryVariables>(AdminUsersDocument, options);
       }
-export function useAdminRegistrationsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AdminRegistrationsQuery, AdminRegistrationsQueryVariables>) {
+export function useAdminUsersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AdminUsersQuery, AdminUsersQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<AdminRegistrationsQuery, AdminRegistrationsQueryVariables>(AdminRegistrationsDocument, options);
+          return ApolloReactHooks.useLazyQuery<AdminUsersQuery, AdminUsersQueryVariables>(AdminUsersDocument, options);
         }
 
-export type AdminRegistrationsQueryHookResult = ReturnType<typeof useAdminRegistrationsQuery>;
-export type AdminRegistrationsLazyQueryHookResult = ReturnType<typeof useAdminRegistrationsLazyQuery>;
+export type AdminUsersQueryHookResult = ReturnType<typeof useAdminUsersQuery>;
+export type AdminUsersLazyQueryHookResult = ReturnType<typeof useAdminUsersLazyQuery>;
 
 export const ApproveRegistrationDocument = gql`
     mutation ApproveRegistration($userId: ID!) {
@@ -2060,44 +2088,71 @@ export function useRejectRegistrationMutation(baseOptions?: ApolloReactHooks.Mut
       }
 
 
-export const AdminUsersDocument = gql`
-    query AdminUsers {
-  users {
+export const ResendApprovalEmailDocument = gql`
+    mutation ResendApprovalEmail($userId: ID!) {
+  resendApprovalEmail(userId: $userId) {
     id
-    email
-    name
-    role
-    avatarUrl
+    status
   }
 }
     `;
 
+
 /**
- * __useAdminUsersQuery__
+ * __useResendApprovalEmailMutation__
  *
- * To run a query within a React component, call `useAdminUsersQuery` and pass it any options that fit your needs.
- * When your component renders, `useAdminUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
+ * To run a mutation, you first call `useResendApprovalEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResendApprovalEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const { data, loading, error } = useAdminUsersQuery({
+ * const [resendApprovalEmailMutation, { data, loading, error }] = useResendApprovalEmailMutation({
  *   variables: {
+ *      userId: // value for 'userId'
  *   },
  * });
  */
-export function useAdminUsersQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<AdminUsersQuery, AdminUsersQueryVariables>) {
+export function useResendApprovalEmailMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ResendApprovalEmailMutation, ResendApprovalEmailMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useQuery<AdminUsersQuery, AdminUsersQueryVariables>(AdminUsersDocument, options);
+        return ApolloReactHooks.useMutation<ResendApprovalEmailMutation, ResendApprovalEmailMutationVariables>(ResendApprovalEmailDocument, options);
       }
-export function useAdminUsersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<AdminUsersQuery, AdminUsersQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return ApolloReactHooks.useLazyQuery<AdminUsersQuery, AdminUsersQueryVariables>(AdminUsersDocument, options);
-        }
 
-export type AdminUsersQueryHookResult = ReturnType<typeof useAdminUsersQuery>;
-export type AdminUsersLazyQueryHookResult = ReturnType<typeof useAdminUsersLazyQuery>;
+
+export const RemoveUserDocument = gql`
+    mutation RemoveUser($userId: ID!) {
+  removeUser(userId: $userId) {
+    id
+    status
+  }
+}
+    `;
+
+
+/**
+ * __useRemoveUserMutation__
+ *
+ * To run a mutation, you first call `useRemoveUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeUserMutation, { data, loading, error }] = useRemoveUserMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useRemoveUserMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RemoveUserMutation, RemoveUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RemoveUserMutation, RemoveUserMutationVariables>(RemoveUserDocument, options);
+      }
+
 
 export const AiConversationsDocument = gql`
     query AiConversations($jobId: ID!) {

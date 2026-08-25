@@ -17,7 +17,7 @@ vi.mock("@/hooks/useCurrentUser", () => ({ useCurrentUser: () => useCurrentUserM
 import { AdminShell } from "./AdminShell";
 
 describe("AdminShell", () => {
-  it("renders the Registrations tab as active when navigated to /admin/registrations", () => {
+  it("renders the Users tab as active when navigated to the legacy /admin/registrations path", () => {
     useCurrentUserMock.mockReturnValue({ user: { id: "admin-1", role: Role.Admin }, loading: false });
 
     render(
@@ -26,8 +26,8 @@ describe("AdminShell", () => {
       </AdminShell>,
     );
 
-    const registrationsTab = screen.getByRole("tab", { name: /registrations/i });
-    expect(registrationsTab).toHaveAttribute("data-state", "active");
+    const usersTab = screen.getByRole("tab", { name: /users/i });
+    expect(usersTab).toHaveAttribute("data-state", "active");
     expect(screen.getByText("Registrations content")).toBeInTheDocument();
   });
 });

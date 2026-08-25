@@ -16,8 +16,7 @@ const NON_ADMIN_REDIRECT_ROUTE: Route = "/jobs";
 
 function deriveTab(pathname: string): string {
   if (pathname.startsWith("/admin/overview")) return "overview";
-  if (pathname.startsWith("/admin/users")) return "users";
-  if (pathname.startsWith("/admin/registrations")) return "registrations";
+  if (pathname.startsWith("/admin/users") || pathname.startsWith("/admin/registrations")) return "users";
   return "extension";
 }
 
@@ -25,7 +24,6 @@ const TAB_ROUTES: Record<string, Route> = {
   extension: "/admin/extension/status",
   overview: "/admin/overview",
   users: "/admin/users",
-  registrations: "/admin/registrations",
 };
 
 type AdminTabBarProps = { currentTab: string; onPrimaryTabChange: (value: string) => void };
@@ -38,7 +36,6 @@ function AdminTabBar({ currentTab, onPrimaryTabChange }: AdminTabBarProps) {
           <TabsTrigger value="extension">Extension</TabsTrigger>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="registrations">Registrations</TabsTrigger>
         </TabsList>
       </Tabs>
 
