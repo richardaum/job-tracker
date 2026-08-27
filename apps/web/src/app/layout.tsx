@@ -7,6 +7,7 @@ import { Outfit } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { APP_DESCRIPTION, APP_TITLE, SITE_URL, TITLE_TEMPLATE } from "@/app/metadata";
+import { MicrosoftClarity } from "@/components/MicrosoftClarity";
 import { AppProviders } from "@/modules/core/providers/AppProviders";
 
 const outfit = Outfit({ subsets: ["latin"], display: "swap", variable: "--font-outfit" });
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en">
       <body className={cn(outfit.variable, "font-sans")}>
         <AppProviders>{children}</AppProviders>
+        <MicrosoftClarity />
       </body>
     </html>
   );
