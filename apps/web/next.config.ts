@@ -5,8 +5,10 @@ import { getAllowedDevOrigins } from "./config/dev-network";
 import { screenshotFlags, screenshotsEnabled } from "./src/lib/screenshot-flags";
 
 const apiOrigin = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+const buildTimestamp = new Date().toISOString();
 
 const nextConfig: NextConfig = {
+  env: { NEXT_DEPLOYED_AT: buildTimestamp },
   // Proxy the API same-origin so the Better Auth session cookie is usable by both
   // /api/auth and /graphql. Web and API live on different registrable domains, and
   // browsers (Firefox Total Cookie Protection, Safari ITP) partition cookies set via
