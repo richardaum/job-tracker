@@ -49,6 +49,7 @@ const pendingUser = {
   role: Role.User,
   status: UserStatus.Pending,
   createdAt: "2026-01-01T00:00:00.000Z",
+  lastActiveAt: null,
 };
 
 const activeUser = {
@@ -59,6 +60,7 @@ const activeUser = {
   role: Role.Admin,
   status: UserStatus.Active,
   createdAt: "2026-01-02T00:00:00.000Z",
+  lastActiveAt: "2026-09-01T12:00:00.000Z",
 };
 
 const rejectedUser = {
@@ -151,6 +153,21 @@ describe("UsersPage", () => {
     expect(screen.getByText("Pending Person")).toBeInTheDocument();
     expect(screen.getByText("Active Person")).toBeInTheDocument();
     expect(screen.getByText("2 users")).toBeInTheDocument();
+  });
+
+  it("shows each user's last active time", () => {
+    useAdminUsersQueryMock.mockReturnValue({
+      data: { registrations: [activeUser] },
+      loading: false,
+      error: undefined,
+      refetch: refetchMock,
+    });
+
+    renderPage();
+
+    expect(screen.getByText(/Requested/).textContent).toContain(
+      `Last active ${new Date(activeUser.lastActiveAt).toLocaleString()}`,
+    );
   });
 
   it("queries with no status by default, so the backend excludes deactivated users for All", () => {

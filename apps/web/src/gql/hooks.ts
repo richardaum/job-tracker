@@ -1188,6 +1188,7 @@ export type UserType = {
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  lastActiveAt?: Maybe<Scalars['DateTime']['output']>;
   name: Scalars['String']['output'];
   role: Role;
   status: UserStatus;
@@ -1226,7 +1227,7 @@ export type AdminUsersQueryVariables = Exact<{
 }>;
 
 
-export type AdminUsersQuery = { __typename?: 'Query', registrations: Array<{ __typename?: 'UserType', id: string, email: string, name: string, avatarUrl?: string | null, role: Role, status: UserStatus, createdAt: any }> };
+export type AdminUsersQuery = { __typename?: 'Query', registrations: Array<{ __typename?: 'UserType', id: string, email: string, name: string, avatarUrl?: string | null, role: Role, status: UserStatus, createdAt: any, lastActiveAt?: any | null }> };
 
 export type ApproveRegistrationMutationVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -2002,6 +2003,7 @@ export const AdminUsersDocument = gql`
     role
     status
     createdAt
+    lastActiveAt
   }
 }
     `;

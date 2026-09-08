@@ -26,6 +26,9 @@ export class UserType {
   @Field(() => Date)
   createdAt!: Date;
 
+  @Field(() => Date, { nullable: true })
+  lastActiveAt!: Date | null;
+
   @Field(() => [String])
   authProviders?: string[];
 }

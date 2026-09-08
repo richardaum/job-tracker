@@ -9,6 +9,7 @@ import type { User } from "./users.schema";
 
 const AUTO_ACCEPT_REGISTER_FLAG = "auto-accept-register-enabled";
 const AUTO_ACCEPT_REGISTER_DISTINCT_ID = "system";
+const LAST_ACTIVE_UPDATE_INTERVAL_MS = 5 * 60 * 1000;
 
 @Injectable()
 export class UserService {
@@ -168,5 +169,10 @@ export class UserService {
       throw new UnauthorizedException({ statusCode: 401, message: "Account not active", userStatus: user.status });
     }
     return user;
+  }
+
+  async markLastActive(userId: string, timestamp = new Date()): Promise<void> {
+    const staleBefore = new Date(timestamp.getTime() - LAST_ACTIVE_UPDATE_INTERVAL_MS);
+    await this.userRepository.touchLastActive(userId, timestamp, staleBefore);
   }
 }

@@ -46,4 +46,14 @@ export class UserRepository {
   async setStatus(id: string, status: UserStatusEnum): Promise<void> {
     await this.usersRepo.update({ id }, { status });
   }
+
+  async touchLastActive(id: string, timestamp: Date, staleBefore: Date): Promise<void> {
+    await this.usersRepo
+      .createQueryBuilder()
+      .update(UserEntity)
+      .set({ lastActiveAt: timestamp })
+      .where("id = :id", { id })
+      .andWhere("(last_active_at IS NULL OR last_active_at < :staleBefore)", { staleBefore })
+      .execute();
+  }
 }

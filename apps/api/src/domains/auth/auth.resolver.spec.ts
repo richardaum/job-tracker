@@ -27,6 +27,7 @@ const mockUser: User = {
   status: UserStatusEnum.Active,
   createdAt: new Date(),
   updatedAt: new Date(),
+  lastActiveAt: null,
 };
 
 describe("AuthResolver (integration)", () => {

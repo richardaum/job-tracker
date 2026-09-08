@@ -29,6 +29,7 @@ const adminUser: User = {
   status: UserStatusEnum.Active,
   createdAt: new Date(),
   updatedAt: new Date(),
+  lastActiveAt: null,
 };
 
 const memberUser: User = { ...adminUser, id: "user-1", email: "user@example.com", role: RoleEnum.User };

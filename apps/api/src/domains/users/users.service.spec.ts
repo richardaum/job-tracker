@@ -17,6 +17,7 @@ function makeUser(overrides: Partial<User>): User {
     status: UserStatusEnum.Active,
     createdAt: new Date(),
     updatedAt: new Date(),
+    lastActiveAt: null,
     ...overrides,
   };
 }
@@ -122,5 +123,17 @@ describe("UserService.reactivateUserByAdmin", () => {
 
     await expect(service.reactivateUserByAdmin(user.id)).rejects.toThrow("Only deactivated users can be reactivated.");
     expect(userRepository.setStatus).not.toHaveBeenCalled();
+  });
+});
+
+describe("UserService.markLastActive", () => {
+  it("asks the repository to update activity with a five-minute stale threshold", async () => {
+    const now = new Date("2026-09-01T12:00:00.000Z");
+    const userRepository = { touchLastActive: vi.fn().mockResolvedValue(undefined) };
+    const service = new UserService(userRepository as never, {} as never);
+
+    await service.markLastActive("user-1", now);
+
+    expect(userRepository.touchLastActive).toHaveBeenCalledWith("user-1", now, new Date("2026-09-01T11:55:00.000Z"));
   });
 });

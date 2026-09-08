@@ -27,4 +27,7 @@ export class UserEntity {
 
   @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
+
+  @Column({ name: "last_active_at", type: "timestamptz", nullable: true })
+  lastActiveAt!: Date | null;
 }

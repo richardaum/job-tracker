@@ -27,6 +27,7 @@ interface UserCardData {
   role: string;
   status: UserStatus;
   createdAt: string;
+  lastActiveAt?: string | null;
 }
 
 interface UserCardProps {
@@ -63,6 +64,7 @@ export function UserCard({
   const isDeactivated = user.status === UserStatus.Deactivated;
   const hasActions = isPending || isActive || isRejected || isDeactivated;
   const requestedAt = new Date(user.createdAt).toLocaleDateString();
+  const lastActive = user.lastActiveAt ? new Date(user.lastActiveAt).toLocaleString() : "Never";
 
   return (
     <ListItemCard
@@ -144,7 +146,7 @@ export function UserCard({
       }
       description={
         <Text as="span" size="xs" color="muted">
-          {user.role} · Requested {requestedAt}
+          {user.role} · Requested {requestedAt} · Last active {lastActive}
         </Text>
       }
     />

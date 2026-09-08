@@ -10,6 +10,7 @@ type UserType {
   role: Role!
   status: UserStatus!
   createdAt: DateTime!
+  lastActiveAt: DateTime
   authProviders: [String!]!
 }
 

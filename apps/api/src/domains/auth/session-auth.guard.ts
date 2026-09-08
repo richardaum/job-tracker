@@ -27,6 +27,7 @@ export class SessionAuthGuard implements CanActivate {
     const request = this.getRequest(context);
     if (this.devAuthBypassService.isEnabled()) {
       const user = await this.devAuthBypassService.getBypassUser();
+      await this.userService.markLastActive(user.id);
       request.user = { userId: user.id };
       return true;
     }
@@ -37,6 +38,7 @@ export class SessionAuthGuard implements CanActivate {
     this.copySessionCookies(sessionResult.headers, context);
 
     const user = await this.userService.validateActiveUser(session.user.id);
+    await this.userService.markLastActive(user.id);
     request.user = { userId: user.id };
     return true;
   }

@@ -28,6 +28,7 @@ describe("SessionAuthGuard", () => {
     const bypass = { isEnabled: vi.fn().mockReturnValue(false) } as unknown as DevAuthBypassService;
     const userService = {
       validateActiveUser: vi.fn().mockResolvedValue({ id: "domain-user" }),
+      markLastActive: vi.fn().mockResolvedValue(undefined),
     } as unknown as UserService;
     getSession.mockResolvedValue({ response: { user: { id: "domain-user" } }, headers: new Headers() });
     const request: { headers: Record<string, string>; user?: { userId: string } } = {
@@ -37,6 +38,7 @@ describe("SessionAuthGuard", () => {
     await expect(new SessionAuthGuard(bypass, userService).canActivate(graphqlContext(request))).resolves.toBe(true);
 
     expect(userService.validateActiveUser).toHaveBeenCalledWith("domain-user");
+    expect(userService.markLastActive).toHaveBeenCalledWith("domain-user");
     expect(request.user).toEqual({ userId: "domain-user" });
   });
 

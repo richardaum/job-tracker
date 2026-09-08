@@ -7,6 +7,7 @@ import { UserStatusEnum1786600000000 } from "./1786600000000-user-status-enum";
 import { CreateAiUsageRecords1787233300000 } from "./1787233300000-create-ai-usage-records";
 import { AddQuickTipStateToUserSettings1787340944000 } from "./1787340944000-add-quick-tip-state-to-user-settings";
 import { MigrateCustomAuthToBetterAuth1787423685000 } from "./1787423685000-migrate-custom-auth-to-better-auth";
+import { AddLastActiveAtToUsers1788000000000 } from "./1788000000000-add-last-active-at-to-users";
 
 export const migrations = [
   SquashedBaseline1780280000000,
@@ -18,4 +19,5 @@ export const migrations = [
   CreateAiUsageRecords1787233300000,
   AddQuickTipStateToUserSettings1787340944000,
   MigrateCustomAuthToBetterAuth1787423685000,
+  AddLastActiveAtToUsers1788000000000,
 ];
